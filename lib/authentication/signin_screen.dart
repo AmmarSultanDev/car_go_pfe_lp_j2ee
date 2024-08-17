@@ -1,20 +1,16 @@
-import 'package:car_go_pfe_lp_j2ee/resources/app_colors.dart';
+import 'package:car_go_pfe_lp_j2ee/authentication/signup_screen.dart';
 import 'package:flutter/material.dart';
 
-class SignupScreen extends StatefulWidget {
-  const SignupScreen({super.key});
+class SigninScreen extends StatefulWidget {
+  const SigninScreen({super.key});
 
   @override
-  State<SignupScreen> createState() => _SignupScreenState();
+  State<SigninScreen> createState() => _SigninScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _userphoneController = TextEditingController();
+class _SigninScreenState extends State<SigninScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,36 +28,18 @@ class _SignupScreenState extends State<SignupScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 80),
+                  const SizedBox(height: 100),
                   Image.asset('assets/images/logo_white_borders.png',
                       height: 200, width: 200),
                   const SizedBox(height: 20),
                   const Text(
-                    'Create a User\'s Account',
+                    'Welcome',
                   ),
                   // text fields
                   Padding(
                     padding: const EdgeInsets.all(22),
                     child: Column(
                       children: [
-                        TextField(
-                          controller: _usernameController,
-                          keyboardType: TextInputType.text,
-                          decoration: const InputDecoration(
-                            labelText: 'Username',
-                            hintText: 'Enter your username',
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: _userphoneController,
-                          keyboardType: TextInputType.phone,
-                          decoration: const InputDecoration(
-                            labelText: 'Phone number',
-                            hintText: 'Enter your phone number',
-                          ),
-                        ),
-                        const SizedBox(height: 10),
                         TextField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
@@ -80,21 +58,11 @@ class _SignupScreenState extends State<SignupScreen> {
                             hintText: 'Enter your password',
                           ),
                         ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: _confirmPasswordController,
-                          keyboardType: TextInputType.text,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Confirm password',
-                            hintText: 'Confirm your password',
-                          ),
-                        ),
                         const SizedBox(height: 22),
                         ElevatedButton(
                           onPressed: () {},
                           child: const Text(
-                            'Sign Up',
+                            'Sign In',
                           ),
                         ),
                         const SizedBox(height: 22),
@@ -102,14 +70,16 @@ class _SignupScreenState extends State<SignupScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Text(
-                              'Already have an account?',
+                              'Don\'t have an account?',
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.pop(context);
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) =>
+                                        const SignupScreen()));
                               },
                               child: const Text(
-                                'Sign In',
+                                'Sign Up',
                               ),
                             ),
                           ],

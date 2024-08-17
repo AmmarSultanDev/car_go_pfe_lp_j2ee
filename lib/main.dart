@@ -1,4 +1,4 @@
-import 'package:car_go_pfe_lp_j2ee/authentication/signup_screen.dart';
+import 'package:car_go_pfe_lp_j2ee/authentication/signin_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/resources/app_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -48,7 +48,7 @@ class MyApp extends StatelessWidget {
       ),
       themeMode: ThemeMode
           .system, // Automatically select the theme based on the system settings
-      home: const SignupScreen(),
+      home: const SigninScreen(),
     );
   }
 }
