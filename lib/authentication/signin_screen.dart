@@ -12,14 +12,13 @@ class SigninScreen extends StatefulWidget {
 class _SigninScreenState extends State<SigninScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  CommonMethods commonMethods = const CommonMethods();
 
   @override
   Widget build(BuildContext context) {
-    CommonMethods commonMethods = CommonMethods(context);
-
     void checkNetwork() async {
       // Check network connection
-      await commonMethods.checkConnectivity();
+      await commonMethods.checkConnectivity(context);
     }
 
     return Scaffold(

@@ -1,5 +1,7 @@
+import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
-import 'package:car_go_pfe_lp_j2ee/resources/app_colors.dart';
+import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
+import 'package:car_go_pfe_lp_j2ee/models/user.dart' as model;
 import 'package:flutter/material.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -17,34 +19,36 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
+  CommonMethods commonMethods = const CommonMethods();
+
   signUpFormValidation() {
     if (_usernameController.text.trim().length < 3) {
-      CommonMethods(context).displaySnackBar(
+      commonMethods.displaySnackBar(
         'Username must be at least 3 characters long!',
         context,
       );
       return false;
     } else if (_userphoneController.text.trim().length < 10) {
-      CommonMethods(context).displaySnackBar(
+      commonMethods.displaySnackBar(
         'Phone number must be at least 10 characters long!',
         context,
       );
       return false;
     } else if (!_emailController.text.contains('@') ||
         !_emailController.text.contains('.')) {
-      CommonMethods(context).displaySnackBar(
+      commonMethods.displaySnackBar(
         'Invalid email address!',
         context,
       );
       return false;
     } else if (_passwordController.text.trim().length < 6) {
-      CommonMethods(context).displaySnackBar(
+      commonMethods.displaySnackBar(
         'Password must be at least 6 characters long!',
         context,
       );
       return false;
     } else if (_passwordController.text != _confirmPasswordController.text) {
-      CommonMethods(context).displaySnackBar(
+      commonMethods.displaySnackBar(
         'Passwords do not match!',
         context,
       );
@@ -52,13 +56,36 @@ class _SignupScreenState extends State<SignupScreen> {
     }
   }
 
+  registerNewUser() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) =>
+          const LoadingDialog(messageText: 'Creating account...'),
+    );
+
+    String res = await AuthMethods().signupUser(model.User(
+      uid: '',
+      username: _usernameController.text.trim(),
+      userphone: _userphoneController.text.trim(),
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+    ));
+
+    if (res != 'Success') {
+      Navigator.pop(context);
+      commonMethods.displaySnackBar(res, context);
+    } else {
+      Navigator.pop(context);
+      commonMethods.displaySnackBar('Account created successfully!', context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    CommonMethods commonMethods = CommonMethods(context);
-
     void checkNetwork() async {
       // Check network connection
-      await commonMethods.checkConnectivity();
+      await commonMethods.checkConnectivity(context);
     }
 
     return Scaffold(
@@ -141,6 +168,8 @@ class _SignupScreenState extends State<SignupScreen> {
                             if (signUpFormValidation() == false) {
                               return;
                             }
+
+                            registerNewUser();
                           },
                           child: const Text(
                             'Sign Up',

@@ -2,11 +2,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 
 class CommonMethods {
-  const CommonMethods(this.context);
+  const CommonMethods();
 
-  final BuildContext context;
-
-  checkConnectivity() async {
+  checkConnectivity(BuildContext context) async {
     var connectionResult = await Connectivity().checkConnectivity();
 
     if (!connectionResult.contains(ConnectivityResult.mobile) &&
