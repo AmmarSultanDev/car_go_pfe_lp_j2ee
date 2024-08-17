@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
           secondary: AppColors.darkSecondary,
           onSecondary: AppColors.darkOnSecondary,
         ),
-        fontFamily: 'Georgia',
+        fontFamily: 'Montserrat',
         textTheme: const TextTheme(
           headlineLarge: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
           headlineMedium:

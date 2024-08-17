@@ -1,3 +1,4 @@
+import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/resources/app_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -15,6 +16,18 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  CommonMethods commonMethods = CommonMethods();
+
+  void checkNetwork() async {
+    // Check network connection
+    if (await commonMethods.checkConnectivity() == false) {
+      commonMethods.displaySnackBar(
+        'No internet connection',
+        context,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,7 +105,9 @@ class _SignupScreenState extends State<SignupScreen> {
                         ),
                         const SizedBox(height: 22),
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            checkNetwork();
+                          },
                           child: const Text(
                             'Sign Up',
                           ),
