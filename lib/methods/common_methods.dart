@@ -2,14 +2,17 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 
 class CommonMethods {
-  Future<bool> checkConnectivity() async {
+  const CommonMethods(this.context);
+
+  final BuildContext context;
+
+  checkConnectivity() async {
     var connectionResult = await Connectivity().checkConnectivity();
 
     if (!connectionResult.contains(ConnectivityResult.mobile) &&
         !connectionResult.contains(ConnectivityResult.wifi)) {
-      return false;
+      displaySnackBar('No internet connection!', context);
     }
-    return true;
   }
 
   void displaySnackBar(String text, BuildContext context) {

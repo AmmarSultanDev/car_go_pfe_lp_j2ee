@@ -1,4 +1,5 @@
 import 'package:car_go_pfe_lp_j2ee/authentication/signup_screen.dart';
+import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:flutter/material.dart';
 
 class SigninScreen extends StatefulWidget {
@@ -11,8 +12,16 @@ class SigninScreen extends StatefulWidget {
 class _SigninScreenState extends State<SigninScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
+    CommonMethods commonMethods = CommonMethods(context);
+
+    void checkNetwork() async {
+      // Check network connection
+      await commonMethods.checkConnectivity();
+    }
+
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.symmetric(
@@ -60,7 +69,9 @@ class _SigninScreenState extends State<SigninScreen> {
                         ),
                         const SizedBox(height: 22),
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            checkNetwork();
+                          },
                           child: const Text(
                             'Sign In',
                           ),

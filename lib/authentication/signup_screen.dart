@@ -16,20 +16,16 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
-  CommonMethods commonMethods = CommonMethods();
-
-  void checkNetwork() async {
-    // Check network connection
-    if (await commonMethods.checkConnectivity() == false) {
-      commonMethods.displaySnackBar(
-        'No internet connection',
-        context,
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    CommonMethods commonMethods = CommonMethods(context);
+
+    void checkNetwork() async {
+      // Check network connection
+      await commonMethods.checkConnectivity();
+    }
+
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.symmetric(
@@ -45,10 +41,10 @@ class _SignupScreenState extends State<SignupScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 80),
+                  const SizedBox(height: 50),
                   Image.asset('assets/images/logo_white_borders.png',
                       height: 200, width: 200),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   const Text(
                     'Create a User\'s Account',
                   ),
@@ -112,7 +108,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             'Sign Up',
                           ),
                         ),
-                        const SizedBox(height: 22),
+                        const SizedBox(height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
