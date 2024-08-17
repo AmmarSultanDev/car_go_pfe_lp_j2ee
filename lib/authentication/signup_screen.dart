@@ -17,6 +17,41 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
+  signUpFormValidation() {
+    if (_usernameController.text.trim().length < 3) {
+      CommonMethods(context).displaySnackBar(
+        'Username must be at least 3 characters long!',
+        context,
+      );
+      return false;
+    } else if (_userphoneController.text.trim().length < 10) {
+      CommonMethods(context).displaySnackBar(
+        'Phone number must be at least 10 characters long!',
+        context,
+      );
+      return false;
+    } else if (!_emailController.text.contains('@') ||
+        !_emailController.text.contains('.')) {
+      CommonMethods(context).displaySnackBar(
+        'Invalid email address!',
+        context,
+      );
+      return false;
+    } else if (_passwordController.text.trim().length < 6) {
+      CommonMethods(context).displaySnackBar(
+        'Password must be at least 6 characters long!',
+        context,
+      );
+      return false;
+    } else if (_passwordController.text != _confirmPasswordController.text) {
+      CommonMethods(context).displaySnackBar(
+        'Passwords do not match!',
+        context,
+      );
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     CommonMethods commonMethods = CommonMethods(context);
@@ -103,6 +138,9 @@ class _SignupScreenState extends State<SignupScreen> {
                         ElevatedButton(
                           onPressed: () {
                             checkNetwork();
+                            if (signUpFormValidation() == false) {
+                              return;
+                            }
                           },
                           child: const Text(
                             'Sign Up',
