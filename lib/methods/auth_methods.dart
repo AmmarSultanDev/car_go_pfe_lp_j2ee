@@ -31,12 +31,12 @@ class AuthMethods {
           password.isNotEmpty) {
         UserCredential userCredential = await _auth
             .createUserWithEmailAndPassword(email: email, password: password);
-        print(userCredential.user!.uid);
+
         if (userCredential.user != null) {
           model.User user = model.User(
             uid: userCredential.user!.uid,
-            username: username,
-            userphone: userphone,
+            displayName: username,
+            phoneNumber: userphone,
             email: email,
           );
           // Save user data to Firestore
@@ -66,29 +66,32 @@ class AuthMethods {
   }) async {
     String res = 'Some error occured';
     try {
-      if (email.isNotEmpty || password.isNotEmpty) {
-        await _auth.signInWithEmailAndPassword(
+      if (email.isNotEmpty && password.isNotEmpty) {
+        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
             email: email, password: password);
-        res = 'Success';
+        if (userCredential.user != null) {
+          res = 'Success';
+        }
       } else {
         res = 'Please fill all the fields';
       }
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'invalid-email') {
-        res = 'The email address is badly formatted.';
-      } else if (e.code == 'user-not-found') {
-        res = 'No user found for that email.';
-      } else if (e.code == 'wrong-password') {
-        res = 'Wrong password provided for that user.';
-      }
     } catch (err) {
-      res = err.toString();
+      if (err is FirebaseAuthException) {
+        print('FirebaseAuthException code: ${err.code}');
+        if (err.code == 'invalid-credential') {
+          res = 'Invalid credentials provided.';
+        }
+      } else {
+        res = err.toString();
+      }
     }
     return res;
   }
 
   // signout user
   Future<void> signoutUser() async {
-    await _auth.signOut();
+    if (_auth.currentUser != null) {
+      await _auth.signOut();
+    }
   }
 }

@@ -5,6 +5,7 @@ import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/home_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SigninScreen extends StatefulWidget {
   const SigninScreen({super.key});
@@ -36,9 +37,8 @@ class _SigninScreenState extends State<SigninScreen> {
       Navigator.of(context).pop();
       commonMethods.displaySnackBar(res, context);
     } else {
-      UserProvider().refreshUser();
-      print(UserProvider().getUser?.toJson().toString());
       if (!context.mounted) return;
+      await Provider.of<UserProvider>(context, listen: false).refreshUser();
       Navigator.of(context).pop();
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -127,9 +127,10 @@ class _SigninScreenState extends State<SigninScreen> {
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) =>
-                                        const SignupScreen()));
+                                Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const SignupScreen()));
                               },
                               child: const Text(
                                 'Sign Up',

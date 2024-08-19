@@ -1,10 +1,12 @@
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
+import 'package:car_go_pfe_lp_j2ee/screens/authentication/signin_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/home_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart' as model;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -79,9 +81,9 @@ class _SignupScreenState extends State<SignupScreen> {
       Navigator.pop(context);
       commonMethods.displaySnackBar(res, context);
     } else {
-      UserProvider().refreshUser();
-      print(UserProvider().getUser?.toJson().toString());
       if (!context.mounted) return;
+      await Provider.of<UserProvider>(context, listen: false).refreshUser();
+
       Navigator.pop(context);
       // commonMethods.displaySnackBar('Account created successfully!', context);
       // Navigate to home screen
@@ -207,7 +209,11 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.pop(context);
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) => const SigninScreen(),
+                                  ),
+                                );
                               },
                               child: const Text(
                                 'Sign In',

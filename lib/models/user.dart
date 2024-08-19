@@ -2,29 +2,29 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class User {
   String uid;
-  final String username;
-  final String userphone;
+  final String displayName;
+  final String phoneNumber;
   final String email;
   bool isBlocked = false;
 
   User({
     required this.uid,
-    required this.username,
-    required this.userphone,
+    required this.displayName,
+    required this.phoneNumber,
     required this.email,
     this.isBlocked = false,
   });
 
   User.withoutUid({
-    required this.username,
-    required this.userphone,
+    required this.displayName,
+    required this.phoneNumber,
     required this.email,
   }) : uid = '';
 
   Map<String, dynamic> toJson() => {
         'uid': uid,
-        'username': username,
-        'userphone': userphone,
+        'displayName': displayName,
+        'phoneNumber': phoneNumber,
         'email': email,
         'isBlocked': isBlocked,
       };
@@ -34,8 +34,8 @@ class User {
 
     return User(
       uid: snapshot['uid'], // Add the 'uid' named parameter here
-      username: snapshot['username'],
-      userphone: snapshot['userphone'],
+      displayName: snapshot['displayName'],
+      phoneNumber: snapshot['phoneNumber'],
       email: snapshot['email'],
       isBlocked: snapshot['isBlocked'],
     );

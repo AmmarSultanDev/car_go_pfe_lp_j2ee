@@ -1,4 +1,5 @@
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
+import 'package:car_go_pfe_lp_j2ee/models/user.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/authentication/signin_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
@@ -16,13 +17,17 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   // signout
   signout() async {
-    await AuthMethods().signoutUser();
-    if (!context.mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => const LoadingDialog(messageText: 'Signing out ...'),
     );
+
+    await AuthMethods().signoutUser();
+
+    if (!context.mounted) return;
+
+    Navigator.of(context).pop(); // Close the loading dialog
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
@@ -33,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final model.User? currentUser = Provider.of<UserProvider>(context).getUser;
+    final User? user = Provider.of<UserProvider>(context).getUser;
 
     return Scaffold(
       appBar: AppBar(
@@ -47,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: Center(
-        child: Text(currentUser != null ? currentUser.username : 'No user'),
+        child: Text(user != null ? user.displayName : 'No user'),
       ),
     );
   }
