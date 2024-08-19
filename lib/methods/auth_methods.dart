@@ -76,6 +76,7 @@ class AuthMethods {
               .get();
           model.User user = model.User.fromSnap(snap);
           if (user.isBlocked == true) {
+            await _auth.signOut();
             res = 'Your account has been blocked';
           } else {
             res = 'Success';
