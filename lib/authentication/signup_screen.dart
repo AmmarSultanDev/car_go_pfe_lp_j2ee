@@ -72,9 +72,11 @@ class _SignupScreenState extends State<SignupScreen> {
     ));
 
     if (res != 'Success') {
+      if (!context.mounted) return;
       Navigator.pop(context);
       commonMethods.displaySnackBar(res, context);
     } else {
+      if (!context.mounted) return;
       Navigator.pop(context);
       commonMethods.displaySnackBar('Account created successfully!', context);
     }

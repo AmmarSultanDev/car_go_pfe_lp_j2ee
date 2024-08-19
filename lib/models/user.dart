@@ -6,6 +6,7 @@ class User {
   final String userphone;
   final String email;
   final String password;
+  bool isBlocked = false;
 
   User({
     required this.uid,
@@ -13,6 +14,7 @@ class User {
     required this.userphone,
     required this.email,
     required this.password,
+    this.isBlocked = false,
   });
 
   User.withoutUid({
@@ -27,6 +29,7 @@ class User {
         'username': username,
         'userphone': userphone,
         'email': email,
+        'isBlocked': isBlocked,
       };
 
   static User fromSnap(DocumentSnapshot snap) {
@@ -38,6 +41,7 @@ class User {
       userphone: snapshot['userphone'],
       email: snapshot['email'],
       password: snapshot['password'],
+      isBlocked: snapshot['isBlocked'],
     );
   }
 }
