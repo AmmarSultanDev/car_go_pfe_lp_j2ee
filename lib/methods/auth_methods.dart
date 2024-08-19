@@ -70,7 +70,16 @@ class AuthMethods {
         UserCredential userCredential = await _auth.signInWithEmailAndPassword(
             email: email, password: password);
         if (userCredential.user != null) {
-          res = 'Success';
+          DocumentSnapshot snap = await _firestore
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .get();
+          model.User user = model.User.fromSnap(snap);
+          if (user.isBlocked == true) {
+            res = 'Your account has been blocked';
+          } else {
+            res = 'Success';
+          }
         }
       } else {
         res = 'Please fill all the fields';

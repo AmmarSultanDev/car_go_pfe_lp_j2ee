@@ -4,7 +4,6 @@ import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/authentication/signin_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/home_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
-import 'package:car_go_pfe_lp_j2ee/models/user.dart' as model;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -97,7 +96,6 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     _usernameController.dispose();
     _userphoneController.dispose();
