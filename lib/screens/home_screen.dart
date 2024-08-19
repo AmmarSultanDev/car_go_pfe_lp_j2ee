@@ -1,10 +1,12 @@
+import 'dart:async';
+
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/authentication/signin_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:car_go_pfe_lp_j2ee/models/user.dart' as model;
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,6 +17,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  // for dev purpose we're getting the location of google plex
+  static const CameraPosition _kGooglePlex = CameraPosition(
+    target: LatLng(37.42796133580664, -122.085749655962),
+    zoom: 14.4746,
+  );
+
+  final Completer<GoogleMapController> _googleMapController =
+      Completer<GoogleMapController>();
+
   // signout
   signout() async {
     showDialog(
@@ -51,8 +62,17 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: Text(user != null ? user.displayName : 'No user'),
+      body: Stack(
+        children: [
+          GoogleMap(
+            mapType: MapType.normal,
+            myLocationEnabled: true,
+            initialCameraPosition: _kGooglePlex,
+            onMapCreated: (GoogleMapController controller) {
+              _googleMapController.complete(controller);
+            },
+          ),
+        ],
       ),
     );
   }
