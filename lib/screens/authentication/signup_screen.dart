@@ -1,5 +1,6 @@
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
+import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/home_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart' as model;
@@ -58,6 +59,7 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   registerNewUser() async {
+    if (!context.mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -65,18 +67,20 @@ class _SignupScreenState extends State<SignupScreen> {
           const LoadingDialog(messageText: 'Creating account...'),
     );
 
-    String res = await AuthMethods().signupUser(model.User.withoutUid(
-      username: _usernameController.text.trim(),
-      userphone: _userphoneController.text.trim(),
+    String res = await AuthMethods().signupUser(
       email: _emailController.text.trim(),
       password: _passwordController.text.trim(),
-    ));
+      username: _usernameController.text.trim(),
+      userphone: _userphoneController.text.trim(),
+    );
 
     if (res != 'Success') {
       if (!context.mounted) return;
       Navigator.pop(context);
       commonMethods.displaySnackBar(res, context);
     } else {
+      UserProvider().refreshUser();
+      print(UserProvider().getUser?.toJson().toString());
       if (!context.mounted) return;
       Navigator.pop(context);
       // commonMethods.displaySnackBar('Account created successfully!', context);
@@ -87,6 +91,17 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _usernameController.dispose();
+    _userphoneController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
   }
 
   @override

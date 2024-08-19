@@ -5,7 +5,6 @@ class User {
   final String username;
   final String userphone;
   final String email;
-  final String password;
   bool isBlocked = false;
 
   User({
@@ -13,7 +12,6 @@ class User {
     required this.username,
     required this.userphone,
     required this.email,
-    required this.password,
     this.isBlocked = false,
   });
 
@@ -21,7 +19,6 @@ class User {
     required this.username,
     required this.userphone,
     required this.email,
-    required this.password,
   }) : uid = '';
 
   Map<String, dynamic> toJson() => {
@@ -40,7 +37,6 @@ class User {
       username: snapshot['username'],
       userphone: snapshot['userphone'],
       email: snapshot['email'],
-      password: snapshot['password'],
       isBlocked: snapshot['isBlocked'],
     );
   }

@@ -1,4 +1,5 @@
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
+import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/authentication/signup_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/home_screen.dart';
@@ -18,6 +19,7 @@ class _SigninScreenState extends State<SigninScreen> {
   CommonMethods commonMethods = const CommonMethods();
 
   signin() async {
+    if (!context.mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -34,6 +36,8 @@ class _SigninScreenState extends State<SigninScreen> {
       Navigator.of(context).pop();
       commonMethods.displaySnackBar(res, context);
     } else {
+      UserProvider().refreshUser();
+      print(UserProvider().getUser?.toJson().toString());
       if (!context.mounted) return;
       Navigator.of(context).pop();
       Navigator.of(context).pushReplacement(
@@ -42,6 +46,14 @@ class _SigninScreenState extends State<SigninScreen> {
         ),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
   }
 
   @override
