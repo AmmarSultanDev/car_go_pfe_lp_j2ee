@@ -1,4 +1,4 @@
-import 'package:car_go_pfe_lp_j2ee/authentication/signin_screen.dart';
+import 'package:car_go_pfe_lp_j2ee/screens/authentication/signin_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/firebase_options.dart';
 import 'package:car_go_pfe_lp_j2ee/resources/app_colors.dart';
 import 'package:firebase_core/firebase_core.dart';

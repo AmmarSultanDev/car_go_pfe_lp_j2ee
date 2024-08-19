@@ -1,5 +1,8 @@
-import 'package:car_go_pfe_lp_j2ee/authentication/signup_screen.dart';
+import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
+import 'package:car_go_pfe_lp_j2ee/screens/authentication/signup_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
+import 'package:car_go_pfe_lp_j2ee/screens/home_screen.dart';
+import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
 
 class SigninScreen extends StatefulWidget {
@@ -13,6 +16,33 @@ class _SigninScreenState extends State<SigninScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   CommonMethods commonMethods = const CommonMethods();
+
+  signin() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const LoadingDialog(messageText: 'Signing in ...'),
+    );
+
+    String res = await AuthMethods().signinUser(
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+    );
+
+    if (res != 'Success') {
+      if (!context.mounted) return;
+      Navigator.of(context).pop();
+      commonMethods.displaySnackBar(res, context);
+    } else {
+      if (!context.mounted) return;
+      Navigator.of(context).pop();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +100,7 @@ class _SigninScreenState extends State<SigninScreen> {
                         ElevatedButton(
                           onPressed: () {
                             checkNetwork();
+                            signin();
                           },
                           child: const Text(
                             'Sign In',

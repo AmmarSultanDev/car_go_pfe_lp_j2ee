@@ -1,5 +1,6 @@
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
+import 'package:car_go_pfe_lp_j2ee/screens/home_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart' as model;
 import 'package:flutter/material.dart';
@@ -78,7 +79,13 @@ class _SignupScreenState extends State<SignupScreen> {
     } else {
       if (!context.mounted) return;
       Navigator.pop(context);
-      commonMethods.displaySnackBar('Account created successfully!', context);
+      // commonMethods.displaySnackBar('Account created successfully!', context);
+      // Navigate to home screen
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+        ),
+      );
     }
   }
 
