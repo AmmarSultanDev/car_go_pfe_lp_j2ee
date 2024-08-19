@@ -64,8 +64,7 @@ class _SignupScreenState extends State<SignupScreen> {
           const LoadingDialog(messageText: 'Creating account...'),
     );
 
-    String res = await AuthMethods().signupUser(model.User(
-      uid: '',
+    String res = await AuthMethods().signupUser(model.User.withoutUid(
       username: _usernameController.text.trim(),
       userphone: _userphoneController.text.trim(),
       email: _emailController.text.trim(),

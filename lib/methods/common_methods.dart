@@ -9,7 +9,9 @@ class CommonMethods {
 
     if (!connectionResult.contains(ConnectivityResult.mobile) &&
         !connectionResult.contains(ConnectivityResult.wifi)) {
-      displaySnackBar('No internet connection!', context);
+      if (context.mounted) {
+        displaySnackBar('No internet connection!', context);
+      }
     }
   }
 

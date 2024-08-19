@@ -3,6 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthMethods {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   Future<String> signupUser(model.User user) async {
     // Register user
     String res = 'Some error occured';
@@ -12,15 +15,15 @@ class AuthMethods {
           user.userphone.isNotEmpty &&
           user.email.isNotEmpty &&
           user.password.isNotEmpty) {
-        UserCredential userCredential = await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(
+        UserCredential userCredential =
+            await _auth.createUserWithEmailAndPassword(
                 email: user.email, password: user.password);
         print(userCredential.user!.uid);
         if (userCredential.user != null) {
           // set the user uid to the user object
           user.uid = userCredential.user!.uid;
           // Save user data to Firestore
-          await FirebaseFirestore.instance
+          await _firestore
               .collection('users')
               .doc(userCredential.user!.uid)
               .set(user.toJson());
