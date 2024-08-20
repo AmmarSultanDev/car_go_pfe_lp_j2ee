@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:car_go_pfe_lp_j2ee/global/global_var.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart';
