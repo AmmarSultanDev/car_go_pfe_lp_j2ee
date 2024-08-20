@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:car_go_pfe_lp_j2ee/global/global_var.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
@@ -17,14 +18,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // for dev purpose we're getting the location of google plex
-  static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
-  );
-
-  final Completer<GoogleMapController> _googleMapController =
+  final Completer<GoogleMapController> googleMapCompleterController =
       Completer<GoogleMapController>();
+
+  GoogleMapController? controllerGoogleMap;
 
   // signout
   signout() async {
@@ -36,15 +33,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
     await AuthMethods().signoutUser();
 
-    if (!context.mounted) return;
+    if (context.mounted) {
+      Navigator.of(context).pop(); // Close the loading dialog
 
-    Navigator.of(context).pop(); // Close the loading dialog
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const SigninScreen(),
+        ),
+      );
+    }
+  }
 
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const SigninScreen(),
-      ),
-    );
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 
   @override
@@ -67,9 +70,11 @@ class _HomeScreenState extends State<HomeScreen> {
           GoogleMap(
             mapType: MapType.normal,
             myLocationEnabled: true,
-            initialCameraPosition: _kGooglePlex,
-            onMapCreated: (GoogleMapController controller) {
-              _googleMapController.complete(controller);
+            initialCameraPosition: googlePlexInitialPosition,
+            onMapCreated: (GoogleMapController mapController) {
+              controllerGoogleMap = mapController;
+
+              googleMapCompleterController.complete(controllerGoogleMap);
             },
           ),
         ],

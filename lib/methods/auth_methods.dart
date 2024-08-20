@@ -87,7 +87,6 @@ class AuthMethods {
       }
     } catch (err) {
       if (err is FirebaseAuthException) {
-        print('FirebaseAuthException code: ${err.code}');
         if (err.code == 'invalid-credential') {
           res = 'Invalid credentials provided.';
         }

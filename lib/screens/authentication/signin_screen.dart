@@ -33,18 +33,20 @@ class _SigninScreenState extends State<SigninScreen> {
     );
 
     if (res != 'Success') {
-      if (!context.mounted) return;
-      Navigator.of(context).pop();
-      commonMethods.displaySnackBar(res, context);
+      if (context.mounted) {
+        Navigator.of(context).pop();
+        commonMethods.displaySnackBar(res, context);
+      }
     } else {
-      if (!context.mounted) return;
-      await Provider.of<UserProvider>(context, listen: false).refreshUser();
-      Navigator.of(context).pop();
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const HomeScreen(),
-        ),
-      );
+      if (context.mounted) {
+        await Provider.of<UserProvider>(context, listen: false).refreshUser();
+        Navigator.of(context).pop();
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const HomeScreen(),
+          ),
+        );
+      }
     }
   }
 
