@@ -8,6 +8,7 @@ import 'package:car_go_pfe_lp_j2ee/screens/authentication/signin_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -24,6 +25,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   GoogleMapController? controllerGoogleMap;
 
+  Position? currentPositionOfUser;
+
   void updateMapTheme(GoogleMapController controller) {
     getJsonFileFromThemes('themes/night_style.json')
         .then((value) => setGoogleMapStyle(value, controller));
@@ -38,6 +41,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
   setGoogleMapStyle(String googleMapStyle, GoogleMapController controller) {
     controller.setMapStyle(googleMapStyle);
+  }
+
+  getCurrentLiveLocationOfUser() async {
+    Position positionOfUser = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.bestForNavigation,
+    );
+    currentPositionOfUser = positionOfUser;
+
+    LatLng positionOfUserInLatLng = LatLng(
+        currentPositionOfUser!.latitude, currentPositionOfUser!.longitude);
+
+    CameraPosition cameraPosition = CameraPosition(
+      target: positionOfUserInLatLng,
+      zoom: 14.4746,
+    );
+
+    controllerGoogleMap!
+        .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
   }
 
   // signout
@@ -93,6 +114,8 @@ class _HomeScreenState extends State<HomeScreen> {
               updateMapTheme(controllerGoogleMap!);
 
               googleMapCompleterController.complete(controllerGoogleMap);
+
+              getCurrentLiveLocationOfUser();
             },
           ),
         ],

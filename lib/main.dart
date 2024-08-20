@@ -6,6 +6,7 @@ import 'package:car_go_pfe_lp_j2ee/screens/home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -13,6 +14,11 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await Permission.locationWhenInUse.isDenied.then((valueOfPermission) {
+    if (valueOfPermission) {
+      Permission.locationWhenInUse.request();
+    }
+  });
   runApp(MyApp());
 }
 
