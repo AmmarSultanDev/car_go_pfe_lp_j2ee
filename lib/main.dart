@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => UserProvider()),
       ],
       child: MaterialApp(
-        title: 'My App',
+        title: 'CarGo',
         theme: ThemeData(
           primaryColor: AppColors.lightPrimary,
           scaffoldBackgroundColor: AppColors.lightSurface,
