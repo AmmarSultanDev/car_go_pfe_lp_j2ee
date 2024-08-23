@@ -2,6 +2,8 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'dart:ui';
 import 'package:car_go_pfe_lp_j2ee/global/global_var.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
@@ -10,13 +12,13 @@ import 'package:car_go_pfe_lp_j2ee/models/user.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/authentication/signin_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/blocked_screen.dart';
+import 'package:car_go_pfe_lp_j2ee/screens/search_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -37,6 +39,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   CommonMethods commonMethods = const CommonMethods();
 
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
+  double searchContainerHeight = 276;
 
   void updateMapTheme(GoogleMapController controller, BuildContext context) {
     String mapStylePath = Theme.of(context).brightness == Brightness.dark
@@ -82,12 +86,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Location Permission Not Granted'),
-            content: Text(
+            title: const Text('Location Permission Not Granted'),
+            content: const Text(
                 'This app needs location permissions to function properly. Please grant location permission in your device settings.'),
             actions: <Widget>[
               TextButton(
-                child: Text('OK'),
+                child: const Text('OK'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -135,15 +139,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     checkBlockStatus();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance!.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -216,38 +219,38 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 height: 1,
                 color: Theme.of(context).primaryColor,
               ),
-              ListTile(
-                leading: IconButton(
-                  onPressed: () {},
-                  icon: Icon(
+              GestureDetector(
+                onTap: () {},
+                child: ListTile(
+                  leading: Icon(
                     Icons.info,
                     color: Theme.of(context).canvasColor,
                   ),
-                ),
-                title: Text(
-                  'About',
-                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                        fontSize: 18,
-                        color: Theme.of(context).canvasColor,
-                      ),
+                  title: Text(
+                    'About',
+                    style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                          fontSize: 18,
+                          color: Theme.of(context).canvasColor,
+                        ),
+                  ),
                 ),
               ),
-              ListTile(
-                leading: IconButton(
-                  onPressed: () {
-                    signout();
-                  },
-                  icon: Icon(
+              GestureDetector(
+                onTap: () {
+                  signout();
+                },
+                child: ListTile(
+                  leading: Icon(
                     Icons.logout_outlined,
                     color: Theme.of(context).canvasColor,
                   ),
-                ),
-                title: Text(
-                  'Sign Out',
-                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                        fontSize: 18,
-                        color: Theme.of(context).canvasColor,
-                      ),
+                  title: Text(
+                    'Sign Out',
+                    style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                          fontSize: 18,
+                          color: Theme.of(context).canvasColor,
+                        ),
+                  ),
                 ),
               ),
 
@@ -268,6 +271,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       body: Stack(
         children: [
           GoogleMap(
+            compassEnabled: false,
+            zoomControlsEnabled: false,
+            padding: Platform.isAndroid
+                ? const EdgeInsets.only(top: 40, right: 10)
+                : const EdgeInsets.only(bottom: 16, right: 16, left: 16),
             mapType: MapType.normal,
             myLocationEnabled: true,
             initialCameraPosition: googlePlexInitialPosition,
@@ -309,6 +317,92 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     color: Theme.of(context).canvasColor,
                   ),
                 ),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: -80,
+            child: Container(
+              height: searchContainerHeight,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      // Navigator.of(context).push(
+                      //   MaterialPageRoute(
+                      //     builder: (context) => const SearchScreen(),
+                      //   ),
+                      // );
+                      showDialog(
+                        context: context,
+                        barrierDismissible: true,
+                        builder: (BuildContext context) {
+                          return Dialog(
+                            backgroundColor: Colors.transparent,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: <Widget>[
+                                // This is the blurry background
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: BackdropFilter(
+                                    filter:
+                                        ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                    child: Container(
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                    ),
+                                  ),
+                                ),
+                                // This is your SearchScreen widget
+                                Container(
+                                  width: null,
+                                  height: null,
+                                  child: SearchScreen(),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(16),
+                    ),
+                    child: const Icon(
+                      Icons.search,
+                      size: 25,
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(16),
+                    ),
+                    child: const Icon(
+                      Icons.home,
+                      size: 25,
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(16),
+                    ),
+                    child: const Icon(
+                      Icons.work,
+                      size: 25,
+                    ),
+                  ),
+                ],
               ),
             ),
           )
