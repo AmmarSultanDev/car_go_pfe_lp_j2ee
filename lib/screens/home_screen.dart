@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:car_go_pfe_lp_j2ee/global/global_var.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
+import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/authentication/signin_screen.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -28,6 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
   GoogleMapController? controllerGoogleMap;
 
   Position? currentPositionOfUser;
+
+  CommonMethods commonMethods = const CommonMethods();
 
   void updateMapTheme(GoogleMapController controller, BuildContext context) {
     String mapStylePath = Theme.of(context).brightness == Brightness.dark
@@ -50,21 +54,44 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getCurrentLiveLocationOfUser() async {
-    Position positionOfUser = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.bestForNavigation,
-    );
-    currentPositionOfUser = positionOfUser;
+    bool permissionGranted = await commonMethods.askForPermission();
 
-    LatLng positionOfUserInLatLng = LatLng(
-        currentPositionOfUser!.latitude, currentPositionOfUser!.longitude);
+    if (permissionGranted) {
+      Position positionOfUser = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.bestForNavigation,
+      );
+      currentPositionOfUser = positionOfUser;
 
-    CameraPosition cameraPosition = CameraPosition(
-      target: positionOfUserInLatLng,
-      zoom: 14.4746,
-    );
+      LatLng positionOfUserInLatLng = LatLng(
+          currentPositionOfUser!.latitude, currentPositionOfUser!.longitude);
 
-    controllerGoogleMap!
-        .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+      CameraPosition cameraPosition = CameraPosition(
+        target: positionOfUserInLatLng,
+        zoom: 14.4746,
+      );
+
+      controllerGoogleMap!
+          .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Location Permission Not Granted'),
+            content: Text(
+                'This app needs location permissions to function properly. Please grant location permission in your device settings.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   // signout

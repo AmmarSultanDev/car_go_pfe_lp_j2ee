@@ -1,3 +1,4 @@
+import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/authentication/signin_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/firebase_options.dart';
@@ -23,16 +24,8 @@ void main() async {
   } catch (e) {
     print(e.toString());
   }
-  // await Permission.locationWhenInUse.isDenied.then((valueOfPermission) {
-  //   if (valueOfPermission) {
-  //     Permission.locationWhenInUse.request();
-  //   }
-  // });
+  await const CommonMethods().askForPermission();
 
-  status = await Permission.locationWhenInUse.status;
-  if (status == PermissionStatus.denied) {
-    await Permission.locationWhenInUse.request();
-  }
   runApp(const MyApp());
 }
 
@@ -99,10 +92,10 @@ class MyApp extends StatelessWidget {
                 );
               } else if (snapshot.hasData) {
                 return status == PermissionStatus.granted
-                    ? const HomeScreen()
-                    : const SigninScreen();
+                    ? HomeScreen()
+                    : SigninScreen();
               }
-              return const SigninScreen();
+              return SigninScreen();
             }),
       ),
     );
