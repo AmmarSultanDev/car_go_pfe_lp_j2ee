@@ -9,20 +9,36 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
+var status;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  await Permission.locationWhenInUse.isDenied.then((valueOfPermission) {
-    if (valueOfPermission) {
-      Permission.locationWhenInUse.request();
+  // Check if Firebase has been initialized
+  try {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
     }
-  });
-  runApp(MyApp());
+  } catch (e) {
+    print(e.toString());
+  }
+  // await Permission.locationWhenInUse.isDenied.then((valueOfPermission) {
+  //   if (valueOfPermission) {
+  //     Permission.locationWhenInUse.request();
+  //   }
+  // });
+
+  status = await Permission.locationWhenInUse.status;
+  if (status == PermissionStatus.denied) {
+    await Permission.locationWhenInUse.request();
+  }
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -82,7 +98,9 @@ class MyApp extends StatelessWidget {
                   child: Text('Something went wrong!'),
                 );
               } else if (snapshot.hasData) {
-                return const HomeScreen();
+                return status == PermissionStatus.granted
+                    ? const HomeScreen()
+                    : const SigninScreen();
               }
               return const SigninScreen();
             }),

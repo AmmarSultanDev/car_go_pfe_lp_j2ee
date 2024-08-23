@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:convert';
 import 'package:car_go_pfe_lp_j2ee/global/global_var.dart';
@@ -27,8 +29,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Position? currentPositionOfUser;
 
-  void updateMapTheme(GoogleMapController controller) {
-    getJsonFileFromThemes('themes/night_style.json')
+  void updateMapTheme(GoogleMapController controller, BuildContext context) {
+    String mapStylePath = Theme.of(context).brightness == Brightness.dark
+        ? 'themes/night_style.json'
+        : 'themes/standard_style.json';
+    getJsonFileFromThemes(mapStylePath)
         .then((value) => setGoogleMapStyle(value, controller));
   }
 
@@ -40,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   setGoogleMapStyle(String googleMapStyle, GoogleMapController controller) {
+    // ignore: deprecated_member_use
     controller.setMapStyle(googleMapStyle);
   }
 
@@ -84,12 +90,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
     final User? user = Provider.of<UserProvider>(context).getUser;
 
     return Scaffold(
@@ -103,6 +109,34 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+      drawer: Container(
+        width: 255,
+        color: Theme.of(context).primaryColor,
+        child: Drawer(
+          backgroundColor: Theme.of(context).primaryColor,
+          child: ListView(
+            children: [
+              Container(
+                color: Theme.of(context).primaryColor,
+                height: 160,
+                child: DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.person,
+                        size: 60,
+                      )
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
       body: Stack(
         children: [
           GoogleMap(
@@ -111,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
             initialCameraPosition: googlePlexInitialPosition,
             onMapCreated: (GoogleMapController mapController) {
               controllerGoogleMap = mapController;
-              updateMapTheme(controllerGoogleMap!);
+              updateMapTheme(controllerGoogleMap!, context);
 
               googleMapCompleterController.complete(controllerGoogleMap);
 
