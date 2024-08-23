@@ -5,9 +5,11 @@ import 'dart:convert';
 import 'package:car_go_pfe_lp_j2ee/global/global_var.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
+import 'package:car_go_pfe_lp_j2ee/methods/firestore_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/authentication/signin_screen.dart';
+import 'package:car_go_pfe_lp_j2ee/screens/blocked_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,7 +26,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final Completer<GoogleMapController> googleMapCompleterController =
       Completer<GoogleMapController>();
 
@@ -118,9 +120,39 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  checkBlockStatus() async {
+    User? user = Provider.of<UserProvider>(context, listen: false).getUser;
+
+    if (user != null) {
+      bool blockStatus = await FirestoreMethods().checkBlockStatus(user.uid);
+      if (blockStatus) {
+        await signout();
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const BlockedScreen()));
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+    checkBlockStatus();
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance!.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      checkBlockStatus();
+    }
   }
 
   @override
