@@ -26,15 +26,15 @@ class LoadingDialog extends StatelessWidget {
               const SizedBox(
                 width: 5,
               ),
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).primaryColor),
               ),
               const SizedBox(
                 width: 8,
               ),
-              Text(
-                messageText,
-              ),
+              Text(messageText,
+                  style: Theme.of(context).primaryTextTheme.labelLarge),
             ],
           ),
         ),

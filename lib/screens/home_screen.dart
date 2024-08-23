@@ -251,7 +251,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // drawer button
           Positioned(
-            top: 42,
+            top: 50,
             left: 19,
             child: GestureDetector(
               onTap: () {
