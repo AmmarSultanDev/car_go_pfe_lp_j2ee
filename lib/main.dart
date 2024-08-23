@@ -3,7 +3,9 @@ import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/authentication/signin_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/firebase_options.dart';
 import 'package:car_go_pfe_lp_j2ee/resources/app_colors.dart';
+import 'package:car_go_pfe_lp_j2ee/screens/blocked_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/home_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -80,23 +82,52 @@ class MyApp extends StatelessWidget {
         themeMode: ThemeMode
             .system, // Automatically select the theme based on the system settings
         home: StreamBuilder(
-            stream: FirebaseAuth.instance.authStateChanges(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else if (snapshot.hasError) {
-                return const Center(
-                  child: Text('Something went wrong!'),
-                );
-              } else if (snapshot.hasData) {
-                return status == PermissionStatus.granted
-                    ? HomeScreen()
-                    : SigninScreen();
-              }
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, userSnapshot) {
+            if (userSnapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (userSnapshot.hasError) {
+              return const Center(
+                child: Text('Something went wrong!'),
+              );
+            } else if (userSnapshot.hasData) {
+              User? user = userSnapshot.data as User?;
+              return StreamBuilder<DocumentSnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(user!.uid)
+                    .snapshots(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<DocumentSnapshot> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (snapshot.hasError) {
+                    return const Center(
+                      child: Text('Something went wrong!'),
+                    );
+                  } else if (snapshot.hasData) {
+                    bool isBlocked = snapshot.data!.get('isBlocked') as bool;
+                    if (isBlocked) {
+                      return BlockedScreen(); // return a screen for blocked users
+                    } else {
+                      return status == PermissionStatus.granted
+                          ? HomeScreen()
+                          : SigninScreen();
+                    }
+                  } else {
+                    return SigninScreen();
+                  }
+                },
+              );
+            } else {
               return SigninScreen();
-            }),
+            }
+          },
+        ),
       ),
     );
   }
