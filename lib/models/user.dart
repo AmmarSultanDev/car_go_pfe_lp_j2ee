@@ -5,7 +5,7 @@ class User {
   final String displayName;
   final String phoneNumber;
   final String email;
-  bool isBlocked = false;
+  bool isBlocked;
 
   User({
     required this.uid,
@@ -19,6 +19,7 @@ class User {
     required this.displayName,
     required this.phoneNumber,
     required this.email,
+    this.isBlocked = false,
   }) : uid = '';
 
   Map<String, dynamic> toJson() => {

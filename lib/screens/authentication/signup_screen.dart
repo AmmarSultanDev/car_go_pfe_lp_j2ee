@@ -81,7 +81,8 @@ class _SignupScreenState extends State<SignupScreen> {
       commonMethods.displaySnackBar(res, context);
     } else {
       if (!context.mounted) return;
-      await Provider.of<UserProvider>(context, listen: false).refreshUser();
+      await Provider.of<UserProvider>(context, listen: false)
+          .refreshUser(context);
 
       Navigator.pop(context);
       // commonMethods.displaySnackBar('Account created successfully!', context);

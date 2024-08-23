@@ -39,7 +39,8 @@ class _SigninScreenState extends State<SigninScreen> {
       }
     } else {
       if (context.mounted) {
-        await Provider.of<UserProvider>(context, listen: false).refreshUser();
+        await Provider.of<UserProvider>(context, listen: false)
+            .refreshUser(context);
         Navigator.of(context).pop();
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(

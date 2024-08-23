@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  SearchScreen({super.key, required this.startAddress});
+
+  String startAddress;
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -10,6 +12,14 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   TextEditingController _pickUpController = TextEditingController();
   TextEditingController _dropOffController = TextEditingController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print('startAddress: ${widget.startAddress}');
+    _pickUpController.text = widget.startAddress;
+  }
 
   @override
   Widget build(BuildContext context) {

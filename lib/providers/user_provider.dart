@@ -8,9 +8,9 @@ class UserProvider with ChangeNotifier {
 
   User? get getUser => _user;
 
-  Future<void> refreshUser() async {
+  Future<void> refreshUser(BuildContext context) async {
     User user = await _authMethods.getUserDetails();
     _user = user;
-    notifyListeners();
+    if (context.mounted) notifyListeners();
   }
 }

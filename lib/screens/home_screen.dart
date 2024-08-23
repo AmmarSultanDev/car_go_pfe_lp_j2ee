@@ -42,6 +42,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   double searchContainerHeight = 276;
 
+  String startAddress = '';
+
+  LatLng? positionOfUserInLatLng;
+
   void updateMapTheme(GoogleMapController controller, BuildContext context) {
     String mapStylePath = Theme.of(context).brightness == Brightness.dark
         ? 'themes/night_style.json'
@@ -64,6 +68,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   getCurrentLiveLocationOfUser() async {
     bool permissionGranted = await commonMethods.askForPermission();
+    print('permissionGranted: $permissionGranted');
 
     if (permissionGranted) {
       Position positionOfUser = await Geolocator.getCurrentPosition(
@@ -71,11 +76,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       );
       currentPositionOfUser = positionOfUser;
 
-      LatLng positionOfUserInLatLng = LatLng(
+      positionOfUserInLatLng = LatLng(
           currentPositionOfUser!.latitude, currentPositionOfUser!.longitude);
 
+      await setStartAddress();
+      print('startAddress: $startAddress');
+
       CameraPosition cameraPosition = CameraPosition(
-        target: positionOfUserInLatLng,
+        target: positionOfUserInLatLng!,
         zoom: 14.4746,
       );
 
@@ -92,8 +100,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             actions: <Widget>[
               TextButton(
                 child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
+                onPressed: () async {
+                  bool isGranted = await commonMethods.askForPermission();
+                  if (isGranted) {
+                    Navigator.of(context).pop();
+                  } else {
+                    // Show a message to the user that the permission was not granted.
+                  }
                 },
               ),
             ],
@@ -134,6 +147,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const BlockedScreen()));
       }
+    }
+  }
+
+  setStartAddress() async {
+    try {
+      startAddress = await CommonMethods.convertGeoCodeToAddress(
+          positionOfUserInLatLng!.latitude, positionOfUserInLatLng!.longitude);
+      print('startAddress: $startAddress');
+    } catch (e) {
+      print(e.toString());
     }
   }
 
@@ -279,13 +302,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             mapType: MapType.normal,
             myLocationEnabled: true,
             initialCameraPosition: googlePlexInitialPosition,
-            onMapCreated: (GoogleMapController mapController) {
+            onMapCreated: (GoogleMapController mapController) async {
               controllerGoogleMap = mapController;
               updateMapTheme(controllerGoogleMap!, context);
 
               googleMapCompleterController.complete(controllerGoogleMap);
 
-              getCurrentLiveLocationOfUser();
+              await getCurrentLiveLocationOfUser();
             },
           ),
 
@@ -330,7 +353,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      await setStartAddress();
+                      print('startAddress: $startAddress');
                       // Navigator.of(context).push(
                       //   MaterialPageRoute(
                       //     builder: (context) => const SearchScreen(),
@@ -363,7 +388,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 Container(
                                   width: null,
                                   height: null,
-                                  child: SearchScreen(),
+                                  child: SearchScreen(
+                                    startAddress: startAddress,
+                                  ),
                                 ),
                               ],
                             ),
