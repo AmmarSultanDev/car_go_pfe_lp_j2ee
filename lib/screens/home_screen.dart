@@ -11,6 +11,7 @@ import 'package:car_go_pfe_lp_j2ee/screens/authentication/signin_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -32,6 +33,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Position? currentPositionOfUser;
 
   CommonMethods commonMethods = const CommonMethods();
+
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   void updateMapTheme(GoogleMapController controller, BuildContext context) {
     String mapStylePath = Theme.of(context).brightness == Brightness.dark
@@ -126,23 +129,15 @@ class _HomeScreenState extends State<HomeScreen> {
     final User? user = Provider.of<UserProvider>(context).getUser;
 
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              signout();
-            },
-          ),
-        ],
-      ),
+      key: scaffoldKey,
       drawer: Container(
-        width: 255,
+        width: 300,
         color: Theme.of(context).primaryColor,
         child: Drawer(
           backgroundColor: Theme.of(context).primaryColor,
           child: ListView(
             children: [
+              // Drawer Header
               Container(
                 color: Theme.of(context).primaryColor,
                 height: 160,
@@ -150,16 +145,90 @@ class _HomeScreenState extends State<HomeScreen> {
                   decoration: BoxDecoration(
                     color: Theme.of(context).primaryColor,
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.person,
                         size: 60,
+                      ),
+                      const SizedBox(width: 16),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            user!.displayName,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge!
+                                .copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          Flexible(
+                            child: Text(
+                              user.email,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall!
+                                  .copyWith(fontSize: 18),
+                            ),
+                          ),
+                        ],
                       )
                     ],
                   ),
                 ),
-              )
+              ),
+              // Drawer Body
+              Divider(
+                height: 1,
+                color: Theme.of(context).primaryColor,
+              ),
+              ListTile(
+                leading: IconButton(
+                  onPressed: () {},
+                  icon: Icon(
+                    Icons.info,
+                    color: Theme.of(context).canvasColor,
+                  ),
+                ),
+                title: Text(
+                  'About',
+                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                        fontSize: 18,
+                        color: Theme.of(context).canvasColor,
+                      ),
+                ),
+              ),
+              ListTile(
+                leading: IconButton(
+                  onPressed: () {
+                    signout();
+                  },
+                  icon: Icon(
+                    Icons.logout_outlined,
+                    color: Theme.of(context).canvasColor,
+                  ),
+                ),
+                title: Text(
+                  'Sign Out',
+                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                        fontSize: 18,
+                        color: Theme.of(context).canvasColor,
+                      ),
+                ),
+              ),
+
+              // Drawer Footer
+              Divider(
+                height: 1,
+                color: Theme.of(context).primaryColor,
+              ),
+              SvgPicture.asset(
+                'assets/images/logo-cigma-scroll.svg',
+                height: 200,
+                width: 200,
+              ),
             ],
           ),
         ),
@@ -179,6 +248,38 @@ class _HomeScreenState extends State<HomeScreen> {
               getCurrentLiveLocationOfUser();
             },
           ),
+
+          // drawer button
+          Positioned(
+            top: 42,
+            left: 19,
+            child: GestureDetector(
+              onTap: () {
+                scaffoldKey.currentState!.openDrawer();
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 5,
+                        spreadRadius: 0.5,
+                        offset: Offset(0.7, 0.7),
+                      )
+                    ]),
+                child: CircleAvatar(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  radius: 20,
+                  child: Icon(
+                    Icons.menu,
+                    color: Theme.of(context).canvasColor,
+                  ),
+                ),
+              ),
+            ),
+          )
         ],
       ),
     );
