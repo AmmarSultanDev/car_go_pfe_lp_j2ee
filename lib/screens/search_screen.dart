@@ -10,8 +10,8 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  TextEditingController _pickUpController = TextEditingController();
-  TextEditingController _dropOffController = TextEditingController();
+  final TextEditingController _pickUpController = TextEditingController();
+  final TextEditingController _dropOffController = TextEditingController();
 
   @override
   void initState() {
@@ -49,20 +49,23 @@ class _SearchScreenState extends State<SearchScreen> {
                   const SizedBox(
                     height: 6,
                   ),
-                  Stack(
+                  Row(
                     children: [
-                      GestureDetector(
-                        onTap: () {
+                      IconButton(
+                        onPressed: () {
                           Navigator.pop(context);
                         },
-                        child: Icon(Icons.arrow_back),
+                        icon: const Icon(Icons.arrow_back),
                       ),
-                      Center(
-                        child: Text('Set destination location',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge!
-                                .copyWith(fontWeight: FontWeight.bold)),
+                      const SizedBox(
+                        width: 16,
+                      ),
+                      Text(
+                        'Set destination location',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyLarge!
+                            .copyWith(fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),

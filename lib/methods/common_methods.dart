@@ -36,9 +36,11 @@ class CommonMethods {
 
   Future<bool> askForPermission() async {
     var status = await Permission.locationWhenInUse.status;
-    if (status == PermissionStatus.denied) {
+    print(status);
+    if (status != PermissionStatus.granted) {
       await Permission.locationWhenInUse.request();
     }
+    print(status.isGranted);
     return status.isGranted;
   }
 

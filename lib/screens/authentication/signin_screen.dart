@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/authentication/signup_screen.dart';
@@ -20,12 +22,14 @@ class _SigninScreenState extends State<SigninScreen> {
   CommonMethods commonMethods = const CommonMethods();
 
   signin() async {
-    if (!context.mounted) return;
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const LoadingDialog(messageText: 'Signing in ...'),
-    );
+    if (context.mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) =>
+            const LoadingDialog(messageText: 'Signing in ...'),
+      );
+    }
 
     String res = await AuthMethods().signinUser(
       email: _emailController.text.trim(),
@@ -38,34 +42,40 @@ class _SigninScreenState extends State<SigninScreen> {
         commonMethods.displaySnackBar(res, context);
       }
     } else {
-      if (context.mounted) {
-        await Provider.of<UserProvider>(context, listen: false)
-            .refreshUser(context);
-        Navigator.of(context).pop();
+      Navigator.of(context).pop();
+
+      await Provider.of<UserProvider>(context, listen: false)
+          .refreshUser(context);
+
+      bool permissionGranted = await commonMethods.askForPermission();
+
+      if (permissionGranted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => const HomeScreen(),
           ),
         );
+      } else {
+        commonMethods.displaySnackBar(
+            'Please enable location permission to continue', context);
       }
     }
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     _emailController.dispose();
     _passwordController.dispose();
   }
 
+  checkNetwork() async {
+    // Check network connection
+    await commonMethods.checkConnectivity(context);
+  }
+
   @override
   Widget build(BuildContext context) {
-    void checkNetwork() async {
-      // Check network connection
-      await commonMethods.checkConnectivity(context);
-    }
-
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.symmetric(
@@ -113,9 +123,9 @@ class _SigninScreenState extends State<SigninScreen> {
                         ),
                         const SizedBox(height: 22),
                         ElevatedButton(
-                          onPressed: () {
-                            checkNetwork();
-                            signin();
+                          onPressed: () async {
+                            await checkNetwork();
+                            await signin();
                           },
                           child: const Text(
                             'Sign In',

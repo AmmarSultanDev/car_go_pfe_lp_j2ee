@@ -7,13 +7,13 @@ class BlockedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: SizedBox(
         width: double.infinity,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
+            SizedBox(
               height: 200,
               width: 200,
               child: Image.asset('assets/images/user_blocked.png'),
@@ -45,7 +45,7 @@ class BlockedScreen extends StatelessWidget {
                   print('Could not launch $url');
                 }
               },
-              child: Text('Email Us'),
+              child: const Text('Email Us'),
             ),
             const SizedBox(height: 16),
             Text(

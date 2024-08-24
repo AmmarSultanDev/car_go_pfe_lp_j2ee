@@ -28,7 +28,6 @@ void main() async {
   } catch (e) {
     print(e.toString());
   }
-  await const CommonMethods().askForPermission();
 
   runApp(const MyApp());
 }
@@ -95,7 +94,7 @@ class MyApp extends StatelessWidget {
                 child: Text('Something went wrong!'),
               );
             } else if (userSnapshot.hasData) {
-              User? user = userSnapshot.data as User?;
+              User? user = userSnapshot.data;
               return StreamBuilder<DocumentSnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('users')
@@ -114,19 +113,19 @@ class MyApp extends StatelessWidget {
                   } else if (snapshot.hasData) {
                     bool isBlocked = snapshot.data!.get('isBlocked') as bool;
                     if (isBlocked) {
-                      return BlockedScreen(); // return a screen for blocked users
+                      return const BlockedScreen(); // return a screen for blocked users
                     } else {
                       return status == PermissionStatus.granted
-                          ? HomeScreen()
-                          : SigninScreen();
+                          ? const HomeScreen()
+                          : const SigninScreen();
                     }
                   } else {
-                    return SigninScreen();
+                    return const SigninScreen();
                   }
                 },
               );
             } else {
-              return SigninScreen();
+              return const SigninScreen();
             }
           },
         ),

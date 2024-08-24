@@ -79,9 +79,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       positionOfUserInLatLng = LatLng(
           currentPositionOfUser!.latitude, currentPositionOfUser!.longitude);
 
-      await setStartAddress();
-      print('startAddress: $startAddress');
-
       CameraPosition cameraPosition = CameraPosition(
         target: positionOfUserInLatLng!,
         zoom: 14.4746,
@@ -347,7 +344,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             left: 0,
             right: 0,
             bottom: -80,
-            child: Container(
+            child: SizedBox(
               height: searchContainerHeight,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -355,12 +352,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   ElevatedButton(
                     onPressed: () async {
                       await setStartAddress();
-                      print('startAddress: $startAddress');
-                      // Navigator.of(context).push(
-                      //   MaterialPageRoute(
-                      //     builder: (context) => const SearchScreen(),
-                      //   ),
-                      // );
+
                       showDialog(
                         context: context,
                         barrierDismissible: true,
@@ -378,14 +370,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   child: BackdropFilter(
                                     filter:
                                         ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                                    child: Container(
+                                    child: const SizedBox(
                                       width: double.infinity,
                                       height: double.infinity,
                                     ),
                                   ),
                                 ),
                                 // This is your SearchScreen widget
-                                Container(
+                                SizedBox(
                                   width: null,
                                   height: null,
                                   child: SearchScreen(
