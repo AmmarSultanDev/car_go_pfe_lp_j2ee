@@ -1,9 +1,9 @@
+import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SearchScreen extends StatefulWidget {
-  SearchScreen({super.key, required this.startAddress});
-
-  String startAddress;
+  SearchScreen({super.key});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -17,12 +17,21 @@ class _SearchScreenState extends State<SearchScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    print('startAddress: ${widget.startAddress}');
-    _pickUpController.text = widget.startAddress;
+  }
+
+  setPickUpLocationAddress() {
+    String userAdress = Provider.of<AddressProvider>(context, listen: false)
+            .pickUpAddress!
+            .humanReadableAddress ??
+        '';
+
+    _pickUpController.text = userAdress;
   }
 
   @override
   Widget build(BuildContext context) {
+    setPickUpLocationAddress();
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

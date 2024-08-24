@@ -42,8 +42,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   double searchContainerHeight = 276;
 
-  String startAddress = '';
-
   LatLng? positionOfUserInLatLng;
 
   void updateMapTheme(GoogleMapController controller, BuildContext context) {
@@ -75,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     positionOfUserInLatLng = LatLng(
         currentPositionOfUser!.latitude, currentPositionOfUser!.longitude);
 
-    startAddress = await CommonMethods.convertGeoCodeToAddress(
+    await CommonMethods.convertGeoCodeToAddress(
         positionOfUserInLatLng!.latitude,
         positionOfUserInLatLng!.longitude,
         context);
@@ -120,18 +118,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const BlockedScreen()));
       }
-    }
-  }
-
-  setStartAddress() async {
-    try {
-      startAddress = await CommonMethods.convertGeoCodeToAddress(
-          positionOfUserInLatLng!.latitude,
-          positionOfUserInLatLng!.longitude,
-          context);
-      print('startAddress: $startAddress');
-    } catch (e) {
-      print(e.toString());
     }
   }
 
@@ -328,9 +314,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   ElevatedButton(
-                    onPressed: () async {
-                      await setStartAddress();
-
+                    onPressed: () {
                       showDialog(
                         context: context,
                         barrierDismissible: true,
@@ -358,9 +342,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 SizedBox(
                                   width: null,
                                   height: null,
-                                  child: SearchScreen(
-                                    startAddress: startAddress,
-                                  ),
+                                  child: SearchScreen(),
                                 ),
                               ],
                             ),
