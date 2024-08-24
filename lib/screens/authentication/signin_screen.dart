@@ -35,19 +35,23 @@ class _SigninScreenState extends State<SigninScreen> {
     );
 
     if (res != 'Success') {
-      if (context.mounted) {
-        Navigator.of(context).pop();
-        commonMethods.displaySnackBar(res, context);
-      }
+      if (mounted) Navigator.of(context).pop();
+      if (mounted) commonMethods.displaySnackBar(res, context);
     } else {
-      await Provider.of<UserProvider>(context, listen: false).refreshUser();
-      Navigator.of(context)
-          .popUntil((route) => route.isFirst); // Pop until the first route
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const HomeScreen(),
-        ),
-      );
+      if (mounted) {
+        await Provider.of<UserProvider>(context, listen: false).refreshUser();
+      }
+      if (mounted) {
+        Navigator.of(context)
+            .popUntil((route) => route.isFirst); // Pop until the first route
+      }
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const HomeScreen(),
+          ),
+        );
+      }
     }
   }
 

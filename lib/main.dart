@@ -1,4 +1,3 @@
-import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/authentication/signin_screen.dart';
@@ -126,6 +125,9 @@ class MyApp extends StatelessWidget {
                     if (isBlocked) {
                       return const BlockedScreen(); // return a screen for blocked users
                     } else {
+                      // maintain the user's session
+                      Provider.of<UserProvider>(context, listen: false)
+                          .refreshUser();
                       return status == PermissionStatus.granted
                           ? const HomeScreen()
                           : const SigninScreen();

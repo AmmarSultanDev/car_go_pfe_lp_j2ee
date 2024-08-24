@@ -77,35 +77,39 @@ class _PredictionPlaceUiState extends State<PredictionPlaceUi> {
         await fetchClickedPlaceDetails(widget.prediction!.place_id!);
       },
       borderRadius: BorderRadius.circular(10),
-      child: Column(
-        children: [
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(Icons.share_location),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.prediction!.main_text!,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      widget.prediction!.secondary_text!,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          children: [
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.share_location),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.prediction!.main_text!,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        widget.prediction!.secondary_text!,
+                        overflow: TextOverflow.ellipsis,
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-        ],
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }

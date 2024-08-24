@@ -43,6 +43,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   double searchContainerHeight = 276;
 
+  double bottomMapPadding = 100;
+
+  double rideDetailsContainerHeight = 0;
+
   LatLng? positionOfUserInLatLng;
 
   void updateMapTheme(GoogleMapController controller, BuildContext context) {
@@ -141,6 +145,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       checkBlockStatus();
     }
+  }
+
+  displayUserRideDetailsContainer() {
+    // draw route between the two locations
+    setState(() {
+      searchContainerHeight = 0;
+      rideDetailsContainerHeight = 280;
+      bottomMapPadding = 290;
+    });
   }
 
   @override
@@ -260,7 +273,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             zoomControlsEnabled: false,
             padding: Platform.isAndroid
                 ? const EdgeInsets.only(top: 40, right: 10)
-                : const EdgeInsets.only(bottom: 100, right: 28, left: 16),
+                : EdgeInsets.only(
+                    bottom: bottomMapPadding, right: 28, left: 16),
             mapType: MapType.normal,
             myLocationEnabled: true,
             initialCameraPosition: googlePlexInitialPosition,
@@ -358,6 +372,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 '';
 
                         print('Drop off location: $dropOffLocation');
+
+                        displayUserRideDetailsContainer();
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -392,6 +408,100 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     ),
                   ),
                 ],
+              ),
+            ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              height: rideDetailsContainerHeight,
+              decoration: BoxDecoration(
+                color: Theme.of(context).canvasColor.withOpacity(0.5),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    blurRadius: 15.0,
+                    spreadRadius: 0.5,
+                    color: Theme.of(context).canvasColor.withOpacity(0.5),
+                    offset: const Offset(0.7, 0.7),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 18,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                      ),
+                      child: SizedBox(
+                        height: 200,
+                        child: Card(
+                          elevation: 10,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            width: MediaQuery.of(context).size.width * .70,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                top: 8,
+                                bottom: 8,
+                              ),
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      '2 Km',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineMedium!
+                                          .copyWith(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    GestureDetector(
+                                      onTap: () {
+                                        // ignore: avoid_print
+                                        print('Ride details tapped');
+                                      },
+                                      child: Image.asset(
+                                          'assets/images/electric_car.png',
+                                          height: 100,
+                                          width: 180),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      '\$5.00',
+                                      style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context).primaryColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           )
