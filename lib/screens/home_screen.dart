@@ -9,6 +9,7 @@ import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/firestore_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart';
+import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/authentication/signin_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/blocked_screen.dart';
@@ -314,8 +315,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   ElevatedButton(
-                    onPressed: () {
-                      showDialog(
+                    onPressed: () async {
+                      var resultFromSearchDialog = await showDialog(
                         context: context,
                         barrierDismissible: true,
                         builder: (BuildContext context) {
@@ -349,6 +350,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           );
                         },
                       );
+                      if (resultFromSearchDialog == 'place_selected') {
+                        String dropOffLocation =
+                            Provider.of<AddressProvider>(context, listen: false)
+                                    .dropOffAddress!
+                                    .placeName ??
+                                '';
+
+                        print('Drop off location: $dropOffLocation');
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       shape: const CircleBorder(),
