@@ -29,7 +29,16 @@ void main() async {
     print(e.toString());
   }
 
+  await askForPermission();
+
   runApp(const MyApp());
+}
+
+askForPermission() async {
+  status = await Permission.locationWhenInUse.status;
+  if (status == PermissionStatus.denied) {
+    await Permission.locationWhenInUse.request();
+  }
 }
 
 class MyApp extends StatelessWidget {

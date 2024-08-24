@@ -34,16 +34,6 @@ class CommonMethods {
     }
   }
 
-  Future<bool> askForPermission() async {
-    var status = await Permission.locationWhenInUse.status;
-    print(status);
-    if (status != PermissionStatus.granted) {
-      await Permission.locationWhenInUse.request();
-    }
-    print(status.isGranted);
-    return status.isGranted;
-  }
-
   static sendRequestToApi(String apiURL) async {
     print(apiURL);
     http.Response response = await http.get(Uri.parse(apiURL));
@@ -79,11 +69,10 @@ class CommonMethods {
         String apiURLNORESTRICTION =
             'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$long&key=${dotenv.env['GOOGLE_MAPS_NO_RESTRICTION_API_KEY']}';
         responseFromApi = await sendRequestToApi(apiURLNORESTRICTION);
-        print(responseFromApi.toString());
-        return responseFromApi['results'][0]['address_components']
-            ['formatted_address'];
+
+        print(responseFromApi['results'][0]['formatted_address']);
+        return responseFromApi['results'][0]['formatted_address'];
       }
-      print(responseFromApi.toString());
       return responseFromApi['results'][0]['formatted_address'];
     }
     return responseFromApi;

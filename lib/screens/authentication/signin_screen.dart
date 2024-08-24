@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/authentication/signup_screen.dart';
@@ -42,23 +40,14 @@ class _SigninScreenState extends State<SigninScreen> {
         commonMethods.displaySnackBar(res, context);
       }
     } else {
-      Navigator.of(context).pop();
-
-      await Provider.of<UserProvider>(context, listen: false)
-          .refreshUser(context);
-
-      bool permissionGranted = await commonMethods.askForPermission();
-
-      if (permissionGranted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const HomeScreen(),
-          ),
-        );
-      } else {
-        commonMethods.displaySnackBar(
-            'Please enable location permission to continue', context);
-      }
+      await Provider.of<UserProvider>(context, listen: false).refreshUser();
+      Navigator.of(context)
+          .popUntil((route) => route.isFirst); // Pop until the first route
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+        ),
+      );
     }
   }
 

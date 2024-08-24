@@ -1,16 +1,17 @@
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
-import 'package:car_go_pfe_lp_j2ee/models/user.dart';
+import 'package:car_go_pfe_lp_j2ee/models/user.dart' as model;
 import 'package:flutter/material.dart';
 
 class UserProvider with ChangeNotifier {
-  User? _user;
+  model.User? _user;
   final AuthMethods _authMethods = AuthMethods();
 
-  User? get getUser => _user;
+  model.User? get getUser => _user;
 
-  Future<void> refreshUser(BuildContext context) async {
-    User user = await _authMethods.getUserDetails();
-    _user = user;
-    if (context.mounted) notifyListeners();
+  Future<model.User?> refreshUser() async {
+    _user = await _authMethods.getUserDetails();
+
+    notifyListeners();
+    return _user;
   }
 }

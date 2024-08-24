@@ -67,50 +67,24 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   getCurrentLiveLocationOfUser() async {
-    bool permissionGranted = await commonMethods.askForPermission();
-    print('permissionGranted: $permissionGranted');
+    Position positionOfUser = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.bestForNavigation,
+    );
+    currentPositionOfUser = positionOfUser;
 
-    if (permissionGranted) {
-      Position positionOfUser = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.bestForNavigation,
-      );
-      currentPositionOfUser = positionOfUser;
+    positionOfUserInLatLng = LatLng(
+        currentPositionOfUser!.latitude, currentPositionOfUser!.longitude);
 
-      positionOfUserInLatLng = LatLng(
-          currentPositionOfUser!.latitude, currentPositionOfUser!.longitude);
+    startAddress = await CommonMethods.convertGeoCodeToAddress(
+        positionOfUserInLatLng!.latitude, positionOfUserInLatLng!.longitude);
 
-      CameraPosition cameraPosition = CameraPosition(
-        target: positionOfUserInLatLng!,
-        zoom: 14.4746,
-      );
+    CameraPosition cameraPosition = CameraPosition(
+      target: positionOfUserInLatLng!,
+      zoom: 14.4746,
+    );
 
-      controllerGoogleMap!
-          .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
-    } else {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Location Permission Not Granted'),
-            content: const Text(
-                'This app needs location permissions to function properly. Please grant location permission in your device settings.'),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () async {
-                  bool isGranted = await commonMethods.askForPermission();
-                  if (isGranted) {
-                    Navigator.of(context).pop();
-                  } else {
-                    // Show a message to the user that the permission was not granted.
-                  }
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
+    controllerGoogleMap!
+        .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
   }
 
   // signout
@@ -295,7 +269,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             zoomControlsEnabled: false,
             padding: Platform.isAndroid
                 ? const EdgeInsets.only(top: 40, right: 10)
-                : const EdgeInsets.only(bottom: 16, right: 16, left: 16),
+                : const EdgeInsets.only(bottom: 100, right: 28, left: 16),
             mapType: MapType.normal,
             myLocationEnabled: true,
             initialCameraPosition: googlePlexInitialPosition,
@@ -305,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
               googleMapCompleterController.complete(controllerGoogleMap);
 
-              await getCurrentLiveLocationOfUser();
+              getCurrentLiveLocationOfUser();
             },
           ),
 
