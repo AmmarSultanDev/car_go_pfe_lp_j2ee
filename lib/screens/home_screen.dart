@@ -76,7 +76,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         currentPositionOfUser!.latitude, currentPositionOfUser!.longitude);
 
     startAddress = await CommonMethods.convertGeoCodeToAddress(
-        positionOfUserInLatLng!.latitude, positionOfUserInLatLng!.longitude);
+        positionOfUserInLatLng!.latitude,
+        positionOfUserInLatLng!.longitude,
+        context);
 
     CameraPosition cameraPosition = CameraPosition(
       target: positionOfUserInLatLng!,
@@ -124,7 +126,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   setStartAddress() async {
     try {
       startAddress = await CommonMethods.convertGeoCodeToAddress(
-          positionOfUserInLatLng!.latitude, positionOfUserInLatLng!.longitude);
+          positionOfUserInLatLng!.latitude,
+          positionOfUserInLatLng!.longitude,
+          context);
       print('startAddress: $startAddress');
     } catch (e) {
       print(e.toString());

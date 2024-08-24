@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:car_go_pfe_lp_j2ee/models/address.dart';
+import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class CommonMethods {
   const CommonMethods();
@@ -54,7 +57,8 @@ class CommonMethods {
     }
   }
 
-  static Future<String> convertGeoCodeToAddress(double lat, double long) async {
+  static Future<String> convertGeoCodeToAddress(
+      double lat, double long, BuildContext context) async {
     // Convert the lat and long to address
     String apiURLANDROID =
         'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$long&key=${dotenv.env['GOOGLE_MAPS_API_KEY_ANDROID']}';
@@ -70,7 +74,18 @@ class CommonMethods {
             'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$long&key=${dotenv.env['GOOGLE_MAPS_NO_RESTRICTION_API_KEY']}';
         responseFromApi = await sendRequestToApi(apiURLNORESTRICTION);
 
-        print(responseFromApi['results'][0]['formatted_address']);
+        Address address = Address(
+          humanReadableAddress: responseFromApi['results'][0]
+              ['formatted_address'],
+          latitude: lat,
+          longitude: long,
+        );
+
+        // handle the address with the help of the provider
+
+        Provider.of<AddressProvider>(context, listen: false)
+            .updatePickUpAddress(address);
+
         return responseFromApi['results'][0]['formatted_address'];
       }
       return responseFromApi['results'][0]['formatted_address'];
