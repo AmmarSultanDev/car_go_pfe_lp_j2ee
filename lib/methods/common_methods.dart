@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:car_go_pfe_lp_j2ee/models/address.dart';
@@ -129,5 +130,18 @@ class CommonMethods {
     }
 
     return null;
+  }
+
+  calculateFareAmount(DirectionDetails directionDetails) {
+    // Calculate the fare amount
+    double timeTraveledFare = directionDetails.durationValue! / 60 * 0.08;
+    double distanceTraveledFare = directionDetails.distanceValue! / 1000 * 0.08;
+    double totalFareAmount = timeTraveledFare + distanceTraveledFare;
+
+    // return the rounded fare amount
+
+    totalFareAmount = double.parse(totalFareAmount.toStringAsFixed(2));
+
+    return totalFareAmount;
   }
 }

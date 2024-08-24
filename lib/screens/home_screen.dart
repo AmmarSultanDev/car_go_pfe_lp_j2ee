@@ -535,7 +535,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      '\$5.00',
+                                      (tripDirectionDetails != null)
+                                          ? '\$${commonMethods.calculateFareAmount(tripDirectionDetails!)}'
+                                          : '\$0',
                                       style: TextStyle(
                                         fontSize: 22,
                                         fontWeight: FontWeight.bold,
