@@ -8,6 +8,7 @@ import 'package:car_go_pfe_lp_j2ee/global/global_var.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/firestore_methods.dart';
+import 'package:car_go_pfe_lp_j2ee/models/direction_details.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
@@ -48,6 +49,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   double rideDetailsContainerHeight = 0;
 
   LatLng? positionOfUserInLatLng;
+
+  DirectionDetails? tripDirectionDetails;
 
   void updateMapTheme(GoogleMapController controller, BuildContext context) {
     String mapStylePath = Theme.of(context).brightness == Brightness.dark
@@ -147,7 +150,39 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
+  retrieveDirectionDetails() async {
+    var pickUpLocation =
+        Provider.of<AddressProvider>(context, listen: false).pickUpAddress;
+    var dropOffLocation =
+        Provider.of<AddressProvider>(context, listen: false).dropOffAddress;
+
+    var pickUpGeographicCoordinates =
+        LatLng(pickUpLocation!.latitude!, pickUpLocation.longitude!);
+    var dropOffGeographicCoordinates =
+        LatLng(dropOffLocation!.latitude!, dropOffLocation.longitude!);
+
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) =>
+            const LoadingDialog(messageText: 'Getting direction ...'));
+
+    // send request to Directions API
+    var detailsFromDirectionApi =
+        await CommonMethods.getDirectionDetailsFromApi(
+      pickUpGeographicCoordinates,
+      dropOffGeographicCoordinates,
+    );
+
+    setState(() {
+      tripDirectionDetails = detailsFromDirectionApi;
+    });
+
+    if (mounted) Navigator.of(context).pop();
+  }
+
   displayUserRideDetailsContainer() {
+    retrieveDirectionDetails();
     // draw route between the two locations
     setState(() {
       searchContainerHeight = 0;
@@ -370,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                     .dropOffAddress!
                                     .placeName ??
                                 '';
-
+                        // ignore: avoid_print
                         print('Drop off location: $dropOffLocation');
 
                         displayUserRideDetailsContainer();
@@ -463,13 +498,28 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      '2 Km',
+                                      (tripDirectionDetails != null)
+                                          ? tripDirectionDetails!.distanceText!
+                                          : '0 Km',
                                       style: Theme.of(context)
                                           .textTheme
                                           .headlineMedium!
                                           .copyWith(
                                             fontSize: 22,
                                             fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      (tripDirectionDetails != null)
+                                          ? tripDirectionDetails!.durationText!
+                                          : '0 min',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineSmall!
+                                          .copyWith(
+                                            fontSize: 16,
+                                            color: Colors.grey,
                                           ),
                                     ),
                                     const SizedBox(height: 8),
@@ -480,10 +530,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                       },
                                       child: Image.asset(
                                           'assets/images/electric_car.png',
-                                          height: 100,
+                                          height: 80,
                                           width: 180),
                                     ),
-                                    const SizedBox(height: 8),
+                                    const SizedBox(height: 2),
                                     Text(
                                       '\$5.00',
                                       style: TextStyle(
