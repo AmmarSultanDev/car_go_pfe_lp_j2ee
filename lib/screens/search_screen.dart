@@ -1,5 +1,10 @@
+import 'dart:io';
+
+import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
+import 'package:car_go_pfe_lp_j2ee/models/prediction.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -12,6 +17,7 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _pickUpController = TextEditingController();
   final TextEditingController _dropOffController = TextEditingController();
+  List<Prediction> dropOffPredictionList = [];
 
   @override
   void initState() {
@@ -26,6 +32,39 @@ class _SearchScreenState extends State<SearchScreen> {
         '';
 
     _pickUpController.text = userAdress;
+  }
+
+  searchLocation(String locationName) async {
+    if (locationName.length > 1) {
+      String? apiKey = Platform.isIOS
+          ? dotenv.env['GOOGLE_MAPS_API_KEY_IOS']
+          : dotenv.env['GOOGLE_MAPS_API_KEY_ANDROID'];
+      String autoCompleteURL =
+          'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$locationName&key=$apiKey&components=country:ma';
+
+      // Send request to the API
+      var response = await CommonMethods.sendRequestToApi(autoCompleteURL);
+
+      if (response == 'error') {
+        CommonMethods().displaySnackBar('An error occured!', context);
+      } else if (response == 'use_unrestricted') {
+        // resend the request with a different API key
+        response = await CommonMethods.sendRequestToApi(
+            'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$locationName&key=${dotenv.env['GOOGLE_MAPS_NO_RESTRICTION_API_KEY']}&components=country:ma');
+        if (response['status'] == 'OK') {
+          var predictionResultInJson = response['predictions'];
+          var predictionsList = (predictionResultInJson as List)
+              .map((eachPlacePrediction) =>
+                  Prediction.fromJson(eachPlacePrediction))
+              .toList();
+          setState(() {
+            dropOffPredictionList = predictionsList;
+          });
+          print(
+              'Drop off prediction list length: ${dropOffPredictionList.length}');
+        }
+      }
+    }
   }
 
   @override
@@ -139,6 +178,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           padding: const EdgeInsets.all(3),
                           child: TextField(
                             controller: _dropOffController,
+                            onChanged: (value) => searchLocation(value),
                             decoration: InputDecoration(
                               hintText: 'Drop off location',
                               fillColor: Theme.of(context).primaryColor,
