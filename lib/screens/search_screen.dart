@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/models/prediction.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
+import 'package:car_go_pfe_lp_j2ee/widgets/prediction_place_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -197,7 +198,32 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
           ),
-        )
+        ),
+        // display the prediction results for drop off location
+        (dropOffPredictionList.length > 0)
+            ? Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(0),
+                  itemBuilder: (context, index) {
+                    return Card(
+                      elevation: 3,
+                      child: PredictionPlaceUi(
+                        prediction: dropOffPredictionList[index],
+                      ),
+                    );
+                  },
+                  separatorBuilder: (BuildContext context, int index) =>
+                      const SizedBox(
+                    height: 2,
+                  ),
+                  itemCount: dropOffPredictionList.length,
+                  shrinkWrap: true,
+                  physics: const ClampingScrollPhysics(),
+                ),
+              )
+            : Container(),
       ],
     );
   }
