@@ -87,8 +87,9 @@ class _SearchScreenState extends State<SearchScreen> {
                   spreadRadius: 0.5,
                   blurRadius: 5,
                   offset: const Offset(0.7, 0.7),
-                )
+                ),
               ],
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Padding(
               padding: const EdgeInsets.only(
@@ -201,11 +202,10 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         // display the prediction results for drop off location
         (dropOffPredictionList.length > 0)
-            ? Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            ? Flexible(
                 child: ListView.separated(
-                  padding: const EdgeInsets.all(0),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   itemBuilder: (context, index) {
                     return Card(
                       elevation: 3,

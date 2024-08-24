@@ -13,8 +13,9 @@ class PredictionPlaceUi extends StatefulWidget {
 class _PredictionPlaceUiState extends State<PredictionPlaceUi> {
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-        onPressed: () {},
+    return InkWell(
+        onTap: () {},
+        borderRadius: BorderRadius.circular(10),
         child: Container(
           child: Column(
             children: [
