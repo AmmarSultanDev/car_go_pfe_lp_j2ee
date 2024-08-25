@@ -23,6 +23,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -50,6 +51,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   double rideDetailsContainerHeight = 0;
 
+  double requestRideContainerHeight = 0;
+
   LatLng? positionOfUserInLatLng;
 
   DirectionDetails? tripDirectionDetails;
@@ -63,6 +66,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Set<Circle> circleSet = {};
 
   bool onDirections = false;
+
+  String stateOfApp = 'normal';
 
   void updateMapTheme(GoogleMapController controller, BuildContext context) {
     String mapStylePath = Theme.of(context).brightness == Brightness.dark
@@ -336,6 +341,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     setState(() {
       searchContainerHeight = 276;
       rideDetailsContainerHeight = 0;
+      requestRideContainerHeight = 0;
       bottomMapPadding = 100;
       onDirections = false;
       polyLineSet.clear();
@@ -350,6 +356,24 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       carDetailsDriver = '';
       tripStatusDisplay = 'Driver is Arriving';
     });
+  }
+
+  cancelRideRequest() {
+    setState(() {
+      stateOfApp = 'normal';
+    });
+  }
+
+  displayRequestingRideContainer() {
+    setState(() {
+      searchContainerHeight = 0;
+      rideDetailsContainerHeight = 0;
+      requestRideContainerHeight = 200;
+      bottomMapPadding = 200;
+      onDirections = false;
+    });
+
+    // send request to the nearest driver
   }
 
   @override
@@ -484,7 +508,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 polylines: polyLineSet,
                 markers: markerSet,
                 circles: circleSet,
-                initialCameraPosition: googlePlexInitialPosition,
+                initialCameraPosition: casablancaInitialPosition,
                 onMapCreated: (GoogleMapController mapController) async {
                   controllerGoogleMap = mapController;
                   updateMapTheme(controllerGoogleMap!, context);
@@ -530,6 +554,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   ),
                 ),
               ),
+              // search container
               Positioned(
                 left: 0,
                 right: 0,
@@ -632,6 +657,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   ),
                 ),
               ),
+              // ride details container
               Positioned(
                 left: 0,
                 right: 0,
@@ -716,6 +742,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                           onTap: () {
                                             // ignore: avoid_print
                                             print('Ride details tapped');
+                                            setState(() {
+                                              stateOfApp = 'requesting';
+                                            });
+
+                                            displayRequestingRideContainer();
+
+                                            // get nearest available online drivers
+
+                                            // search driver
                                           },
                                           child: Image.asset(
                                               'assets/images/electric_car.png',
@@ -739,6 +774,84 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   ),
                                 ),
                               ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              // request ride container
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  height: requestRideContainerHeight,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).canvasColor.withOpacity(0.5),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        blurRadius: 15.0,
+                        spreadRadius: 0.5,
+                        offset: const Offset(
+                          0.7,
+                          0.7,
+                        ),
+                      )
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 18,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(
+                          height: 12,
+                        ),
+                        SizedBox(
+                          width: 200,
+                          child: LoadingAnimationWidget.flickr(
+                            leftDotColor: Theme.of(context).colorScheme.primary,
+                            rightDotColor:
+                                Theme.of(context).colorScheme.secondary,
+                            size: 50,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            clearTheMap();
+                            cancelRideRequest();
+                          },
+                          child: Container(
+                            height: 50,
+                            width: 50,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onPrimaryContainer,
+                              borderRadius: BorderRadius.circular(25),
+                              border: Border.all(
+                                width: 1.5,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.close,
+                              color: Theme.of(context).primaryColor,
+                              size: 25,
                             ),
                           ),
                         )
