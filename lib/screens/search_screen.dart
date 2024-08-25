@@ -93,12 +93,9 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             child: Padding(
               padding: const EdgeInsets.only(
-                  left: 24, top: 48, right: 24, bottom: 20),
+                  left: 24, top: 24, right: 24, bottom: 20),
               child: Column(
                 children: [
-                  const SizedBox(
-                    height: 6,
-                  ),
                   Row(
                     children: [
                       IconButton(
@@ -106,9 +103,6 @@ class _SearchScreenState extends State<SearchScreen> {
                           Navigator.pop(context);
                         },
                         icon: const Icon(Icons.arrow_back),
-                      ),
-                      const SizedBox(
-                        width: 16,
                       ),
                       Text(
                         'Set destination location',

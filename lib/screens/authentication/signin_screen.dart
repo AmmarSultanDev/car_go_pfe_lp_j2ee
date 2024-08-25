@@ -46,11 +46,13 @@ class _SigninScreenState extends State<SigninScreen> {
         Provider.of<UserProvider>(context, listen: false).setUser = user;
       }
 
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const HomeScreen(),
-        ),
-      );
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const HomeScreen(),
+          ),
+        );
+      }
     }
   }
 

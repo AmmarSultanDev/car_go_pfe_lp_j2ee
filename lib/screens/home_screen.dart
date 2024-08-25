@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:car_go_pfe_lp_j2ee/global/global_var.dart';
+import 'package:car_go_pfe_lp_j2ee/global/trip_var.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/firestore_methods.dart';
@@ -92,10 +93,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     positionOfUserInLatLng = LatLng(
         currentPositionOfUser!.latitude, currentPositionOfUser!.longitude);
 
-    await CommonMethods.convertGeoCodeToAddress(
-        positionOfUserInLatLng!.latitude,
-        positionOfUserInLatLng!.longitude,
-        context);
+    if (mounted) {
+      await CommonMethods.convertGeoCodeToAddress(
+          positionOfUserInLatLng!.latitude,
+          positionOfUserInLatLng!.longitude,
+          context);
+    }
 
     CameraPosition cameraPosition = CameraPosition(
       target: positionOfUserInLatLng!,
@@ -198,10 +201,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     pLineCoordinates.clear();
 
     if (latLngPointsFromPickUpToDestination.isNotEmpty) {
-      latLngPointsFromPickUpToDestination.forEach((PointLatLng latLngPoint) {
+      for (var latLngPoint in latLngPointsFromPickUpToDestination) {
         pLineCoordinates
             .add(LatLng(latLngPoint.latitude, latLngPoint.longitude));
-      });
+      }
     }
 
     polyLineSet.clear();
@@ -339,6 +342,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       markerSet.clear();
       circleSet.clear();
       pLineCoordinates.clear();
+
+      status = '';
+      nameDriver = '';
+      photoDriver = '';
+      phoneNumberDriver = null;
+      carDetailsDriver = '';
+      tripStatusDisplay = 'Driver is Arriving';
     });
   }
 
@@ -350,7 +360,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
         // If the user is null, show a loading spinner
         if (user == null) {
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         }
 
         return Scaffold(
@@ -381,7 +391,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                user!.displayName,
+                                user.displayName,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleLarge!
@@ -531,6 +541,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     children: [
                       ElevatedButton(
                         onPressed: () async {
+                          setState(() {
+                            searchContainerHeight = 0;
+                          });
                           var resultFromSearchDialog = await showDialog(
                             context: context,
                             barrierDismissible: true,
@@ -540,26 +553,37 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 child: Stack(
                                   alignment: Alignment.center,
                                   children: <Widget>[
-                                    // This is the blurry background
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.of(context).pop();
+                                    //This is the blurry background
+                                    LayoutBuilder(
+                                      builder: (BuildContext context,
+                                          BoxConstraints constraints) {
+                                        return InkWell(
+                                          splashColor: Colors.transparent,
+                                          highlightColor: Colors.transparent,
+                                          onTap: () {
+                                            if (mounted) {
+                                              Navigator.of(context).pop();
+                                            }
+                                            setState(() {
+                                              searchContainerHeight = 276;
+                                            });
+                                          },
+                                          child: BackdropFilter(
+                                            filter: ImageFilter.blur(
+                                                sigmaX: 5, sigmaY: 5),
+                                            child: SizedBox(
+                                              width: constraints.maxWidth,
+                                              height: constraints.maxHeight,
+                                              child: Container(
+                                                color: Colors.transparent,
+                                              ),
+                                            ),
+                                          ),
+                                        );
                                       },
-                                      child: BackdropFilter(
-                                        filter: ImageFilter.blur(
-                                            sigmaX: 5, sigmaY: 5),
-                                        child: const SizedBox(
-                                          width: double.infinity,
-                                          height: double.infinity,
-                                        ),
-                                      ),
                                     ),
                                     // This is your SearchScreen widget
-                                    const SizedBox(
-                                      width: null,
-                                      height: null,
-                                      child: SearchScreen(),
-                                    ),
+                                    SearchScreen(),
                                   ],
                                 ),
                               );
@@ -567,6 +591,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           );
                           if (resultFromSearchDialog == 'place_selected') {
                             displayUserRideDetailsContainer();
+                          } else {
+                            setState(() {
+                              searchContainerHeight = 276;
+                            });
                           }
                         },
                         style: ElevatedButton.styleFrom(
