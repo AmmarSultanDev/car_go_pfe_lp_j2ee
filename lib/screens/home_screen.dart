@@ -8,13 +8,10 @@ import 'package:car_go_pfe_lp_j2ee/global/global_var.dart';
 import 'package:car_go_pfe_lp_j2ee/global/trip_var.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
-import 'package:car_go_pfe_lp_j2ee/methods/firestore_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/models/direction_details.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
-import 'package:car_go_pfe_lp_j2ee/screens/authentication/signin_screen.dart';
-import 'package:car_go_pfe_lp_j2ee/screens/blocked_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/search_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +30,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+class _HomeScreenState extends State<HomeScreen> {
   final Completer<GoogleMapController> googleMapCompleterController =
       Completer<GoogleMapController>();
 
@@ -116,57 +113,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   // signout
   signout() async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const LoadingDialog(messageText: 'Signing out ...'),
-    );
-
     await AuthMethods().signoutUser();
-
-    if (mounted) Navigator.of(context).pop();
-
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const SigninScreen(),
-        ),
-      );
-    }
-  }
-
-  checkBlockStatus() async {
-    User? user = Provider.of<UserProvider>(context, listen: false).getUser;
-
-    if (user != null) {
-      bool blockStatus = await FirestoreMethods().checkBlockStatus(user.uid);
-      if (blockStatus) {
-        await signout();
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const BlockedScreen()));
-      }
-    }
   }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    //checkBlockStatus();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed) {
-      checkBlockStatus();
-    }
   }
 
   retrieveDirectionDetails() async {
@@ -384,7 +341,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
         // If the user is null, show a loading spinner
         if (user == null) {
-          return const CircularProgressIndicator();
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
         }
 
         return Scaffold(

@@ -1,3 +1,4 @@
+import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart' as model;
@@ -121,13 +122,29 @@ class MyApp extends StatelessWidget {
                       return const BlockedScreen(); // return a screen for blocked users
                     } else {
                       // maintain the user's session
-
                       model.User? user = model.User.fromSnap(snapshot.data!);
 
                       Provider.of<UserProvider>(context, listen: false)
                           .setUser = user;
 
-                      return const HomeScreen();
+                      return FutureBuilder(
+                        future:
+                            const CommonMethods().askForLocationPermission(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return const Center(
+                              child: Text(
+                                  'Error in asking for location permission'),
+                            );
+                          } else {
+                            return const HomeScreen();
+                          }
+                        },
+                      );
                     }
                   } else {
                     return const SigninScreen();

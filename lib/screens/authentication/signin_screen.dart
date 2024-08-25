@@ -1,12 +1,7 @@
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
-import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/authentication/signup_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
-import 'package:car_go_pfe_lp_j2ee/screens/home_screen.dart';
-import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:car_go_pfe_lp_j2ee/models/user.dart' as model;
 
 class SigninScreen extends StatefulWidget {
   const SigninScreen({super.key});
@@ -21,38 +16,14 @@ class _SigninScreenState extends State<SigninScreen> {
   CommonMethods commonMethods = const CommonMethods();
 
   signin() async {
-    if (mounted) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) =>
-            const LoadingDialog(messageText: 'Signing in ...'),
-      );
-    }
-
     String res = await AuthMethods().signinUser(
       email: _emailController.text.trim(),
       password: _passwordController.text.trim(),
       context: context,
     );
 
-    if (mounted) Navigator.of(context).pop();
-
     if (res != 'Success') {
       if (mounted) commonMethods.displaySnackBar(res, context);
-    } else {
-      model.User? user = await AuthMethods().getUserDetails();
-      if (mounted) {
-        Provider.of<UserProvider>(context, listen: false).setUser = user;
-      }
-
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const HomeScreen(),
-          ),
-        );
-      }
     }
   }
 
