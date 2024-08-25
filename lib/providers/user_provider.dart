@@ -9,9 +9,20 @@ class UserProvider with ChangeNotifier {
   model.User? get getUser => _user;
 
   Future<model.User?> refreshUser() async {
-    _user = await _authMethods.getUserDetails();
+    model.User? user = await _authMethods.getUserDetails();
 
-    notifyListeners();
-    return _user;
+    Future.microtask(() {
+      _user = user;
+      notifyListeners();
+    });
+
+    return user;
+  }
+
+  set setUser(model.User user) {
+    Future.microtask(() {
+      _user = user;
+      notifyListeners();
+    });
   }
 }

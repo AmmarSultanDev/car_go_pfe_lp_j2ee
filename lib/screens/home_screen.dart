@@ -193,372 +193,378 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: unused_local_variable
-    final User? user = Provider.of<UserProvider>(context).getUser;
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        final User? user = userProvider.getUser;
 
-    return Scaffold(
-      key: scaffoldKey,
-      drawer: Container(
-        width: 300,
-        color: Theme.of(context).primaryColor,
-        child: Drawer(
-          backgroundColor: Theme.of(context).primaryColor,
-          child: ListView(
-            children: [
-              // Drawer Header
-              Container(
-                color: Theme.of(context).primaryColor,
-                height: 160,
-                child: DrawerHeader(
-                  decoration: BoxDecoration(
+        // If the user is null, show a loading spinner
+        if (user == null) {
+          return CircularProgressIndicator();
+        }
+
+        return Scaffold(
+          key: scaffoldKey,
+          drawer: Container(
+            width: 300,
+            color: Theme.of(context).primaryColor,
+            child: Drawer(
+              backgroundColor: Theme.of(context).primaryColor,
+              child: ListView(
+                children: [
+                  // Drawer Header
+                  Container(
+                    color: Theme.of(context).primaryColor,
+                    height: 160,
+                    child: DrawerHeader(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor,
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.person,
+                            size: 60,
+                          ),
+                          const SizedBox(width: 16),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                user!.displayName,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge!
+                                    .copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                              Flexible(
+                                child: Text(
+                                  user.email,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall!
+                                      .copyWith(fontSize: 18),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Drawer Body
+                  Divider(
+                    height: 1,
                     color: Theme.of(context).primaryColor,
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.person,
-                        size: 60,
+                  GestureDetector(
+                    onTap: () {},
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.info,
+                        color: Theme.of(context).canvasColor,
                       ),
-                      const SizedBox(width: 16),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            user!.displayName,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge!
-                                .copyWith(
-                                  fontWeight: FontWeight.bold,
+                      title: Text(
+                        'About',
+                        style:
+                            Theme.of(context).textTheme.headlineSmall!.copyWith(
+                                  fontSize: 18,
+                                  color: Theme.of(context).canvasColor,
                                 ),
-                          ),
-                          Flexible(
-                            child: Text(
-                              user.email,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall!
-                                  .copyWith(fontSize: 18),
-                            ),
-                          ),
-                        ],
-                      )
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      signout();
+                    },
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.logout_outlined,
+                        color: Theme.of(context).canvasColor,
+                      ),
+                      title: Text(
+                        'Sign Out',
+                        style:
+                            Theme.of(context).textTheme.headlineSmall!.copyWith(
+                                  fontSize: 18,
+                                  color: Theme.of(context).canvasColor,
+                                ),
+                      ),
+                    ),
+                  ),
+
+                  // Drawer Footer
+                  Divider(
+                    height: 1,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  SvgPicture.asset(
+                    'assets/images/logo-cigma-scroll.svg',
+                    height: 200,
+                    width: 200,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          body: Stack(
+            children: [
+              GoogleMap(
+                compassEnabled: false,
+                zoomControlsEnabled: false,
+                padding: Platform.isAndroid
+                    ? const EdgeInsets.only(top: 40, right: 10)
+                    : EdgeInsets.only(
+                        bottom: bottomMapPadding, right: 28, left: 16),
+                mapType: MapType.normal,
+                myLocationEnabled: true,
+                initialCameraPosition: googlePlexInitialPosition,
+                onMapCreated: (GoogleMapController mapController) async {
+                  controllerGoogleMap = mapController;
+                  updateMapTheme(controllerGoogleMap!, context);
+
+                  googleMapCompleterController.complete(controllerGoogleMap);
+
+                  getCurrentLiveLocationOfUser();
+                },
+              ),
+
+              // drawer button
+              Positioned(
+                top: 50,
+                left: 19,
+                child: GestureDetector(
+                  onTap: () {
+                    scaffoldKey.currentState!.openDrawer();
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 5,
+                            spreadRadius: 0.5,
+                            offset: Offset(0.7, 0.7),
+                          )
+                        ]),
+                    child: CircleAvatar(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      radius: 20,
+                      child: Icon(
+                        Icons.menu,
+                        color: Theme.of(context).canvasColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: -80,
+                child: SizedBox(
+                  height: searchContainerHeight,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () async {
+                          var resultFromSearchDialog = await showDialog(
+                            context: context,
+                            barrierDismissible: true,
+                            builder: (BuildContext context) {
+                              return Dialog(
+                                backgroundColor: Colors.transparent,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: <Widget>[
+                                    // This is the blurry background
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: BackdropFilter(
+                                        filter: ImageFilter.blur(
+                                            sigmaX: 5, sigmaY: 5),
+                                        child: const SizedBox(
+                                          width: double.infinity,
+                                          height: double.infinity,
+                                        ),
+                                      ),
+                                    ),
+                                    // This is your SearchScreen widget
+                                    const SizedBox(
+                                      width: null,
+                                      height: null,
+                                      child: SearchScreen(),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                          if (resultFromSearchDialog == 'place_selected') {
+                            displayUserRideDetailsContainer();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          shape: const CircleBorder(),
+                          padding: const EdgeInsets.all(16),
+                        ),
+                        child: const Icon(
+                          Icons.search,
+                          size: 25,
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          shape: const CircleBorder(),
+                          padding: const EdgeInsets.all(16),
+                        ),
+                        child: const Icon(
+                          Icons.home,
+                          size: 25,
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          shape: const CircleBorder(),
+                          padding: const EdgeInsets.all(16),
+                        ),
+                        child: const Icon(
+                          Icons.work,
+                          size: 25,
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
-              // Drawer Body
-              Divider(
-                height: 1,
-                color: Theme.of(context).primaryColor,
-              ),
-              GestureDetector(
-                onTap: () {},
-                child: ListTile(
-                  leading: Icon(
-                    Icons.info,
-                    color: Theme.of(context).canvasColor,
-                  ),
-                  title: Text(
-                    'About',
-                    style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                          fontSize: 18,
-                          color: Theme.of(context).canvasColor,
-                        ),
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  signout();
-                },
-                child: ListTile(
-                  leading: Icon(
-                    Icons.logout_outlined,
-                    color: Theme.of(context).canvasColor,
-                  ),
-                  title: Text(
-                    'Sign Out',
-                    style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                          fontSize: 18,
-                          color: Theme.of(context).canvasColor,
-                        ),
-                  ),
-                ),
-              ),
-
-              // Drawer Footer
-              Divider(
-                height: 1,
-                color: Theme.of(context).primaryColor,
-              ),
-              SvgPicture.asset(
-                'assets/images/logo-cigma-scroll.svg',
-                height: 200,
-                width: 200,
-              ),
-            ],
-          ),
-        ),
-      ),
-      body: Stack(
-        children: [
-          GoogleMap(
-            compassEnabled: false,
-            zoomControlsEnabled: false,
-            padding: Platform.isAndroid
-                ? const EdgeInsets.only(top: 40, right: 10)
-                : EdgeInsets.only(
-                    bottom: bottomMapPadding, right: 28, left: 16),
-            mapType: MapType.normal,
-            myLocationEnabled: true,
-            initialCameraPosition: googlePlexInitialPosition,
-            onMapCreated: (GoogleMapController mapController) async {
-              controllerGoogleMap = mapController;
-              updateMapTheme(controllerGoogleMap!, context);
-
-              googleMapCompleterController.complete(controllerGoogleMap);
-
-              getCurrentLiveLocationOfUser();
-            },
-          ),
-
-          // drawer button
-          Positioned(
-            top: 50,
-            left: 19,
-            child: GestureDetector(
-              onTap: () {
-                scaffoldKey.currentState!.openDrawer();
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 5,
-                        spreadRadius: 0.5,
-                        offset: Offset(0.7, 0.7),
-                      )
-                    ]),
-                child: CircleAvatar(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  radius: 20,
-                  child: Icon(
-                    Icons.menu,
-                    color: Theme.of(context).canvasColor,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: -80,
-            child: SizedBox(
-              height: searchContainerHeight,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      var resultFromSearchDialog = await showDialog(
-                        context: context,
-                        barrierDismissible: true,
-                        builder: (BuildContext context) {
-                          return Dialog(
-                            backgroundColor: Colors.transparent,
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: <Widget>[
-                                // This is the blurry background
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: BackdropFilter(
-                                    filter:
-                                        ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                                    child: const SizedBox(
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                    ),
-                                  ),
-                                ),
-                                // This is your SearchScreen widget
-                                SizedBox(
-                                  width: null,
-                                  height: null,
-                                  child: SearchScreen(),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      );
-                      if (resultFromSearchDialog == 'place_selected') {
-                        String dropOffLocation =
-                            Provider.of<AddressProvider>(context, listen: false)
-                                    .dropOffAddress!
-                                    .placeName ??
-                                '';
-                        // ignore: avoid_print
-                        print('Drop off location: $dropOffLocation');
-
-                        displayUserRideDetailsContainer();
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      shape: const CircleBorder(),
-                      padding: const EdgeInsets.all(16),
-                    ),
-                    child: const Icon(
-                      Icons.search,
-                      size: 25,
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      shape: const CircleBorder(),
-                      padding: const EdgeInsets.all(16),
-                    ),
-                    child: const Icon(
-                      Icons.home,
-                      size: 25,
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      shape: const CircleBorder(),
-                      padding: const EdgeInsets.all(16),
-                    ),
-                    child: const Icon(
-                      Icons.work,
-                      size: 25,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              height: rideDetailsContainerHeight,
-              decoration: BoxDecoration(
-                color: Theme.of(context).canvasColor.withOpacity(0.5),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 15.0,
-                    spreadRadius: 0.5,
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  height: rideDetailsContainerHeight,
+                  decoration: BoxDecoration(
                     color: Theme.of(context).canvasColor.withOpacity(0.5),
-                    offset: const Offset(0.7, 0.7),
-                  ),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 18,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 16,
-                        right: 16,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 15.0,
+                        spreadRadius: 0.5,
+                        color: Theme.of(context).canvasColor.withOpacity(0.5),
+                        offset: const Offset(0.7, 0.7),
                       ),
-                      child: SizedBox(
-                        height: 200,
-                        child: Card(
-                          elevation: 10,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            width: MediaQuery.of(context).size.width * .70,
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                top: 8,
-                                bottom: 8,
-                              ),
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      (tripDirectionDetails != null)
-                                          ? tripDirectionDetails!.distanceText!
-                                          : '0 Km',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineMedium!
-                                          .copyWith(
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 18,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 16,
+                            right: 16,
+                          ),
+                          child: SizedBox(
+                            height: 200,
+                            child: Card(
+                              elevation: 10,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                width: MediaQuery.of(context).size.width * .70,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 8,
+                                    bottom: 8,
+                                  ),
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          (tripDirectionDetails != null)
+                                              ? tripDirectionDetails!
+                                                  .distanceText!
+                                              : '0 Km',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineMedium!
+                                              .copyWith(
+                                                fontSize: 22,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          (tripDirectionDetails != null)
+                                              ? tripDirectionDetails!
+                                                  .durationText!
+                                              : '0 min',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineSmall!
+                                              .copyWith(
+                                                fontSize: 16,
+                                                color: Colors.grey,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        GestureDetector(
+                                          onTap: () {
+                                            // ignore: avoid_print
+                                            print('Ride details tapped');
+                                          },
+                                          child: Image.asset(
+                                              'assets/images/electric_car.png',
+                                              height: 80,
+                                              width: 180),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          (tripDirectionDetails != null)
+                                              ? '\$${commonMethods.calculateFareAmount(tripDirectionDetails!)}'
+                                              : '\$0',
+                                          style: TextStyle(
                                             fontSize: 22,
                                             fontWeight: FontWeight.bold,
+                                            color:
+                                                Theme.of(context).primaryColor,
                                           ),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      (tripDirectionDetails != null)
-                                          ? tripDirectionDetails!.durationText!
-                                          : '0 min',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineSmall!
-                                          .copyWith(
-                                            fontSize: 16,
-                                            color: Colors.grey,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    GestureDetector(
-                                      onTap: () {
-                                        // ignore: avoid_print
-                                        print('Ride details tapped');
-                                      },
-                                      child: Image.asset(
-                                          'assets/images/electric_car.png',
-                                          height: 80,
-                                          width: 180),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      (tripDirectionDetails != null)
-                                          ? '\$${commonMethods.calculateFareAmount(tripDirectionDetails!)}'
-                                          : '\$0',
-                                      style: TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold,
-                                        color: Theme.of(context).primaryColor,
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                    )
-                  ],
+                        )
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          )
-        ],
-      ),
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
+import 'package:car_go_pfe_lp_j2ee/models/user.dart' as model;
 import 'package:car_go_pfe_lp_j2ee/screens/authentication/signin_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/firebase_options.dart';
 import 'package:car_go_pfe_lp_j2ee/resources/app_colors.dart';
@@ -10,10 +11,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-
-var status;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,16 +27,7 @@ void main() async {
     print(e.toString());
   }
 
-  await askForPermission();
-
   runApp(const MyApp());
-}
-
-askForPermission() async {
-  status = await Permission.locationWhenInUse.status;
-  if (status == PermissionStatus.denied) {
-    await Permission.locationWhenInUse.request();
-  }
 }
 
 class MyApp extends StatelessWidget {
@@ -122,15 +111,18 @@ class MyApp extends StatelessWidget {
                     );
                   } else if (snapshot.hasData) {
                     bool isBlocked = snapshot.data!.get('isBlocked') as bool;
+                    print(isBlocked);
                     if (isBlocked) {
                       return const BlockedScreen(); // return a screen for blocked users
                     } else {
                       // maintain the user's session
+
+                      model.User? user = model.User.fromSnap(snapshot.data!);
+
                       Provider.of<UserProvider>(context, listen: false)
-                          .refreshUser();
-                      return status == PermissionStatus.granted
-                          ? const HomeScreen()
-                          : const SigninScreen();
+                          .setUser = user;
+
+                      return const HomeScreen();
                     }
                   } else {
                     return const SigninScreen();

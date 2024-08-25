@@ -9,7 +9,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 
 class SearchScreen extends StatefulWidget {
-  SearchScreen({super.key});
+  const SearchScreen({super.key});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -47,7 +47,7 @@ class _SearchScreenState extends State<SearchScreen> {
       var response = await CommonMethods.sendRequestToApi(autoCompleteURL);
 
       if (response == 'error') {
-        CommonMethods().displaySnackBar('An error occured!', context);
+        const CommonMethods().displaySnackBar('An error occured!', context);
       } else if (response == 'use_unrestricted') {
         // resend the request with a different API key
         response = await CommonMethods.sendRequestToApi(
@@ -201,7 +201,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         // display the prediction results for drop off location
-        (dropOffPredictionList.length > 0)
+        (dropOffPredictionList.isNotEmpty)
             ? Flexible(
                 child: ListView.separated(
                   padding:

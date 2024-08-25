@@ -34,8 +34,9 @@ class _SigninScreenState extends State<SigninScreen> {
       password: _passwordController.text.trim(),
     );
 
+    if (mounted) Navigator.of(context).pop();
+
     if (res != 'Success') {
-      if (mounted) Navigator.of(context).pop();
       if (mounted) commonMethods.displaySnackBar(res, context);
     } else {
       if (mounted) {
