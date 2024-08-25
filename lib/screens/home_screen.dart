@@ -105,9 +105,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     await AuthMethods().signoutUser();
 
-    if (context.mounted) {
-      Navigator.of(context).pop(); // Close the loading dialog
+    if (mounted) Navigator.of(context).pop();
 
+    if (mounted) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => const SigninScreen(),
@@ -133,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    checkBlockStatus();
+    //checkBlockStatus();
   }
 
   @override

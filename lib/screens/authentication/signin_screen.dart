@@ -6,6 +6,7 @@ import 'package:car_go_pfe_lp_j2ee/screens/home_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:car_go_pfe_lp_j2ee/models/user.dart' as model;
 
 class SigninScreen extends StatefulWidget {
   const SigninScreen({super.key});
@@ -20,7 +21,7 @@ class _SigninScreenState extends State<SigninScreen> {
   CommonMethods commonMethods = const CommonMethods();
 
   signin() async {
-    if (context.mounted) {
+    if (mounted) {
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -32,6 +33,7 @@ class _SigninScreenState extends State<SigninScreen> {
     String res = await AuthMethods().signinUser(
       email: _emailController.text.trim(),
       password: _passwordController.text.trim(),
+      context: context,
     );
 
     if (mounted) Navigator.of(context).pop();
@@ -39,20 +41,16 @@ class _SigninScreenState extends State<SigninScreen> {
     if (res != 'Success') {
       if (mounted) commonMethods.displaySnackBar(res, context);
     } else {
+      model.User? user = await AuthMethods().getUserDetails();
       if (mounted) {
-        await Provider.of<UserProvider>(context, listen: false).refreshUser();
+        Provider.of<UserProvider>(context, listen: false).setUser = user;
       }
-      if (mounted) {
-        Navigator.of(context)
-            .popUntil((route) => route.isFirst); // Pop until the first route
-      }
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const HomeScreen(),
-          ),
-        );
-      }
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+        ),
+      );
     }
   }
 
