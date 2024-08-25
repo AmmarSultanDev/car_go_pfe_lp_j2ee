@@ -48,6 +48,7 @@ class AuthMethods {
               .set(user.toJson());
         }
         res = 'Success';
+        return res;
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {

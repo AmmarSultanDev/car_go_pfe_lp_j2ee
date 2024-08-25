@@ -6,6 +6,7 @@ import 'package:car_go_pfe_lp_j2ee/screens/home_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:car_go_pfe_lp_j2ee/models/user.dart' as model;
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -60,13 +61,14 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   registerNewUser() async {
-    if (!context.mounted) return;
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) =>
-          const LoadingDialog(messageText: 'Creating account...'),
-    );
+    if (mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) =>
+            const LoadingDialog(messageText: 'Creating account...'),
+      );
+    }
 
     String res = await AuthMethods().signupUser(
       email: _emailController.text.trim(),
@@ -75,22 +77,24 @@ class _SignupScreenState extends State<SignupScreen> {
       userphone: _userphoneController.text.trim(),
     );
 
+    if (mounted) Navigator.pop(context);
+
     if (res != 'Success') {
-      if (!context.mounted) return;
-      Navigator.pop(context);
       commonMethods.displaySnackBar(res, context);
     } else {
-      if (!context.mounted) return;
-      await Provider.of<UserProvider>(context, listen: false).refreshUser();
+      model.User? user = await AuthMethods().getUserDetails();
 
-      Navigator.pop(context);
-      // commonMethods.displaySnackBar('Account created successfully!', context);
-      // Navigate to home screen
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const HomeScreen(),
-        ),
-      );
+      if (mounted) {
+        Provider.of<UserProvider>(context, listen: false).setUser = user;
+      }
+
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const HomeScreen(),
+          ),
+        );
+      }
     }
   }
 
