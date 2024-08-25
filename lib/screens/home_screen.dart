@@ -57,6 +57,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Set<Polyline> polyLineSet = {};
 
+  Set<Marker> markerSet = {};
+
+  Set<Circle> circleSet = {};
+
   void updateMapTheme(GoogleMapController controller, BuildContext context) {
     String mapStylePath = Theme.of(context).brightness == Brightness.dark
         ? 'themes/night_style.json'
@@ -184,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     setState(() {
       tripDirectionDetails = detailsFromDirectionApi;
     });
-
+    // draw route between the pick up and drop off locations
     PolylinePoints polylinePoints = PolylinePoints();
     List<PointLatLng> latLngPointsFromPickUpToDestination =
         polylinePoints.decodePolyline(tripDirectionDetails!.encodedPoints!);
@@ -214,6 +218,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       polyLineSet.add(polyline);
     });
 
+    // fit the route into the map
     LatLngBounds latLngBounds;
     if (pickUpGeographicCoordinates.latitude >
             dropOffGeographicCoordinates.latitude &&
@@ -257,6 +262,58 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     controllerGoogleMap!.animateCamera(
       CameraUpdate.newLatLngBounds(latLngBounds, 70),
     );
+
+    // add pick up and drop off markers
+
+    Marker pickUpPointMarker = Marker(
+      markerId: const MarkerId('pickUpPointMarkerId'),
+      position: pickUpGeographicCoordinates,
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      infoWindow: InfoWindow(
+        title: pickUpLocation.placeName,
+        snippet: 'My Location',
+      ),
+    );
+
+    Marker dropOffPointMarker = Marker(
+      markerId: const MarkerId('dropOffPointMarkerId'),
+      position: dropOffGeographicCoordinates,
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+      infoWindow: InfoWindow(
+        title: dropOffLocation.placeName,
+        snippet: 'DropOff Location',
+      ),
+    );
+
+    setState(() {
+      markerSet.add(pickUpPointMarker);
+      markerSet.add(dropOffPointMarker);
+    });
+
+    // add pick up and drop off circles
+
+    Circle pickUpPointCircle = Circle(
+      circleId: const CircleId('pickUpPointCircleId'),
+      strokeColor: Colors.green,
+      strokeWidth: 4,
+      radius: 12,
+      center: pickUpGeographicCoordinates,
+      fillColor: Colors.green,
+    );
+
+    Circle dropOffPointCircle = Circle(
+      circleId: const CircleId('dropOffPointCircleId'),
+      strokeColor: Colors.red,
+      strokeWidth: 4,
+      radius: 12,
+      center: dropOffGeographicCoordinates,
+      fillColor: Colors.red,
+    );
+
+    setState(() {
+      circleSet.add(pickUpPointCircle);
+      circleSet.add(dropOffPointCircle);
+    });
   }
 
   displayUserRideDetailsContainer() {
@@ -398,6 +455,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         bottom: bottomMapPadding, right: 28, left: 16),
                 mapType: MapType.normal,
                 myLocationEnabled: true,
+                polylines: polyLineSet,
+                markers: markerSet,
+                circles: circleSet,
                 initialCameraPosition: googlePlexInitialPosition,
                 onMapCreated: (GoogleMapController mapController) async {
                   controllerGoogleMap = mapController;

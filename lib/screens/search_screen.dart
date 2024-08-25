@@ -166,6 +166,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         'assets/images/pin_map_destination.png',
                         height: 20,
                         width: 20,
+                        color: Colors.red[700],
                       ),
                       const SizedBox(
                         width: 18,
