@@ -18,6 +18,7 @@ import 'package:car_go_pfe_lp_j2ee/screens/search_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -51,6 +52,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   LatLng? positionOfUserInLatLng;
 
   DirectionDetails? tripDirectionDetails;
+
+  List<LatLng> pLineCoordinates = [];
+
+  Set<Polyline> polyLineSet = {};
 
   void updateMapTheme(GoogleMapController controller, BuildContext context) {
     String mapStylePath = Theme.of(context).brightness == Brightness.dark
@@ -174,11 +179,84 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       dropOffGeographicCoordinates,
     );
 
+    if (mounted) Navigator.of(context).pop();
+
     setState(() {
       tripDirectionDetails = detailsFromDirectionApi;
     });
 
-    if (mounted) Navigator.of(context).pop();
+    PolylinePoints polylinePoints = PolylinePoints();
+    List<PointLatLng> latLngPointsFromPickUpToDestination =
+        polylinePoints.decodePolyline(tripDirectionDetails!.encodedPoints!);
+
+    pLineCoordinates.clear();
+
+    if (latLngPointsFromPickUpToDestination.isNotEmpty) {
+      latLngPointsFromPickUpToDestination.forEach((PointLatLng latLngPoint) {
+        pLineCoordinates
+            .add(LatLng(latLngPoint.latitude, latLngPoint.longitude));
+      });
+    }
+
+    polyLineSet.clear();
+
+    setState(() {
+      Polyline polyline = Polyline(
+          polylineId: const PolylineId('PolyLineId'),
+          color: Theme.of(context).primaryColor,
+          jointType: JointType.round,
+          points: pLineCoordinates,
+          width: 4,
+          startCap: Cap.roundCap,
+          endCap: Cap.roundCap,
+          geodesic: true);
+
+      polyLineSet.add(polyline);
+    });
+
+    LatLngBounds latLngBounds;
+    if (pickUpGeographicCoordinates.latitude >
+            dropOffGeographicCoordinates.latitude &&
+        pickUpGeographicCoordinates.longitude >
+            dropOffGeographicCoordinates.longitude) {
+      latLngBounds = LatLngBounds(
+        southwest: dropOffGeographicCoordinates,
+        northeast: pickUpGeographicCoordinates,
+      );
+    } else if (pickUpGeographicCoordinates.longitude >
+        dropOffGeographicCoordinates.longitude) {
+      latLngBounds = LatLngBounds(
+        southwest: LatLng(
+          pickUpGeographicCoordinates.latitude,
+          dropOffGeographicCoordinates.longitude,
+        ),
+        northeast: LatLng(
+          dropOffGeographicCoordinates.latitude,
+          pickUpGeographicCoordinates.longitude,
+        ),
+      );
+    } else if (pickUpGeographicCoordinates.latitude >
+        dropOffGeographicCoordinates.latitude) {
+      latLngBounds = LatLngBounds(
+        southwest: LatLng(
+          dropOffGeographicCoordinates.latitude,
+          pickUpGeographicCoordinates.longitude,
+        ),
+        northeast: LatLng(
+          pickUpGeographicCoordinates.latitude,
+          dropOffGeographicCoordinates.longitude,
+        ),
+      );
+    } else {
+      latLngBounds = LatLngBounds(
+        southwest: pickUpGeographicCoordinates,
+        northeast: dropOffGeographicCoordinates,
+      );
+    }
+
+    controllerGoogleMap!.animateCamera(
+      CameraUpdate.newLatLngBounds(latLngBounds, 70),
+    );
   }
 
   displayUserRideDetailsContainer() {
