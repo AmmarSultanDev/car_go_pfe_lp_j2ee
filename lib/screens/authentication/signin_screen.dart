@@ -34,11 +34,6 @@ class _SigninScreenState extends State<SigninScreen> {
     _passwordController.dispose();
   }
 
-  checkNetwork() async {
-    // Check network connection
-    await commonMethods.checkConnectivity(context);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,7 +84,7 @@ class _SigninScreenState extends State<SigninScreen> {
                         const SizedBox(height: 22),
                         ElevatedButton(
                           onPressed: () async {
-                            await checkNetwork();
+                            await commonMethods.checkConnectivity(context);
                             await signin();
                           },
                           child: const Text(
