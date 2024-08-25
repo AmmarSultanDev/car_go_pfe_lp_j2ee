@@ -61,6 +61,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Set<Circle> circleSet = {};
 
+  bool onDirections = false;
+
   void updateMapTheme(GoogleMapController controller, BuildContext context) {
     String mapStylePath = Theme.of(context).brightness == Brightness.dark
         ? 'themes/night_style.json'
@@ -323,6 +325,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       searchContainerHeight = 0;
       rideDetailsContainerHeight = 280;
       bottomMapPadding = 290;
+      onDirections = true;
+    });
+  }
+
+  void clearTheMap() {
+    setState(() {
+      searchContainerHeight = 276;
+      rideDetailsContainerHeight = 0;
+      bottomMapPadding = 100;
+      onDirections = false;
+      polyLineSet.clear();
+      markerSet.clear();
+      circleSet.clear();
+      pLineCoordinates.clear();
     });
   }
 
@@ -475,7 +491,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 left: 19,
                 child: GestureDetector(
                   onTap: () {
-                    scaffoldKey.currentState!.openDrawer();
+                    if (!onDirections) {
+                      scaffoldKey.currentState!.openDrawer();
+                    } else {
+                      clearTheMap();
+                    }
                   },
                   child: Container(
                     decoration: BoxDecoration(
@@ -493,7 +513,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       backgroundColor: Theme.of(context).primaryColor,
                       radius: 20,
                       child: Icon(
-                        Icons.menu,
+                        onDirections ? Icons.close : Icons.menu,
                         color: Theme.of(context).canvasColor,
                       ),
                     ),
