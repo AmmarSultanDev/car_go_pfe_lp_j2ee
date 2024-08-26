@@ -8,7 +8,9 @@ import 'package:car_go_pfe_lp_j2ee/global/global_var.dart';
 import 'package:car_go_pfe_lp_j2ee/global/trip_var.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
+import 'package:car_go_pfe_lp_j2ee/methods/manage_drivers_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/models/direction_details.dart';
+import 'package:car_go_pfe_lp_j2ee/models/online_nearby_driver.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
@@ -16,6 +18,7 @@ import 'package:car_go_pfe_lp_j2ee/screens/search_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
@@ -66,6 +69,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String stateOfApp = 'normal';
 
+  bool nearbyOnlineDriversAvailable = false;
+
+  BitmapDescriptor? nearbyOnlineDriverIcon;
+
+  makeDriverIcon() {
+    if (nearbyOnlineDriverIcon == null) {
+      ImageConfiguration imageConfiguration =
+          createLocalImageConfiguration(context, size: const Size(38, 38));
+      BitmapDescriptor.asset(
+              imageConfiguration, 'assets/images/pin_map_tracking.png')
+          .then((value) {
+        nearbyOnlineDriverIcon = value;
+      });
+    }
+  }
+
   void updateMapTheme(GoogleMapController controller, BuildContext context) {
     String mapStylePath = Theme.of(context).brightness == Brightness.dark
         ? 'themes/night_style.json'
@@ -109,6 +128,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     controllerGoogleMap!
         .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+
+    await initializeGeoFireListener();
   }
 
   // signout
@@ -333,8 +354,88 @@ class _HomeScreenState extends State<HomeScreen> {
     // send request to the nearest driver
   }
 
+  updateAvailableNearbyOnlineDriversOnMap() {
+    setState(() {
+      markerSet.clear();
+    });
+
+    Set<Marker> nearbyOnlineDriversMarkers = <Marker>{};
+
+    for (OnlineNearbyDriver eachOnlineNearbyDriver
+        in ManageDriversMethods.nearbyOnlineDriversList) {
+      LatLng driverCurrentPosition = LatLng(
+          eachOnlineNearbyDriver.latitude!, eachOnlineNearbyDriver.longitude!);
+
+      Marker driverMarker = Marker(
+        markerId: MarkerId(eachOnlineNearbyDriver.uidDriver!),
+        position: driverCurrentPosition,
+        icon: nearbyOnlineDriverIcon!,
+      );
+      nearbyOnlineDriversMarkers.add(driverMarker);
+    }
+    setState(() {
+      markerSet = nearbyOnlineDriversMarkers;
+    });
+  }
+
+  initializeGeoFireListener() {
+    Geofire.initialize('onlineDrivers');
+    Geofire.queryAtLocation(currentPositionOfUser!.latitude,
+            currentPositionOfUser!.longitude, 22)!
+        .listen((driverEvent) {
+      if (driverEvent != null) {
+        var onlineDriverChild = driverEvent['callBack'];
+
+        switch (onlineDriverChild) {
+          case Geofire.onKeyEntered:
+            OnlineNearbyDriver onlineNearbyDriver = OnlineNearbyDriver();
+
+            onlineNearbyDriver.uidDriver = driverEvent['key'];
+            onlineNearbyDriver.latitude = driverEvent['latitude'];
+            onlineNearbyDriver.longitude = driverEvent['longitude'];
+
+            ManageDriversMethods.updateDriverLocation(onlineNearbyDriver);
+
+            if (nearbyOnlineDriversAvailable) {
+              // update drivers on google map
+              updateAvailableNearbyOnlineDriversOnMap();
+            }
+
+            break;
+          case Geofire.onKeyExited:
+            ManageDriversMethods.removeDriverFromList(driverEvent['key']);
+            // update drivers on google map
+
+            updateAvailableNearbyOnlineDriversOnMap();
+
+            break;
+          case Geofire.onKeyMoved:
+            // update nearest online drivers
+            OnlineNearbyDriver onlineNearbyDriver = OnlineNearbyDriver();
+
+            onlineNearbyDriver.uidDriver = driverEvent['key'];
+            onlineNearbyDriver.latitude = driverEvent['latitude'];
+            onlineNearbyDriver.longitude = driverEvent['longitude'];
+
+            ManageDriversMethods.updateDriverLocation(onlineNearbyDriver);
+
+            // update drivers on google map
+            updateAvailableNearbyOnlineDriversOnMap();
+
+            break;
+          case Geofire.onGeoQueryReady:
+            nearbyOnlineDriversAvailable = true;
+            // update drivers on google map
+            updateAvailableNearbyOnlineDriversOnMap();
+            break;
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    makeDriverIcon();
     return Consumer<UserProvider>(
       builder: (context, userProvider, child) {
         final User? user = userProvider.getUser;
@@ -567,7 +668,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       },
                                     ),
                                     // This is your SearchScreen widget
-                                    SearchScreen(),
+                                    const SearchScreen(),
                                   ],
                                 ),
                               );
