@@ -8,6 +8,7 @@ import 'package:car_go_pfe_lp_j2ee/global/global_var.dart';
 import 'package:car_go_pfe_lp_j2ee/global/trip_var.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
+import 'package:car_go_pfe_lp_j2ee/methods/firestore_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/manage_drivers_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/models/direction_details.dart';
 import 'package:car_go_pfe_lp_j2ee/models/online_nearby_driver.dart';
@@ -304,7 +305,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  displayUserRideDetailsContainer() {
+  displayUserRideDetailsContainer() async {
     retrieveDirectionDetails();
     // draw route between the two locations
     setState(() {
@@ -313,6 +314,13 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomMapPadding = 290;
       onDirections = true;
     });
+
+    var pickUpLocation =
+        Provider.of<AddressProvider>(context, listen: false).pickUpAddress;
+    var dropOffLocation =
+        Provider.of<AddressProvider>(context, listen: false).dropOffAddress;
+
+    await FirestoreMethods().makeTripRequest(pickUpLocation!, dropOffLocation!);
   }
 
   void clearTheMap() {
