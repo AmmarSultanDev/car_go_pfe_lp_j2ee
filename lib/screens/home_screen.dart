@@ -17,6 +17,7 @@ import 'package:car_go_pfe_lp_j2ee/models/user.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/search_screen.dart';
+import 'package:car_go_pfe_lp_j2ee/widgets/info_dialog.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -81,6 +82,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Address? pickUpLocation;
   Address? dropOffLocation;
+
+  List<OnlineNearbyDriver>? availableNearbyOnlineDriversList;
 
   makeDriverIcon() {
     if (nearbyOnlineDriverIcon == null) {
@@ -360,6 +363,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   displayRequestingRideContainer() async {
+    // start new tripRequest
     requestId = await firestoreMethods.makeTripRequest(
         pickUpLocation!, dropOffLocation!);
     setState(() {
@@ -369,8 +373,6 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomMapPadding = 200;
       onDirections = false;
     });
-
-    // send request to the nearest driver
   }
 
   updateAvailableNearbyOnlineDriversOnMap() {
@@ -450,6 +452,29 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }
     });
+  }
+
+  noDriverAvailable() async {
+    await showDialog(
+        context: context,
+        builder: (context) => const InfoDialog(
+            title: 'No Driver Available',
+            content:
+                'No driver found in the nearby location. Please try again shortly.'));
+  }
+
+  searchDriver() async {
+    if (availableNearbyOnlineDriversList!.isEmpty) {
+      await cancelRideRequest();
+      await noDriverAvailable();
+      return;
+    }
+
+    var driver = availableNearbyOnlineDriversList!.first;
+
+    // send push notification to the current driver
+
+    availableNearbyOnlineDriversList!.removeAt(0);
   }
 
   @override
@@ -826,11 +851,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                               stateOfApp = 'requesting';
                                             });
 
-                                            displayRequestingRideContainer();
+                                            await displayRequestingRideContainer();
 
                                             // get nearest available online drivers
+                                            availableNearbyOnlineDriversList =
+                                                ManageDriversMethods
+                                                    .nearbyOnlineDriversList;
 
                                             // search driver
+                                            await searchDriver();
                                           },
                                           child: Image.asset(
                                               'assets/images/electric_car.png',
