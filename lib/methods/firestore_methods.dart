@@ -9,8 +9,11 @@ class FirestoreMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  makeTripRequest(Address pickUpAddress, Address dropOffAddress) async {
+  Future<String> makeTripRequest(
+      Address pickUpAddress, Address dropOffAddress) async {
     model.User? currentUser = await AuthMethods().getUserDetails();
+    Uuid uuid = const Uuid();
+    String requestId = uuid.v4();
 
     Map<String, dynamic> userInfo = currentUser == null
         ? {}
@@ -20,6 +23,23 @@ class FirestoreMethods {
             'phoneNumber': currentUser.phoneNumber,
             'email': currentUser.email,
           };
+
+    Map<String, dynamic> destinationDriverCoordinates = {
+      'latitude': '',
+      'longitude': '',
+    };
+
+    Map<String, dynamic> driverInfo = {
+      'uid': '',
+      'displayName': '',
+      'phoneNumber': '',
+      'photoUrl': '',
+      'email': '',
+      'carModel': '',
+      'carColor': '',
+      'carPlateNumber': '',
+      'destinationCoordinates': destinationDriverCoordinates,
+    };
 
     Map pickUpLocationCoordinates = {
       'latitude': pickUpAddress.latitude.toString(),
@@ -31,18 +51,30 @@ class FirestoreMethods {
       'longitude': dropOffAddress.longitude.toString(),
     };
 
-    Uuid uuid = const Uuid();
-
     try {
-      await _firestore.collection('trip_requests').doc(uuid.v4()).set({
-        'passenger_info': userInfo,
-        'pick_up_location_coordinates': pickUpLocationCoordinates,
-        'drop_off_location_coordinates': dropOffLocationCoordinates,
-        'pick_up_address': pickUpAddress.placeName,
-        'drop_off_address': dropOffAddress.placeName,
+      await _firestore.collection('tripRequests').doc(requestId).set({
+        'passengerInfo': userInfo,
+        'pickUpLocationCoordinates': pickUpLocationCoordinates,
+        'dropOffLocationCoordinates': dropOffLocationCoordinates,
+        'pickUpAddress': pickUpAddress.placeName ?? '',
+        'dropOffAddress': dropOffAddress.placeName ?? '',
         'status': 'pending',
-        'created_at': FieldValue.serverTimestamp(),
+        'createdAt': FieldValue.serverTimestamp(),
+        // when trip request got accepted by a driver
+        'driverInfo': driverInfo,
+        'fareAmount': '',
       });
+    } catch (e) {
+      requestId = '';
+      print(e);
+    }
+
+    return requestId;
+  }
+
+  Future<void> cancelTripRequest(String requestId) async {
+    try {
+      await _firestore.collection('tripRequests').doc(requestId).delete();
     } catch (e) {
       print(e);
     }

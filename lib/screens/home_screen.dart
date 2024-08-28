@@ -10,6 +10,7 @@ import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/firestore_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/manage_drivers_methods.dart';
+import 'package:car_go_pfe_lp_j2ee/models/address.dart';
 import 'package:car_go_pfe_lp_j2ee/models/direction_details.dart';
 import 'package:car_go_pfe_lp_j2ee/models/online_nearby_driver.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart';
@@ -44,6 +45,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   CommonMethods commonMethods = const CommonMethods();
 
+  FirestoreMethods firestoreMethods = FirestoreMethods();
+
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   double searchContainerHeight = 276;
@@ -73,6 +76,11 @@ class _HomeScreenState extends State<HomeScreen> {
   bool nearbyOnlineDriversAvailable = false;
 
   BitmapDescriptor? nearbyOnlineDriverIcon;
+
+  String requestId = '';
+
+  Address? pickUpLocation;
+  Address? dropOffLocation;
 
   makeDriverIcon() {
     if (nearbyOnlineDriverIcon == null) {
@@ -315,12 +323,10 @@ class _HomeScreenState extends State<HomeScreen> {
       onDirections = true;
     });
 
-    var pickUpLocation =
+    pickUpLocation =
         Provider.of<AddressProvider>(context, listen: false).pickUpAddress;
-    var dropOffLocation =
+    dropOffLocation =
         Provider.of<AddressProvider>(context, listen: false).dropOffAddress;
-
-    await FirestoreMethods().makeTripRequest(pickUpLocation!, dropOffLocation!);
   }
 
   void clearTheMap() {
@@ -344,13 +350,18 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  cancelRideRequest() {
+  cancelRideRequest() async {
+    await firestoreMethods.cancelTripRequest(requestId);
+
     setState(() {
       stateOfApp = 'normal';
+      requestId = '';
     });
   }
 
-  displayRequestingRideContainer() {
+  displayRequestingRideContainer() async {
+    requestId = await firestoreMethods.makeTripRequest(
+        pickUpLocation!, dropOffLocation!);
     setState(() {
       searchContainerHeight = 0;
       rideDetailsContainerHeight = 0;
@@ -807,9 +818,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         const SizedBox(height: 8),
                                         GestureDetector(
-                                          onTap: () {
+                                          onTap: () async {
                                             // ignore: avoid_print
                                             print('Ride details tapped');
+
                                             setState(() {
                                               stateOfApp = 'requesting';
                                             });
@@ -899,9 +911,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 20,
                         ),
                         GestureDetector(
-                          onTap: () {
+                          onTap: () async {
                             clearTheMap();
-                            cancelRideRequest();
+                            await cancelRideRequest();
                           },
                           child: Container(
                             height: 50,
