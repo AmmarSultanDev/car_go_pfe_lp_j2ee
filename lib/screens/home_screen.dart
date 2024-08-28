@@ -10,8 +10,10 @@ import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/firestore_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/manage_drivers_methods.dart';
+import 'package:car_go_pfe_lp_j2ee/methods/push_notification_service.dart';
 import 'package:car_go_pfe_lp_j2ee/models/address.dart';
 import 'package:car_go_pfe_lp_j2ee/models/direction_details.dart';
+import 'package:car_go_pfe_lp_j2ee/models/driver.dart';
 import 'package:car_go_pfe_lp_j2ee/models/online_nearby_driver.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
@@ -463,6 +465,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 'No driver found in the nearby location. Please try again shortly.'));
   }
 
+  sendNotificationToDriver(String currentDriver) async {
+    // get driver device token
+
+    String driverDeviceToken =
+        await firestoreMethods.getDriverDeviceToken(currentDriver);
+
+    PushNotificationService.sendNotificationToSelectedDriver(
+        driverDeviceToken, requestId, context);
+
+    // send push notification to the driver
+  }
+
   searchDriver() async {
     if (availableNearbyOnlineDriversList!.isEmpty) {
       await cancelRideRequest();
@@ -470,9 +484,10 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    var driver = availableNearbyOnlineDriversList!.first;
+    String? driverUid = availableNearbyOnlineDriversList!.first.uidDriver;
 
-    // send push notification to the current driver
+    // send notification to the driver
+    await sendNotificationToDriver(driverUid!);
 
     availableNearbyOnlineDriversList!.removeAt(0);
   }

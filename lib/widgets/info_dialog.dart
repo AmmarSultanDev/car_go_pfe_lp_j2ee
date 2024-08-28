@@ -34,7 +34,7 @@ class InfoDialog extends StatelessWidget {
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium!
-                      .copyWith(fontWeight: FontWeight.bold),
+                      .copyWith(fontWeight: FontWeight.bold, fontSize: 22),
                 ),
                 const SizedBox(
                   height: 12,
