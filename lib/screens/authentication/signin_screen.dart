@@ -1,11 +1,7 @@
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
-import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/authentication/signup_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
-import 'package:car_go_pfe_lp_j2ee/screens/home_screen.dart';
-import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class SigninScreen extends StatefulWidget {
   const SigninScreen({super.key});
@@ -20,37 +16,19 @@ class _SigninScreenState extends State<SigninScreen> {
   CommonMethods commonMethods = const CommonMethods();
 
   signin() async {
-    if (!context.mounted) return;
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const LoadingDialog(messageText: 'Signing in ...'),
-    );
-
     String res = await AuthMethods().signinUser(
       email: _emailController.text.trim(),
       password: _passwordController.text.trim(),
+      context: context,
     );
 
     if (res != 'Success') {
-      if (!context.mounted) return;
-      Navigator.of(context).pop();
-      commonMethods.displaySnackBar(res, context);
-    } else {
-      if (!context.mounted) return;
-      await Provider.of<UserProvider>(context, listen: false).refreshUser();
-      Navigator.of(context).pop();
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const HomeScreen(),
-        ),
-      );
+      if (mounted) commonMethods.displaySnackBar(res, context);
     }
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -58,11 +36,6 @@ class _SigninScreenState extends State<SigninScreen> {
 
   @override
   Widget build(BuildContext context) {
-    void checkNetwork() async {
-      // Check network connection
-      await commonMethods.checkConnectivity(context);
-    }
-
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.symmetric(
@@ -110,9 +83,9 @@ class _SigninScreenState extends State<SigninScreen> {
                         ),
                         const SizedBox(height: 22),
                         ElevatedButton(
-                          onPressed: () {
-                            checkNetwork();
-                            signin();
+                          onPressed: () async {
+                            await commonMethods.checkConnectivity(context);
+                            await signin();
                           },
                           child: const Text(
                             'Sign In',

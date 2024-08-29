@@ -1,6 +1,8 @@
 import 'package:car_go_pfe_lp_j2ee/models/user.dart' as model;
+import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
 class AuthMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -46,6 +48,7 @@ class AuthMethods {
               .set(user.toJson());
         }
         res = 'Success';
+        return res;
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -63,6 +66,7 @@ class AuthMethods {
   Future<String> signinUser({
     required String email,
     required String password,
+    required context,
   }) async {
     String res = 'Some error occured';
     try {
@@ -75,11 +79,15 @@ class AuthMethods {
               .doc(userCredential.user!.uid)
               .get();
           model.User user = model.User.fromSnap(snap);
-          if (user.isBlocked == true) {
+          if (user.isBlocked) {
             await _auth.signOut();
             res = 'Your account has been blocked';
           } else {
+            if (context.mounted) {
+              Provider.of<UserProvider>(context, listen: false).setUser = user;
+            }
             res = 'Success';
+            return res;
           }
         }
       } else {
@@ -87,7 +95,6 @@ class AuthMethods {
       }
     } catch (err) {
       if (err is FirebaseAuthException) {
-        print('FirebaseAuthException code: ${err.code}');
         if (err.code == 'invalid-credential') {
           res = 'Invalid credentials provided.';
         }

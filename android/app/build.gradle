@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.example.car_go_pfe_lp_j2ee"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

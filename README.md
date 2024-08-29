@@ -16,3 +16,5 @@ Electric Car PNG from :<a href="https://qwestore.com/Electric-Car-3D-Rendering-W
 
 App icon for ios and Android created with Canva and resized by <a href="https://makeappicon.com">MakeAppIcon</a>
 
+Blocked user icon by <a href="https://www.freepik.com/icon/forbidden_4255661#fromView=search&page=1&position=23&uuid=0670a162-1908-4123-98ed-487e8a82546f">Icon by Rizki Ahmad Fauzi</a>
+
