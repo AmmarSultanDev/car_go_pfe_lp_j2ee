@@ -63,9 +63,6 @@ class PushNotificationService {
           'body': 'Pick up: $pickUpAddress, Drop off: $dropOffAddress',
         },
         'data': {
-          'click_action': 'FLUTTER_NOTIFICATION_CLICK',
-          'id': '1',
-          'status': 'done',
           'tripId': tripId,
         }
       }
