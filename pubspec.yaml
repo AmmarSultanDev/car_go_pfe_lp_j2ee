@@ -7,15 +7,16 @@ environment:
   sdk: ^3.5.0
 
 dependencies:
-  cloud_firestore:
+  cloud_firestore: 
   connectivity_plus:
-  firebase_auth:
-  firebase_core:
-  firebase_storage:
+  firebase_auth: 
+  firebase_core: 
+  firebase_storage: 
+  firebase_database: ^10.1.0
   flutter:
     sdk: flutter
   flutter_dotenv:
-  flutter_geofire:
+  flutter_geofire: ^2.0.0
   flutter_polyline_points:
   flutter_svg:
   geolocator:

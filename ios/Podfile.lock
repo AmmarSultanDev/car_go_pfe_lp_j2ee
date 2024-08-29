@@ -952,41 +952,44 @@ PODS:
   - BoringSSL-GRPC/Implementation (0.0.32):
     - BoringSSL-GRPC/Interface (= 0.0.32)
   - BoringSSL-GRPC/Interface (0.0.32)
-  - cloud_firestore (4.14.0):
-    - Firebase/Firestore (= 10.18.0)
+  - cloud_firestore (4.17.5):
+    - Firebase/Firestore (= 10.25.0)
     - firebase_core
     - Flutter
-    - nanopb (< 2.30910.0, >= 2.30908.0)
   - connectivity_plus (0.0.1):
     - Flutter
     - FlutterMacOS
-  - Firebase/Auth (10.18.0):
+  - Firebase/Auth (10.25.0):
     - Firebase/CoreOnly
-    - FirebaseAuth (~> 10.18.0)
-  - Firebase/CoreOnly (10.18.0):
-    - FirebaseCore (= 10.18.0)
-  - Firebase/Database (10.18.0):
+    - FirebaseAuth (~> 10.25.0)
+  - Firebase/CoreOnly (10.25.0):
+    - FirebaseCore (= 10.25.0)
+  - Firebase/Database (10.25.0):
     - Firebase/CoreOnly
-    - FirebaseDatabase (~> 10.18.0)
-  - Firebase/Firestore (10.18.0):
+    - FirebaseDatabase (~> 10.25.0)
+  - Firebase/Firestore (10.25.0):
     - Firebase/CoreOnly
-    - FirebaseFirestore (~> 10.18.0)
-  - Firebase/Storage (10.18.0):
+    - FirebaseFirestore (~> 10.25.0)
+  - Firebase/Storage (10.25.0):
     - Firebase/CoreOnly
-    - FirebaseStorage (~> 10.18.0)
-  - firebase_auth (4.16.0):
-    - Firebase/Auth (= 10.18.0)
+    - FirebaseStorage (~> 10.25.0)
+  - firebase_auth (4.20.0):
+    - Firebase/Auth (= 10.25.0)
     - firebase_core
     - Flutter
-  - firebase_core (2.24.2):
-    - Firebase/CoreOnly (= 10.18.0)
+  - firebase_core (2.32.0):
+    - Firebase/CoreOnly (= 10.25.0)
     - Flutter
-  - firebase_storage (11.6.0):
-    - Firebase/Storage (= 10.18.0)
+  - firebase_database (10.5.7):
+    - Firebase/Database (= 10.25.0)
+    - firebase_core
+    - Flutter
+  - firebase_storage (11.7.7):
+    - Firebase/Storage (= 10.25.0)
     - firebase_core
     - Flutter
   - FirebaseAppCheckInterop (10.29.0)
-  - FirebaseAuth (10.18.0):
+  - FirebaseAuth (10.25.0):
     - FirebaseAppCheckInterop (~> 10.17)
     - FirebaseCore (~> 10.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 7.8)
@@ -994,7 +997,7 @@ PODS:
     - GTMSessionFetcher/Core (< 4.0, >= 2.1)
     - RecaptchaInterop (~> 100.0)
   - FirebaseAuthInterop (10.29.0)
-  - FirebaseCore (10.18.0):
+  - FirebaseCore (10.25.0):
     - FirebaseCoreInternal (~> 10.0)
     - GoogleUtilities/Environment (~> 7.12)
     - GoogleUtilities/Logger (~> 7.12)
@@ -1002,17 +1005,18 @@ PODS:
     - FirebaseCore (~> 10.0)
   - FirebaseCoreInternal (10.29.0):
     - "GoogleUtilities/NSData+zlib (~> 7.8)"
-  - FirebaseDatabase (10.18.0):
+  - FirebaseDatabase (10.25.0):
     - FirebaseAppCheckInterop (~> 10.17)
     - FirebaseCore (~> 10.0)
     - FirebaseSharedSwift (~> 10.0)
+    - GoogleUtilities/UserDefaults (~> 7.13)
     - leveldb-library (~> 1.22)
-  - FirebaseFirestore (10.18.0):
+  - FirebaseFirestore (10.25.0):
     - FirebaseCore (~> 10.0)
     - FirebaseCoreExtension (~> 10.0)
-    - FirebaseFirestoreInternal (~> 10.17)
+    - FirebaseFirestoreInternal (= 10.25.0)
     - FirebaseSharedSwift (~> 10.0)
-  - FirebaseFirestoreInternal (10.29.0):
+  - FirebaseFirestoreInternal (10.25.0):
     - abseil/algorithm (~> 1.20240116.1)
     - abseil/base (~> 1.20240116.1)
     - abseil/container/flat_hash_map (~> 1.20240116.1)
@@ -1028,11 +1032,12 @@ PODS:
     - leveldb-library (~> 1.22)
     - nanopb (< 2.30911.0, >= 2.30908.0)
   - FirebaseSharedSwift (10.29.0)
-  - FirebaseStorage (10.18.0):
+  - FirebaseStorage (10.25.0):
     - FirebaseAppCheckInterop (~> 10.0)
-    - FirebaseAuthInterop (~> 10.0)
+    - FirebaseAuthInterop (~> 10.25)
     - FirebaseCore (~> 10.0)
     - FirebaseCoreExtension (~> 10.0)
+    - GoogleUtilities/Environment (~> 7.12)
     - GTMSessionFetcher/Core (< 4.0, >= 2.1)
   - Flutter (1.0.0)
   - flutter_geofire (0.0.1):
@@ -1077,6 +1082,9 @@ PODS:
     - GoogleUtilities/Privacy
   - GoogleUtilities/Privacy (7.13.3)
   - GoogleUtilities/Reachability (7.13.3):
+    - GoogleUtilities/Logger
+    - GoogleUtilities/Privacy
+  - GoogleUtilities/UserDefaults (7.13.3):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
   - "gRPC-C++ (1.62.5)":
@@ -1159,11 +1167,11 @@ PODS:
   - gRPC-Core/Privacy (1.62.5)
   - GTMSessionFetcher/Core (3.5.0)
   - leveldb-library (1.22.5)
-  - nanopb (2.30909.1):
-    - nanopb/decode (= 2.30909.1)
-    - nanopb/encode (= 2.30909.1)
-  - nanopb/decode (2.30909.1)
-  - nanopb/encode (2.30909.1)
+  - nanopb (2.30910.0):
+    - nanopb/decode (= 2.30910.0)
+    - nanopb/encode (= 2.30910.0)
+  - nanopb/decode (2.30910.0)
+  - nanopb/encode (2.30910.0)
   - permission_handler_apple (9.3.0):
     - Flutter
   - PromisesObjC (2.4.0)
@@ -1176,6 +1184,7 @@ DEPENDENCIES:
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/darwin`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
+  - firebase_database (from `.symlinks/plugins/firebase_database/ios`)
   - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
   - Flutter (from `Flutter`)
   - flutter_geofire (from `.symlinks/plugins/flutter_geofire/ios`)
@@ -1221,6 +1230,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_auth/ios"
   firebase_core:
     :path: ".symlinks/plugins/firebase_core/ios"
+  firebase_database:
+    :path: ".symlinks/plugins/firebase_database/ios"
   firebase_storage:
     :path: ".symlinks/plugins/firebase_storage/ios"
   Flutter:
@@ -1246,23 +1257,24 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   abseil: d121da9ef7e2ff4cab7666e76c5a3e0915ae08c3
   BoringSSL-GRPC: 1e2348957acdbcad360b80a264a90799984b2ba6
-  cloud_firestore: 73eece22ce25a0565238c283ee9990f1618d8063
+  cloud_firestore: 003d53b6b8b392600b7769acf9421cc4f23e5911
   connectivity_plus: ddd7f30999e1faaef5967c23d5b6d503d10434db
-  Firebase: 414ad272f8d02dfbf12662a9d43f4bba9bec2a06
-  firebase_auth: 8e9ec02991ca4659111cc671c84d0c010b6bfb26
-  firebase_core: 0af4a2b24f62071f9bf283691c0ee41556dcb3f5
-  firebase_storage: 2b932fa5461f4efac36a2dcfbe240898b190b5b1
+  Firebase: 0312a2352584f782ea56f66d91606891d4607f06
+  firebase_auth: 5719ddc9f654b813405899480e84971bd8e61235
+  firebase_core: a626d00494efa398e7c54f25f1454a64c8abf197
+  firebase_database: 2713033e426b176d4fe5e7195f3d19aa1b549a91
+  firebase_storage: 5c0f552d6b27d621429d7fd16ebab4be94a3c954
   FirebaseAppCheckInterop: 6a1757cfd4067d8e00fccd14fcc1b8fd78cfac07
-  FirebaseAuth: 12314b438fa76048540c8fb86d6cfc9e08595176
+  FirebaseAuth: c0f93dcc570c9da2bffb576969d793e95c344fbb
   FirebaseAuthInterop: 17db81e9b198afb0f95ce48c133825727eed55d3
-  FirebaseCore: 2322423314d92f946219c8791674d2f3345b598f
+  FirebaseCore: 7ec4d0484817f12c3373955bc87762d96842d483
   FirebaseCoreExtension: 705ca5b14bf71d2564a0ddc677df1fc86ffa600f
   FirebaseCoreInternal: df84dd300b561c27d5571684f389bf60b0a5c934
-  FirebaseDatabase: ac770bf7525ff0340b105166037036c0e46c2c7e
-  FirebaseFirestore: 171bcbb57a1a348dd171a0d5e382c03ef85a77bb
-  FirebaseFirestoreInternal: f43d25cc04835ec3aa1885f4fc946a1a4f9e1c56
+  FirebaseDatabase: faa489a42f5f868d23a55dd442d6e2099348458e
+  FirebaseFirestore: 977ccc27a3caa5d68279f209c3b0450f85b9dc5f
+  FirebaseFirestoreInternal: 04b8afa77b4e5b84e86ab5ad985193e9573239fa
   FirebaseSharedSwift: 20530f495084b8d840f78a100d8c5ee613375f6e
-  FirebaseStorage: 8333c4b183764cdd170d9539a61322b71c23adff
+  FirebaseStorage: 44f4e25073f6fa0d4d8c09f5bec299ee9e4eb985
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_geofire: bdfbc0c9089638778117d488a9b64b565c277d7a
   GeoFire: f113536c90f581f89107c31ec1efde1a1cae3115
@@ -1275,12 +1287,12 @@ SPEC CHECKSUMS:
   gRPC-Core: eee4be35df218649fe66d721a05a7f27a28f069b
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   leveldb-library: e8eadf9008a61f9e1dde3978c086d2b6d9b9dc28
-  nanopb: d4d75c12cd1316f4a64e3c6963f879ecd4b5e0d5
+  nanopb: 438bc412db1928dac798aa6fd75726007be04262
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
 
-PODFILE CHECKSUM: cfcc2aa82ee3c0e916620b88f79e466446f2c01b
+PODFILE CHECKSUM: 07e2e362e31623338a3b8d6fe99998b884a46cc7
 
 COCOAPODS: 1.15.2
