@@ -31,6 +31,7 @@ class _SearchScreenState extends State<SearchScreen> {
             .pickUpAddress!
             .humanReadableAddress ??
         '';
+    print('User address: $userAdress');
 
     _pickUpController.text = userAdress;
   }

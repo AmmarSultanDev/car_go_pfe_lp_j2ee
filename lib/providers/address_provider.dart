@@ -6,12 +6,16 @@ class AddressProvider extends ChangeNotifier {
   Address? dropOffAddress;
 
   void updatePickUpAddress(Address address) {
-    pickUpAddress = address;
-    notifyListeners();
+    Future.microtask(() {
+      pickUpAddress = address;
+      notifyListeners();
+    });
   }
 
   void updateDropOffAddress(Address address) {
-    dropOffAddress = address;
-    notifyListeners();
+    Future.microtask(() {
+      dropOffAddress = address;
+      notifyListeners();
+    });
   }
 }
