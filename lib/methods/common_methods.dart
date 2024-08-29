@@ -5,6 +5,7 @@ import 'package:car_go_pfe_lp_j2ee/models/address.dart';
 import 'package:car_go_pfe_lp_j2ee/models/direction_details.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -47,7 +48,9 @@ class CommonMethods {
   }
 
   static sendRequestToApi(String apiURL) async {
-    print(apiURL);
+    if (kDebugMode) {
+      print(apiURL);
+    }
     http.Response response = await http.get(Uri.parse(apiURL));
 
     try {
@@ -92,8 +95,10 @@ class CommonMethods {
 
         // handle the address with the help of the provider
 
-        Provider.of<AddressProvider>(context, listen: false)
-            .updatePickUpAddress(address);
+        if (context.mounted) {
+          Provider.of<AddressProvider>(context, listen: false)
+              .updatePickUpAddress(address);
+        }
 
         return responseFromApi['results'][0]['formatted_address'];
       }

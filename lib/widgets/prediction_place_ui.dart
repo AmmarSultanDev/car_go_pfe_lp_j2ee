@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 
+// ignore: must_be_immutable
 class PredictionPlaceUi extends StatefulWidget {
   PredictionPlaceUi({super.key, this.prediction});
 
@@ -43,7 +44,10 @@ class _PredictionPlaceUiState extends State<PredictionPlaceUi> {
     if (mounted) Navigator.of(context).pop();
 
     if (response == 'error') {
-      const CommonMethods().displaySnackBar('An error occured!', context);
+      if (context.mounted) {
+        // ignore: use_build_context_synchronously
+        const CommonMethods().displaySnackBar('An error occured!', context);
+      }
     } else if (response == 'use_unrestricted') {
       // resend the request with a different API key
       response = await CommonMethods.sendRequestToApi(
@@ -74,7 +78,7 @@ class _PredictionPlaceUiState extends State<PredictionPlaceUi> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        await fetchClickedPlaceDetails(widget.prediction!.place_id!);
+        await fetchClickedPlaceDetails(widget.prediction!.placeId!);
       },
       borderRadius: BorderRadius.circular(10),
       child: Padding(
@@ -91,13 +95,13 @@ class _PredictionPlaceUiState extends State<PredictionPlaceUi> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.prediction!.main_text!,
+                        widget.prediction!.mainText!,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontSize: 16),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        widget.prediction!.secondary_text!,
+                        widget.prediction!.secondaryText!,
                         overflow: TextOverflow.ellipsis,
                         style:
                             const TextStyle(fontSize: 12, color: Colors.grey),

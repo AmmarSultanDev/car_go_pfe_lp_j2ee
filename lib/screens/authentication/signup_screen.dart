@@ -80,7 +80,8 @@ class _SignupScreenState extends State<SignupScreen> {
     if (mounted) Navigator.pop(context);
 
     if (res != 'Success') {
-      commonMethods.displaySnackBar(res, context);
+      // ignore: use_build_context_synchronously
+      if (context.mounted) commonMethods.displaySnackBar(res, context);
     } else {
       model.User? user = await AuthMethods().getUserDetails();
 

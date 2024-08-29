@@ -4,6 +4,7 @@ import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/models/prediction.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/prediction_place_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -20,18 +21,11 @@ class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _dropOffController = TextEditingController();
   List<Prediction> dropOffPredictionList = [];
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
   setPickUpLocationAddress() {
     String userAdress = Provider.of<AddressProvider>(context, listen: false)
             .pickUpAddress!
             .humanReadableAddress ??
         '';
-    print('User address: $userAdress');
 
     _pickUpController.text = userAdress;
   }
@@ -48,7 +42,10 @@ class _SearchScreenState extends State<SearchScreen> {
       var response = await CommonMethods.sendRequestToApi(autoCompleteURL);
 
       if (response == 'error') {
-        const CommonMethods().displaySnackBar('An error occured!', context);
+        if (context.mounted) {
+          // ignore: use_build_context_synchronously
+          const CommonMethods().displaySnackBar('An error occured!', context);
+        }
       } else if (response == 'use_unrestricted') {
         // resend the request with a different API key
         response = await CommonMethods.sendRequestToApi(
@@ -62,8 +59,10 @@ class _SearchScreenState extends State<SearchScreen> {
           setState(() {
             dropOffPredictionList = predictionsList;
           });
-          print(
-              'Drop off prediction list length: ${dropOffPredictionList.length}');
+          if (kDebugMode) {
+            print(
+                'Drop off prediction list length: ${dropOffPredictionList.length}');
+          }
         }
       }
     }
