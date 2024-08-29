@@ -26,5 +26,7 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:321538158709:ios:d24b1d419e91e53313083c</string>
+	<key>DATABASE_URL</key>
+	<string>https://car-go-pfe-lp-j2ee-default-rtdb.firebaseio.com</string>
 </dict>
 </plist>
