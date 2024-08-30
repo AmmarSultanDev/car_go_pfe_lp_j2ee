@@ -48,3 +48,7 @@ app.*.map.json
 lib/firebase_options.dart
 service_account_key.json
 android/app/google-services.json
+
+android/app/src/main/AndroidManifest.xml
+
+ios/Runner/GoogleService-Info.plist

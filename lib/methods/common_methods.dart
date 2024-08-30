@@ -47,6 +47,13 @@ class CommonMethods {
     }
   }
 
+  askForNotificationPermission() async {
+    if (await Permission.notification.isDenied ||
+        await Permission.notification.status.isGranted != true) {
+      await Permission.notification.request();
+    }
+  }
+
   static sendRequestToApi(String apiURL) async {
     if (kDebugMode) {
       print(apiURL);

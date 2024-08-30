@@ -8,6 +8,7 @@ import 'package:car_go_pfe_lp_j2ee/resources/app_colors.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/blocked_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -25,6 +26,11 @@ void main() async {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
+
+      // Configure App Check
+      await FirebaseAppCheck.instance.activate(
+          androidProvider: AndroidProvider.debug,
+          appleProvider: AppleProvider.debug);
     }
   } catch (e) {
     if (kDebugMode) {
@@ -103,61 +109,76 @@ class MyApp extends StatelessWidget {
               );
             } else if (userSnapshot.hasData) {
               User? user = userSnapshot.data;
-              return StreamBuilder<DocumentSnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(user!.uid)
-                    .snapshots(),
-                builder: (BuildContext context,
-                    AsyncSnapshot<DocumentSnapshot> snapshot) {
+
+              return FutureBuilder(
+                future: const CommonMethods().askForLocationPermission(),
+                builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
+                    return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     return const Center(
-                      child: Text('Something went wrong!'),
+                      child: Text('Error in asking for location permission'),
                     );
-                  } else if (snapshot.hasData) {
-                    bool isBlocked = snapshot.data!.get('isBlocked') as bool;
-                    if (kDebugMode) {
-                      print(isBlocked);
-                    }
-                    if (isBlocked) {
-                      return const BlockedScreen(); // return a screen for blocked users
-                    } else {
-                      // maintain the user's session
-                      model.User? user = model.User.fromSnap(snapshot.data!);
-
-                      Provider.of<UserProvider>(context, listen: false)
-                          .setUser = user;
-
-                      return FutureBuilder(
-                        future:
-                            const CommonMethods().askForLocationPermission(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          } else if (snapshot.hasError) {
-                            return const Center(
-                              child: Text(
-                                  'Error in asking for location permission'),
-                            );
-                          } else {
-                            return const HomeScreen();
-                          }
-                        },
-                      );
-                    }
                   } else {
-                    return const SigninScreen();
+                    return FutureBuilder(
+                      future:
+                          const CommonMethods().askForNotificationPermission(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return const Center(
+                            child: Text(
+                                'Error in asking for notifications permission'),
+                          );
+                        } else {
+                          return StreamBuilder<DocumentSnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(user!.uid)
+                                .snapshots(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<DocumentSnapshot> snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              } else if (snapshot.hasError) {
+                                return const Center(
+                                  child: Text('Something went wrong!'),
+                                );
+                              } else if (snapshot.hasData) {
+                                model.User? user =
+                                    model.User.fromSnap(snapshot.data!);
+                                Provider.of<UserProvider>(context,
+                                        listen: false)
+                                    .setUser = user;
+
+                                bool isBlocked =
+                                    snapshot.data!.get('isBlocked') as bool;
+                                if (isBlocked) {
+                                  return const BlockedScreen(); // return a screen for blocked users
+                                } else {
+                                  return const HomeScreen(); // return the dashboard if the user is not blocked
+                                }
+                              } else {
+                                return const Center(
+                                  child: Text('No data'),
+                                );
+                              }
+                            },
+                          );
+                        }
+                      },
+                    );
                   }
                 },
               );
             } else {
-              return const SigninScreen();
+              return const SigninScreen(); // return the sign in screen if the user is not authenticated
             }
           },
         ),

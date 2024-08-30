@@ -120,7 +120,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   getCurrentLiveLocationOfUser() async {
     Position positionOfUser = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.bestForNavigation,
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.best,
+        distanceFilter: 4,
+      ),
     );
     currentPositionOfUser = positionOfUser;
 
