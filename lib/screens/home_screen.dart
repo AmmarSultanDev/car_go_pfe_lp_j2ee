@@ -13,7 +13,6 @@ import 'package:car_go_pfe_lp_j2ee/methods/manage_drivers_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/push_notification_service.dart';
 import 'package:car_go_pfe_lp_j2ee/models/address.dart';
 import 'package:car_go_pfe_lp_j2ee/models/direction_details.dart';
-import 'package:car_go_pfe_lp_j2ee/models/driver.dart';
 import 'package:car_go_pfe_lp_j2ee/models/online_nearby_driver.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';

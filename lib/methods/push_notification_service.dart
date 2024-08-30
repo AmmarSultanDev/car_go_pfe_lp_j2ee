@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:googleapis_auth/auth_io.dart' as auth;
-import 'package:googleapis/servicecontrol/v1.dart' as servicecontrol;
 import 'package:provider/provider.dart';
 
 import '../providers/user_provider.dart';
@@ -78,9 +78,13 @@ class PushNotificationService {
     );
 
     if (response.statusCode == 200) {
-      print('Notification sent successfully');
+      if (kDebugMode) {
+        print('Notification sent successfully');
+      }
     } else {
-      print('Failed to send notification. Error: ${response.body}');
+      if (kDebugMode) {
+        print('Failed to send notification. Error: ${response.body}');
+      }
     }
   }
 }

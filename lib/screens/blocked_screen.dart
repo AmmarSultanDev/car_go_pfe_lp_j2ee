@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -39,10 +40,12 @@ class BlockedScreen extends StatelessWidget {
                 );
 
                 String url = params.toString();
-                if (await canLaunch(url)) {
-                  await launch(url);
+                if (await canLaunchUrl(Uri.parse(url))) {
+                  await launchUrl(Uri.parse(url));
                 } else {
-                  print('Could not launch $url');
+                  if (kDebugMode) {
+                    print('Could not launch $url');
+                  }
                 }
               },
               child: const Text('Email Us'),

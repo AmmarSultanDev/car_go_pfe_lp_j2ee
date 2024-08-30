@@ -10,6 +10,7 @@ import 'package:car_go_pfe_lp_j2ee/screens/home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -26,7 +27,9 @@ void main() async {
       );
     }
   } catch (e) {
-    print(e.toString());
+    if (kDebugMode) {
+      print(e.toString());
+    }
   }
 
   // Set the orientation to portrait
@@ -117,7 +120,9 @@ class MyApp extends StatelessWidget {
                     );
                   } else if (snapshot.hasData) {
                     bool isBlocked = snapshot.data!.get('isBlocked') as bool;
-                    print(isBlocked);
+                    if (kDebugMode) {
+                      print(isBlocked);
+                    }
                     if (isBlocked) {
                       return const BlockedScreen(); // return a screen for blocked users
                     } else {

@@ -3,6 +3,7 @@ import 'package:car_go_pfe_lp_j2ee/models/address.dart';
 import 'package:car_go_pfe_lp_j2ee/models/driver.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart' as model;
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 class FirestoreMethods {
@@ -14,6 +15,7 @@ class FirestoreMethods {
     Uuid uuid = const Uuid();
     String requestId = uuid.v4();
 
+    // ignore: unnecessary_null_comparison
     Map<String, dynamic> userInfo = currentUser == null
         ? {}
         : {
@@ -65,7 +67,9 @@ class FirestoreMethods {
       });
     } catch (e) {
       requestId = '';
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
 
     return requestId;
@@ -75,7 +79,9 @@ class FirestoreMethods {
     try {
       await _firestore.collection('tripRequests').doc(requestId).delete();
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
@@ -89,7 +95,9 @@ class FirestoreMethods {
         driver = Driver.fromSnap(driverSnapshot);
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
 
     return driver;
@@ -105,7 +113,9 @@ class FirestoreMethods {
         }
       });
     } on Error catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
     return deviceToken;
   }
