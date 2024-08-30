@@ -1,4 +1,4 @@
-package com.example.car_go_pfe_lp_j2ee
+package com.example.car_go
 
 import io.flutter.embedding.android.FlutterActivity
 
