@@ -492,43 +492,53 @@ class _HomeScreenState extends State<HomeScreen> {
     tripRequestRef =
         FirebaseFirestore.instance.collection('tripRequests').doc(requestId);
 
+    StreamSubscription listener;
+
     Timer.periodic(oneTickPerSec, (timer) async {
       requestTimeoutDriver--;
       // if not requesting
       if (stateOfApp != 'requesting') {
         // the trip has been canceled
+
+        await firestoreMethods.cancelTripRequest(requestId);
+        requestTimeoutDriver = 40;
         // cancel the timer
         timer.cancel();
-        await firestoreMethods.updateTripRequestStatus(requestId, 'cancelled');
-        requestTimeoutDriver = 25;
+        return;
       }
 
-      tripRequestRef!.snapshots().listen((DocumentSnapshot snapshot) {
+      listener =
+          tripRequestRef!.snapshots().listen((DocumentSnapshot snapshot) {
         if (snapshot.exists) {
           // The document data will be in snapshot.data()
           Map<String, dynamic> tripData =
               snapshot.data() as Map<String, dynamic>;
 
           if (tripData['status'] == 'accepted') {
-            timer.cancel();
-            requestTimeoutDriver = 25;
-
+            requestTimeoutDriver = 40;
+            clearTheMap();
             if (kDebugMode) {
               print('Driver has accepted the trip request');
             }
+            timer.cancel();
+            return;
           }
         } else {
           // The trip request document doesn't exist anymore
           if (kDebugMode) {
             print('tripRequest not found!');
           }
+          requestTimeoutDriver = 40;
+          timer.cancel();
+          return;
         }
       });
 
-      // if 20 seconds passed
+      // if 40 seconds passed
       if (requestTimeoutDriver == 0) {
         timer.cancel();
-        requestTimeoutDriver = 25;
+        requestTimeoutDriver = 40;
+        listener.cancel();
 
         availableNearbyOnlineDriversList!.removeAt(0);
 
@@ -548,6 +558,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (availableNearbyOnlineDriversList!.isEmpty) {
       await cancelRideRequest();
       await noDriverAvailable();
+      clearTheMap();
       return;
     }
 
