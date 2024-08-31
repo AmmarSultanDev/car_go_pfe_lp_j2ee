@@ -500,7 +500,7 @@ class _HomeScreenState extends State<HomeScreen> {
         // cancel the timer
         timer.cancel();
         await firestoreMethods.updateTripRequestStatus(requestId, 'cancelled');
-        requestTimeoutDriver = 40;
+        requestTimeoutDriver = 25;
       }
 
       tripRequestRef!.snapshots().listen((DocumentSnapshot snapshot) {
@@ -511,7 +511,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           if (tripData['status'] == 'accepted') {
             timer.cancel();
-            requestTimeoutDriver = 40;
+            requestTimeoutDriver = 25;
 
             if (kDebugMode) {
               print('Driver has accepted the trip request');
@@ -527,9 +527,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // if 20 seconds passed
       if (requestTimeoutDriver == 0) {
-        await firestoreMethods.updateTripRequestStatus(requestId, 'timeout');
         timer.cancel();
-        requestTimeoutDriver = 40;
+        requestTimeoutDriver = 25;
 
         availableNearbyOnlineDriversList!.removeAt(0);
 
@@ -537,7 +536,9 @@ class _HomeScreenState extends State<HomeScreen> {
         if (availableNearbyOnlineDriversList!.isNotEmpty) {
           await searchDriver();
         } else {
+          await firestoreMethods.cancelTripRequest(requestId);
           await noDriverAvailable();
+          clearTheMap();
         }
       }
     });
