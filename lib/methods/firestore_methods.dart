@@ -36,9 +36,9 @@ class FirestoreMethods {
       'phoneNumber': '',
       'photoUrl': '',
       'email': '',
-      'carModel': '',
-      'carColor': '',
-      'carPlateNumber': '',
+      'vehiculeModel': '',
+      'vehiculeColor': '',
+      'vehiculePlateNumber': '',
       'destinationCoordinates': destinationDriverCoordinates,
     };
 
