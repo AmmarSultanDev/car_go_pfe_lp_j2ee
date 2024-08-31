@@ -7,32 +7,32 @@ environment:
   sdk: ^3.5.0
 
 dependencies:
-  cloud_firestore: 
-  connectivity_plus:
-  firebase_auth: 
-  firebase_core: 
-  firebase_storage: 
-  firebase_database:
-  firebase_app_check:
+  cloud_firestore: null
+  connectivity_plus: null
+  firebase_app_check: null
+  firebase_auth: null
+  firebase_core: null
+  firebase_database: null
+  firebase_storage: null
   flutter:
     sdk: flutter
-  flutter_dotenv:
-  flutter_geofire:
-  flutter_polyline_points:
-  flutter_svg:
-  geolocator:
-  google_maps_flutter:
-  googleapis:
-  googleapis_auth:
-  http:
-  loading_animation_widget:
-  permission_handler:
-  provider:
-  url_launcher:
-  uuid:
+  flutter_dotenv: null
+  flutter_geofire: null
+  flutter_polyline_points: null
+  flutter_svg: null
+  geolocator: null
+  google_maps_flutter: null
+  googleapis: null
+  googleapis_auth: null
+  http: null
+  loading_animation_widget: null
+  permission_handler: null
+  provider: null
+  url_launcher: null
+  uuid: null
 
 dev_dependencies:
-  flutter_lints:
+  flutter_lints: null
   flutter_test:
     sdk: flutter
 

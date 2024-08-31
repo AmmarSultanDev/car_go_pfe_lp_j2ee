@@ -69,7 +69,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Set<Polyline> polyLineSet = {};
 
-  Set<Marker> markerSet = {};
+  Set<Marker> allMarkersSet = {};
+
+  Set<Marker> pinMarkersSet = {};
+  Set<Marker> driverMarkersSet = {};
 
   Set<Circle> circleSet = {};
 
@@ -296,8 +299,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     setState(() {
-      markerSet.add(pickUpPointMarker);
-      markerSet.add(dropOffPointMarker);
+      pinMarkersSet.add(pickUpPointMarker);
+      pinMarkersSet.add(dropOffPointMarker);
     });
 
     // add pick up and drop off circles
@@ -350,7 +353,7 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomMapPadding = 100;
       onDirections = false;
       polyLineSet.clear();
-      markerSet.clear();
+      pinMarkersSet.clear();
       circleSet.clear();
       pLineCoordinates.clear();
 
@@ -388,10 +391,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   updateAvailableNearbyOnlineDriversOnMap() {
     setState(() {
-      markerSet.clear();
+      driverMarkersSet.clear();
     });
-
-    Set<Marker> nearbyOnlineDriversMarkers = <Marker>{};
 
     for (OnlineNearbyDriver eachOnlineNearbyDriver
         in ManageDriversMethods.nearbyOnlineDriversList) {
@@ -403,10 +404,12 @@ class _HomeScreenState extends State<HomeScreen> {
         position: driverCurrentPosition,
         icon: nearbyOnlineDriverIcon!,
       );
-      nearbyOnlineDriversMarkers.add(driverMarker);
+      driverMarkersSet.add(driverMarker);
     }
     setState(() {
-      markerSet = nearbyOnlineDriversMarkers;
+      allMarkersSet = {}
+        ..addAll(pinMarkersSet)
+        ..addAll(driverMarkersSet);
     });
   }
 
@@ -686,7 +689,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 mapType: MapType.normal,
                 myLocationEnabled: true,
                 polylines: polyLineSet,
-                markers: markerSet,
+                markers: allMarkersSet,
                 circles: circleSet,
                 initialCameraPosition: casablancaInitialPosition,
                 onMapCreated: (GoogleMapController mapController) async {
