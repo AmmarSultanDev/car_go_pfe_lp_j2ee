@@ -103,6 +103,19 @@ class FirestoreMethods {
     return driver;
   }
 
+  updateTripRequestStatus(String requestId, String status) async {
+    try {
+      await _firestore
+          .collection('tripRequests')
+          .doc(requestId)
+          .update({'status': status});
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+  }
+
   Future<String> getDriverDeviceToken(String driverUid) async {
     String deviceToken = '';
 

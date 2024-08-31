@@ -20,6 +20,8 @@ import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/search_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/info_dialog.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
@@ -83,6 +85,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Address? pickUpLocation;
   Address? dropOffLocation;
+
+  DocumentReference? tripRequestRef;
+
+  Timer? timer;
 
   List<OnlineNearbyDriver>? availableNearbyOnlineDriversList;
 
@@ -370,6 +376,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // start new tripRequest
     requestId = await firestoreMethods.makeTripRequest(
         pickUpLocation!, dropOffLocation!);
+
     setState(() {
       searchContainerHeight = 0;
       rideDetailsContainerHeight = 0;
@@ -473,10 +480,64 @@ class _HomeScreenState extends State<HomeScreen> {
     String driverDeviceToken =
         await firestoreMethods.getDriverDeviceToken(currentDriver);
 
+    // send push notification to the driver
     PushNotificationService.sendNotificationToSelectedDriver(
         driverDeviceToken, requestId, context);
 
-    // send push notification to the driver
+    const oneTickPerSec = Duration(seconds: 1);
+
+    tripRequestRef =
+        FirebaseFirestore.instance.collection('tripRequests').doc(requestId);
+
+    Timer.periodic(oneTickPerSec, (timer) async {
+      requestTimeoutDriver--;
+      // if not requesting
+      if (stateOfApp != 'requesting') {
+        // the trip has been canceled
+        // cancel the timer
+        timer.cancel();
+        await firestoreMethods.updateTripRequestStatus(requestId, 'cancelled');
+        requestTimeoutDriver = 40;
+      }
+
+      tripRequestRef!.snapshots().listen((DocumentSnapshot snapshot) {
+        if (snapshot.exists) {
+          // The document data will be in snapshot.data()
+          Map<String, dynamic> tripData =
+              snapshot.data() as Map<String, dynamic>;
+
+          if (tripData['status'] == 'accepted') {
+            timer.cancel();
+            requestTimeoutDriver = 40;
+
+            if (kDebugMode) {
+              print('Driver has accepted the trip request');
+            }
+          }
+        } else {
+          // The trip request document doesn't exist anymore
+          if (kDebugMode) {
+            print('tripRequest not found!');
+          }
+        }
+      });
+
+      // if 20 seconds passed
+      if (requestTimeoutDriver == 0) {
+        await firestoreMethods.updateTripRequestStatus(requestId, 'timeout');
+        timer.cancel();
+        requestTimeoutDriver = 40;
+
+        availableNearbyOnlineDriversList!.removeAt(0);
+
+        //send notification to the next driver
+        if (availableNearbyOnlineDriversList!.isNotEmpty) {
+          await searchDriver();
+        } else {
+          await noDriverAvailable();
+        }
+      }
+    });
   }
 
   searchDriver() async {
@@ -490,8 +551,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // send notification to the driver
     await sendNotificationToDriver(driverUid!);
-
-    availableNearbyOnlineDriversList!.removeAt(0);
   }
 
   @override
