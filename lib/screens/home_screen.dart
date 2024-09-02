@@ -378,7 +378,7 @@ class _HomeScreenState extends State<HomeScreen> {
     requestId = await firestoreMethods.makeTripRequest(
         pickUpLocation!,
         dropOffLocation!,
-        commonMethods.calculateFareAmount(tripDirectionDetails!));
+        commonMethods.calculateFareAmount(tripDirectionDetails!).toString());
 
     setState(() {
       searchContainerHeight = 0;
@@ -712,7 +712,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 initialCameraPosition: casablancaInitialPosition,
                 onMapCreated: (GoogleMapController mapController) async {
                   controllerGoogleMap = mapController;
-                  //updateMapTheme(controllerGoogleMap!, context);
+                  updateMapTheme(controllerGoogleMap!, context);
 
                   googleMapCompleterController.complete(controllerGoogleMap);
 
