@@ -198,6 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       tripDirectionDetails = detailsFromDirectionApi;
     });
+
     // draw route between the pick up and drop off locations
     PolylinePoints polylinePoints = PolylinePoints();
     List<PointLatLng> latLngPointsFromPickUpToDestination =
@@ -326,7 +327,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  displayUserRideDetailsContainer() async {
+  displayRideDetailsContainer() async {
     retrieveDirectionDetails();
     // draw route between the two locations
     setState(() {
@@ -375,7 +376,9 @@ class _HomeScreenState extends State<HomeScreen> {
   displayRequestingRideContainer() async {
     // start new tripRequest
     requestId = await firestoreMethods.makeTripRequest(
-        pickUpLocation!, dropOffLocation!);
+        pickUpLocation!,
+        dropOffLocation!,
+        commonMethods.calculateFareAmount(tripDirectionDetails!));
 
     setState(() {
       searchContainerHeight = 0;
@@ -813,7 +816,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                           );
                           if (resultFromSearchDialog == 'place_selected') {
-                            displayUserRideDetailsContainer();
+                            displayRideDetailsContainer();
                           } else {
                             setState(() {
                               searchContainerHeight = 276;

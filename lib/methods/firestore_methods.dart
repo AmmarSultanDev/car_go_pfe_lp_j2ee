@@ -10,7 +10,7 @@ class FirestoreMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<String> makeTripRequest(
-      Address pickUpAddress, Address dropOffAddress) async {
+      Address pickUpAddress, Address dropOffAddress, String fairAmount) async {
     model.User? currentUser = await AuthMethods().getUserDetails();
     Uuid uuid = const Uuid();
     String requestId = uuid.v4();
@@ -69,7 +69,7 @@ class FirestoreMethods {
         // when trip request got accepted by a driver
         'driverInfo': driverInfo,
         'driverLocation': driverLocation,
-        'fareAmount': '',
+        'fareAmount': fairAmount,
       });
     } catch (e) {
       requestId = '';
