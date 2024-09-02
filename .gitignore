@@ -52,3 +52,5 @@ android/app/google-services.json
 android/app/src/main/AndroidManifest.xml
 
 ios/Runner/GoogleService-Info.plist
+
+ios/Runner/AppDelegate.swift
