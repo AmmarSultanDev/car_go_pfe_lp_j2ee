@@ -52,6 +52,11 @@ class FirestoreMethods {
       'longitude': dropOffAddress.longitude.toString(),
     };
 
+    Map driverLocation = {
+      'latitude': '',
+      'longitude': '',
+    };
+
     try {
       await _firestore.collection('tripRequests').doc(requestId).set({
         'passengerInfo': userInfo,
@@ -63,6 +68,7 @@ class FirestoreMethods {
         'createdAt': FieldValue.serverTimestamp(),
         // when trip request got accepted by a driver
         'driverInfo': driverInfo,
+        'driverLocation': driverLocation,
         'fareAmount': '',
       });
     } catch (e) {
