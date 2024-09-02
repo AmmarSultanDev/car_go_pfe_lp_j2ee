@@ -89,6 +89,9 @@ class _SignupScreenState extends State<SignupScreen> {
         Provider.of<UserProvider>(context, listen: false).setUser = user;
       }
 
+      await commonMethods.askForLocationPermission();
+      await commonMethods.askForNotificationPermission();
+
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(

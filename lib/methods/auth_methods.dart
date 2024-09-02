@@ -31,6 +31,10 @@ class AuthMethods {
           userphone.isNotEmpty &&
           email.isNotEmpty &&
           password.isNotEmpty) {
+        if (FirebaseAuth.instance.currentUser != null) {
+          await FirebaseAuth.instance.signOut();
+        }
+
         UserCredential userCredential = await _auth
             .createUserWithEmailAndPassword(email: email, password: password);
 
@@ -55,6 +59,8 @@ class AuthMethods {
         res = 'The password provided is too weak.';
       } else if (e.code == 'email-already-in-use') {
         res = 'The account already exists for that email.';
+      } else {
+        res = e.toString();
       }
     } on Exception catch (e) {
       res = e.toString();

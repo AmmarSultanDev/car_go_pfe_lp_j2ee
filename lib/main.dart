@@ -47,6 +47,7 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+  final CommonMethods commonMethods = const CommonMethods();
 
   @override
   Widget build(BuildContext context) {
@@ -104,9 +105,7 @@ class MyApp extends StatelessWidget {
                 child: CircularProgressIndicator(),
               );
             } else if (userSnapshot.hasError) {
-              return const Center(
-                child: Text('Something went wrong!'),
-              );
+              return const SigninScreen();
             } else if (userSnapshot.hasData) {
               User? user = userSnapshot.data;
 
@@ -116,60 +115,42 @@ class MyApp extends StatelessWidget {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return const Center(
-                      child: Text('Error in asking for location permission'),
-                    );
+                    commonMethods.displaySnackBar(
+                        'Please allow location permission.', context);
+                    return const SigninScreen();
                   } else {
-                    return FutureBuilder(
-                      future:
-                          const CommonMethods().askForNotificationPermission(),
-                      builder: (context, snapshot) {
+                    return StreamBuilder<DocumentSnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(user!.uid)
+                          .snapshots(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<DocumentSnapshot> snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
                           return const Center(
-                              child: CircularProgressIndicator());
-                        } else if (snapshot.hasError) {
-                          return const Center(
-                            child: Text(
-                                'Error in asking for notifications permission'),
+                            child: CircularProgressIndicator(),
                           );
-                        } else {
-                          return StreamBuilder<DocumentSnapshot>(
-                            stream: FirebaseFirestore.instance
-                                .collection('users')
-                                .doc(user!.uid)
-                                .snapshots(),
-                            builder: (BuildContext context,
-                                AsyncSnapshot<DocumentSnapshot> snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              } else if (snapshot.hasError) {
-                                return const Center(
-                                  child: Text('Something went wrong!'),
-                                );
-                              } else if (snapshot.hasData) {
-                                model.User? user =
-                                    model.User.fromSnap(snapshot.data!);
-                                Provider.of<UserProvider>(context,
-                                        listen: false)
-                                    .setUser = user;
+                        } else if (snapshot.hasError) {
+                          return const SigninScreen();
+                        } else if (!snapshot.data!.exists) {
+                          return const SigninScreen();
+                        } else if (snapshot.hasData) {
+                          model.User? user =
+                              model.User.fromSnap(snapshot.data!);
+                          Provider.of<UserProvider>(context, listen: false)
+                              .setUser = user;
 
-                                bool isBlocked =
-                                    snapshot.data!.get('isBlocked') as bool;
-                                if (isBlocked) {
-                                  return const BlockedScreen(); // return a screen for blocked users
-                                } else {
-                                  return const HomeScreen(); // return the dashboard if the user is not blocked
-                                }
-                              } else {
-                                return const Center(
-                                  child: Text('No data'),
-                                );
-                              }
-                            },
+                          bool isBlocked =
+                              snapshot.data!.get('isBlocked') as bool;
+                          if (isBlocked) {
+                            return const BlockedScreen(); // return a screen for blocked users
+                          } else {
+                            return const HomeScreen(); // return the dashboard if the user is not blocked
+                          }
+                        } else {
+                          return const Center(
+                            child: Text('No data'),
                           );
                         }
                       },
@@ -178,7 +159,7 @@ class MyApp extends StatelessWidget {
                 },
               );
             } else {
-              return const SigninScreen(); // return the sign in screen if the user is not authenticated
+              return const SigninScreen();
             }
           },
         ),

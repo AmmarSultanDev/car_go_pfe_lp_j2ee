@@ -129,10 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   getCurrentLiveLocationOfUser() async {
     Position positionOfUser = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.best,
-        distanceFilter: 4,
-      ),
+      desiredAccuracy: LocationAccuracy.bestForNavigation,
     );
     currentPositionOfUser = positionOfUser;
 
@@ -390,9 +387,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   updateAvailableNearbyOnlineDriversOnMap() {
-    setState(() {
-      driverMarkersSet.clear();
-    });
+    if (mounted) {
+      setState(() {
+        driverMarkersSet.clear();
+      });
+    }
 
     for (OnlineNearbyDriver eachOnlineNearbyDriver
         in ManageDriversMethods.nearbyOnlineDriversList) {
@@ -406,11 +405,13 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       driverMarkersSet.add(driverMarker);
     }
-    setState(() {
-      allMarkersSet = {}
-        ..addAll(pinMarkersSet)
-        ..addAll(driverMarkersSet);
-    });
+    if (mounted) {
+      setState(() {
+        allMarkersSet = {}
+          ..addAll(pinMarkersSet)
+          ..addAll(driverMarkersSet);
+      });
+    }
   }
 
   initializeGeoFireListener() {
@@ -546,6 +547,8 @@ class _HomeScreenState extends State<HomeScreen> {
         if (availableNearbyOnlineDriversList!.isNotEmpty) {
           await searchDriver();
         } else {
+          availableNearbyOnlineDriversList =
+              ManageDriversMethods.nearbyOnlineDriversList;
           await firestoreMethods.cancelTripRequest(requestId);
           await noDriverAvailable();
           clearTheMap();
@@ -706,7 +709,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 initialCameraPosition: casablancaInitialPosition,
                 onMapCreated: (GoogleMapController mapController) async {
                   controllerGoogleMap = mapController;
-                  updateMapTheme(controllerGoogleMap!, context);
+                  //updateMapTheme(controllerGoogleMap!, context);
 
                   googleMapCompleterController.complete(controllerGoogleMap);
 

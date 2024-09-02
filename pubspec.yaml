@@ -12,15 +12,15 @@ dependencies:
   firebase_app_check: null
   firebase_auth: null
   firebase_core: null
-  firebase_database: null
-  firebase_storage: null
+  firebase_database: ^10.0.0
+  firebase_storage: 
   flutter:
     sdk: flutter
   flutter_dotenv: null
   flutter_geofire: null
   flutter_polyline_points: null
   flutter_svg: null
-  geolocator: null
+  geolocator: ^12.0.0
   google_maps_flutter: null
   googleapis: null
   googleapis_auth: null
