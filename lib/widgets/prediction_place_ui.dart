@@ -60,6 +60,7 @@ class _PredictionPlaceUiState extends State<PredictionPlaceUi> {
           longitude: response['result']['geometry']['location']['lng'],
           placeId: placeId,
           placeName: response['result']['name'],
+          humanReadableAddress: response['result']['formatted_address'],
         );
 
         // handle the address with the help of the provider

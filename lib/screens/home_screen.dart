@@ -342,7 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   displayRideDetailsContainer() async {
-    retrieveDirectionDetails();
+    await retrieveDirectionDetails();
     // draw route between the two locations
     setState(() {
       searchContainerHeight = 0;

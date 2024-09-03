@@ -62,8 +62,10 @@ class FirestoreMethods {
         'passengerInfo': userInfo,
         'pickUpLocationCoordinates': pickUpLocationCoordinates,
         'dropOffLocationCoordinates': dropOffLocationCoordinates,
-        'pickUpAddress': pickUpAddress.placeName ?? '',
-        'dropOffAddress': dropOffAddress.placeName ?? '',
+        'pickUpAddress':
+            pickUpAddress.placeName ?? pickUpAddress.humanReadableAddress,
+        'dropOffAddress':
+            dropOffAddress.placeName ?? dropOffAddress.humanReadableAddress,
         'status': 'pending',
         'createdAt': FieldValue.serverTimestamp(),
         // when trip request got accepted by a driver
