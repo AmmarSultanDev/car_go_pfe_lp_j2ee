@@ -573,7 +573,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // driver has canceled the trip request
             if (mounted) {
               setState(() {
-                stateOfApp = 'normal';
+                stateOfApp = 'canceled';
               });
             }
 
@@ -609,7 +609,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // trip has ended
             if (mounted) {
               setState(() {
-                stateOfApp = 'normal';
+                stateOfApp = 'ended';
               });
             }
 
@@ -698,16 +698,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   whenTripEnded() {
-    if (stateOfApp == 'normal') {
+    if (stateOfApp == 'ended') {
       if (mounted) {
         showDialog(
             context: context, builder: (context) => const PaymentDialog());
       }
     }
+    setState(() {
+      stateOfApp = 'normal';
+    });
   }
 
   whenDriverCancelTheTrip() {
-    if (stateOfApp == 'normal') {
+    if (stateOfApp == 'canceled') {
       if (mounted) {
         showDialog(
             context: context,
@@ -717,6 +720,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     'The driver has canceled the trip. \n Please try again shortly.'));
       }
     }
+
+    setState(() {
+      stateOfApp = 'normal';
+    });
   }
 
   searchDriver() async {
