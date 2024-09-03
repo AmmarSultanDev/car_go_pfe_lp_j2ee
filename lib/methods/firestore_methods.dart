@@ -70,6 +70,7 @@ class FirestoreMethods {
         'driverInfo': driverInfo,
         'driverLocation': driverLocation,
         'fareAmount': fairAmount,
+        'paymentStatus': 'pending',
       });
     } catch (e) {
       requestId = '';
@@ -137,5 +138,21 @@ class FirestoreMethods {
       }
     }
     return deviceToken;
+  }
+
+  Future<bool> checkPaymentStatus(String tripId) async {
+    try {
+      var snap = await _firestore.collection('tripRequests').doc(tripId).get();
+
+      if (snap.exists) {
+        return snap.data()!['paymentStatus'] == 'paid';
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+
+    return false;
   }
 }

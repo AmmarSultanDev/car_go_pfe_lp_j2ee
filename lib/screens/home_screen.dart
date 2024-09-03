@@ -666,7 +666,7 @@ class _HomeScreenState extends State<HomeScreen> {
             builder: (context) => InfoDialog(
                 title: 'Driver is Arriving',
                 content:
-                    'Your driver ${tripData['driverInfo']['displayName']} on a ${tripData['driverInfo']['vehiculeColor']} ${tripData['driverInfo']['vehiculeModel']} is on his way to pick you up. \n Please wait for the driver to arrive.'));
+                    'Your driver ${tripData['driverInfo']['displayName']} on a ${tripData['driverInfo']['vehiculeColor']} ${tripData['driverInfo']['vehiculeModel']} is on his/her way to pick you up. \n Please wait for the driver to arrive.'));
       }
     }
   }
@@ -701,7 +701,10 @@ class _HomeScreenState extends State<HomeScreen> {
     if (stateOfApp == 'ended') {
       if (mounted) {
         showDialog(
-            context: context, builder: (context) => const PaymentDialog());
+            context: context,
+            builder: (context) => PaymentDialog(
+                  tripId: requestId,
+                ));
       }
     }
     setState(() {

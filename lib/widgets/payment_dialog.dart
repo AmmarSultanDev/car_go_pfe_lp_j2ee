@@ -1,9 +1,13 @@
 import 'package:car_go_pfe_lp_j2ee/global/trip_var.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
+import 'package:car_go_pfe_lp_j2ee/methods/firestore_methods.dart';
+import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
 
 class PaymentDialog extends StatefulWidget {
-  const PaymentDialog({super.key}); // Added semicolon here
+  const PaymentDialog({super.key, required this.tripId});
+
+  final String tripId; // Added semicolon here
 
   @override
   State<PaymentDialog> createState() {
@@ -13,6 +17,33 @@ class PaymentDialog extends StatefulWidget {
 
 class _PaymentDialogState extends State<PaymentDialog> {
   CommonMethods commonMethods = const CommonMethods();
+  FirestoreMethods firestoreMethods = FirestoreMethods();
+
+  paymentCheck() async {
+    if (mounted) {
+      showDialog(
+          context: context,
+          builder: (context) =>
+              const LoadingDialog(messageText: 'Collecting payment...'));
+    }
+
+    bool paymentStatus =
+        await firestoreMethods.checkPaymentStatus(widget.tripId);
+
+    if (mounted) Navigator.of(context).pop();
+
+    if (paymentStatus) {
+      if (mounted) {
+        commonMethods.displaySnackBar(
+            'Payment collected successfully.', context);
+        Navigator.of(context).pop();
+      }
+    } else {
+      if (mounted) {
+        commonMethods.displaySnackBar('Payment not collected.', context);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,9 +115,7 @@ class _PaymentDialogState extends State<PaymentDialog> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      commonMethods.displaySnackBar(
-                          'Payment collected successfully.', context);
-                      Navigator.of(context).pop();
+                      paymentCheck();
                     },
                     child: const Text('OK'),
                   ),
