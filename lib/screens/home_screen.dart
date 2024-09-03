@@ -1121,7 +1121,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                             availableNearbyOnlineDriversList =
                                                 ManageDriversMethods
                                                     .nearbyOnlineDriversList;
-
+                                            // reset the bool values to false
+                                            requestAlreadyAccepted = false;
+                                            driverAlreadyArrived = false;
+                                            tripStarted = false;
+                                            tripEnded = false;
+                                            tripCanceled = false;
                                             // search driver
                                             await searchDriver();
                                           },
