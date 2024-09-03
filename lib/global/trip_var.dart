@@ -6,3 +6,6 @@ int requestTimeoutDriver = 40;
 String status = '';
 String carDetailsDriver = '';
 String tripStatusDisplay = 'Driver is Arriving';
+Map<String, dynamic> tripData = {};
+
+double fareAmount = 0.0;

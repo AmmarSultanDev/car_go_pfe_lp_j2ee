@@ -20,6 +20,7 @@ import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/search_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/info_dialog.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
+import 'package:car_go_pfe_lp_j2ee/widgets/payment_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -94,6 +95,16 @@ class _HomeScreenState extends State<HomeScreen> {
   Timer? timer;
 
   List<OnlineNearbyDriver>? availableNearbyOnlineDriversList;
+
+  bool requestAlreadyAccepted = false;
+
+  bool driverAlreadyArrived = false;
+
+  bool tripStarted = false;
+
+  bool tripEnded = false;
+
+  bool tripCanceled = false;
 
   makeDriverIcon() {
     if (nearbyOnlineDriverIcon == null) {
@@ -324,6 +335,9 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       circleSet.add(pickUpPointCircle);
       circleSet.add(dropOffPointCircle);
+      allMarkersSet = {}
+        ..addAll(pinMarkersSet)
+        ..addAll(driverMarkersSet);
     });
   }
 
@@ -354,6 +368,7 @@ class _HomeScreenState extends State<HomeScreen> {
       pinMarkersSet.clear();
       circleSet.clear();
       pLineCoordinates.clear();
+      allMarkersSet.clear();
 
       status = '';
       nameDriver = '';
@@ -374,11 +389,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   displayRequestingRideContainer() async {
+    fareAmount = commonMethods.calculateFareAmount(tripDirectionDetails!);
     // start new tripRequest
     requestId = await firestoreMethods.makeTripRequest(
-        pickUpLocation!,
-        dropOffLocation!,
-        commonMethods.calculateFareAmount(tripDirectionDetails!).toString());
+        pickUpLocation!, dropOffLocation!, fareAmount.toString());
 
     setState(() {
       searchContainerHeight = 0;
@@ -515,17 +529,100 @@ class _HomeScreenState extends State<HomeScreen> {
           tripRequestRef!.snapshots().listen((DocumentSnapshot snapshot) {
         if (snapshot.exists) {
           // The document data will be in snapshot.data()
-          Map<String, dynamic> tripData =
-              snapshot.data() as Map<String, dynamic>;
+          tripData = snapshot.data() as Map<String, dynamic>;
 
           if (tripData['status'] == 'accepted') {
             requestTimeoutDriver = 40;
             clearTheMap();
+
+            // driver is coming
+            if (mounted) {
+              setState(() {
+                stateOfApp = 'driver_coming';
+              });
+            }
+
+            if (!requestAlreadyAccepted) {
+              whenRequestAccepted();
+            }
+            requestAlreadyAccepted = true;
+
             if (kDebugMode) {
               print('Driver has accepted the trip request');
             }
             timer.cancel();
-            return;
+          } else if (tripData['status'] == 'arrived') {
+            // driver has arrived
+            if (mounted) {
+              setState(() {
+                stateOfApp = 'driver_arrived';
+              });
+            }
+
+            if (!driverAlreadyArrived) {
+              whenDriverArrived();
+            }
+
+            driverAlreadyArrived = true;
+
+            if (kDebugMode) {
+              print('Driver has arrived');
+            }
+            timer.cancel();
+          } else if (tripData['status'] == 'canceled') {
+            // driver has canceled the trip request
+            if (mounted) {
+              setState(() {
+                stateOfApp = 'normal';
+              });
+            }
+
+            if (!tripCanceled) {
+              whenDriverCancelTheTrip();
+            }
+
+            tripCanceled = true;
+
+            if (kDebugMode) {
+              print('Driver has canceled the trip request');
+            }
+            timer.cancel();
+          } else if (tripData['status'] == 'onTrip') {
+            // driver has started the trip
+            if (mounted) {
+              setState(() {
+                stateOfApp = 'on_trip';
+              });
+            }
+
+            if (!tripStarted) {
+              whenTripStarted();
+            }
+
+            tripStarted = true;
+
+            if (kDebugMode) {
+              print('Driver has started the trip');
+            }
+            timer.cancel();
+          } else if (tripData['status'] == 'ended') {
+            // trip has ended
+            if (mounted) {
+              setState(() {
+                stateOfApp = 'normal';
+              });
+            }
+
+            if (!tripEnded) {
+              whenTripEnded();
+            }
+
+            tripEnded = true;
+
+            if (kDebugMode) {
+              print('Trip has ended');
+            }
+            timer.cancel();
           }
         } else {
           // The trip request document doesn't exist anymore
@@ -554,10 +651,72 @@ class _HomeScreenState extends State<HomeScreen> {
               ManageDriversMethods.nearbyOnlineDriversList;
           await firestoreMethods.cancelTripRequest(requestId);
           await noDriverAvailable();
+          requestAlreadyAccepted = false;
           clearTheMap();
         }
       }
     });
+  }
+
+  whenRequestAccepted() {
+    if (stateOfApp == 'driver_coming') {
+      if (mounted) {
+        showDialog(
+            context: context,
+            builder: (context) => InfoDialog(
+                title: 'Driver is Arriving',
+                content:
+                    'Your driver ${tripData['driverInfo']['displayName']} on a ${tripData['driverInfo']['vehiculeColor']} ${tripData['driverInfo']['vehiculeModel']} is on his way to pick you up. \n Please wait for the driver to arrive.'));
+      }
+    }
+  }
+
+  whenDriverArrived() {
+    if (stateOfApp == 'driver_arrived') {
+      if (mounted) {
+        showDialog(
+            context: context,
+            builder: (context) => InfoDialog(
+                title: 'Driver has Arrived',
+                content:
+                    'Your driver ${tripData['driverInfo']['displayName']} has arrived at your location. \n Please get in the car.'));
+      }
+    }
+  }
+
+  whenTripStarted() {
+    if (stateOfApp == 'on_trip') {
+      if (mounted) {
+        showDialog(
+            context: context,
+            builder: (context) => const InfoDialog(
+                title: 'Trip Started',
+                content:
+                    'Your trip has started. \n You are now on your way to your destination.'));
+      }
+    }
+  }
+
+  whenTripEnded() {
+    if (stateOfApp == 'normal') {
+      if (mounted) {
+        showDialog(
+            context: context, builder: (context) => const PaymentDialog());
+      }
+    }
+  }
+
+  whenDriverCancelTheTrip() {
+    if (stateOfApp == 'normal') {
+      if (mounted) {
+        showDialog(
+            context: context,
+            builder: (context) => const InfoDialog(
+                title: 'Driver Canceled the Trip',
+                content:
+                    'The driver has canceled the trip. \n Please try again shortly.'));
+      }
+    }
   }
 
   searchDriver() async {
@@ -577,6 +736,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     makeDriverIcon();
+
     return Consumer<UserProvider>(
       builder: (context, userProvider, child) {
         final User? user = userProvider.getUser;
