@@ -16,6 +16,7 @@ import 'package:car_go_pfe_lp_j2ee/models/direction_details.dart';
 import 'package:car_go_pfe_lp_j2ee/models/online_nearby_driver.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
+import 'package:car_go_pfe_lp_j2ee/providers/location_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/search_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/info_dialog.dart';
@@ -55,6 +56,8 @@ class _HomeScreenState extends State<HomeScreen> {
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   double searchContainerHeight = 276;
+
+  double onTripContainerHeight = 0;
 
   double bottomMapPadding = 100;
 
@@ -138,30 +141,83 @@ class _HomeScreenState extends State<HomeScreen> {
     controller.setMapStyle(googleMapStyle);
   }
 
-  getCurrentLiveLocationOfUser() async {
-    Position positionOfUser = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.bestForNavigation,
-    );
-    currentPositionOfUser = positionOfUser;
-
-    positionOfUserInLatLng = LatLng(
-        currentPositionOfUser!.latitude, currentPositionOfUser!.longitude);
-
-    if (mounted) {
-      await CommonMethods.convertGeoCodeToAddress(
-          positionOfUserInLatLng!.latitude,
-          positionOfUserInLatLng!.longitude,
-          context);
+  getCurrentLiveLocationOfUser(BuildContext context) async {
+    // Check if location permissions are granted
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
+        // Handle the case where permission is not granted
+        return;
+      }
     }
 
+    // Get the current position of the user initially
+    Position initialPosition = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.bestForNavigation,
+    );
+
+    // Update the LocationProvider with the initial position
+    Provider.of<LocationProvider>(context, listen: false)
+        .setCurrentPosition(initialPosition);
+
+    // Retrieve the current position as LatLng
+    LatLng initialPositionLatLng = LatLng(
+      initialPosition.latitude,
+      initialPosition.longitude,
+    );
+
+    // Optional: Convert geo-coordinates to an address for the initial position
+    if (mounted) {
+      await CommonMethods.convertGeoCodeToAddress(
+        initialPositionLatLng.latitude,
+        initialPositionLatLng.longitude,
+        context,
+      );
+    }
+
+    // Update the map's camera position to the user's initial location
     CameraPosition cameraPosition = CameraPosition(
-      target: positionOfUserInLatLng!,
+      target: initialPositionLatLng,
       zoom: 14.4746,
     );
 
     controllerGoogleMap!
         .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
 
+    // Start listening to the position stream for continuous updates
+    currentPositionStream = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+        distanceFilter: 10, // Minimum distance (in meters) before an update
+      ),
+    ).listen((Position position) {
+      // Update the LocationProvider with the new position
+      Provider.of<LocationProvider>(context, listen: false)
+          .setCurrentPosition(position);
+
+      // Update the map's camera position to the user's current location
+      LatLng positionOfUserInLatLng =
+          LatLng(position.latitude, position.longitude);
+      CameraPosition cameraPosition = CameraPosition(
+        target: positionOfUserInLatLng,
+        zoom: 14.4746,
+      );
+
+      controllerGoogleMap!
+          .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+
+      // Optional: Convert geo-coordinates to an address for each new position
+      CommonMethods.convertGeoCodeToAddress(
+        position.latitude,
+        position.longitude,
+        context,
+      );
+    });
+
+    // Initialize any GeoFire listeners, if needed
     await initializeGeoFireListener();
   }
 
@@ -177,6 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    currentPositionStream?.cancel();
     super.dispose();
   }
 
@@ -360,6 +417,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void clearTheMap() {
     setState(() {
       searchContainerHeight = 276;
+      onTripContainerHeight = 0;
       rideDetailsContainerHeight = 0;
       requestRideContainerHeight = 0;
       bottomMapPadding = 100;
@@ -433,6 +491,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   initializeGeoFireListener() {
     Geofire.initialize('onlineDrivers');
+    currentPositionOfUser =
+        Provider.of<LocationProvider>(context, listen: false).currentPosition;
     Geofire.queryAtLocation(currentPositionOfUser!.latitude,
             currentPositionOfUser!.longitude, 22)!
         .listen((driverEvent) {
@@ -532,6 +592,15 @@ class _HomeScreenState extends State<HomeScreen> {
           tripData = snapshot.data() as Map<String, dynamic>;
 
           if (tripData['status'] == 'accepted') {
+            LatLng driverCurrentLocation = const LatLng(0, 0);
+            if (tripData['driverLocation'] != null) {
+              double driverLatitude = double.parse(
+                  tripData['driverLocation']['latitude'].toString());
+              double driverLongitude = double.parse(
+                  tripData['driverLocation']['longitude'].toString());
+
+              driverCurrentLocation = LatLng(driverLatitude, driverLongitude);
+            }
             requestTimeoutDriver = 40;
             clearTheMap();
 
@@ -539,12 +608,16 @@ class _HomeScreenState extends State<HomeScreen> {
             if (mounted) {
               setState(() {
                 stateOfApp = 'driver_coming';
+                onTripContainerHeight = 200;
+                tripStatusDisplay = 'Driver is Arriving';
               });
             }
 
             if (!requestAlreadyAccepted) {
               whenRequestAccepted();
             }
+
+            updateFromDriverCurrentLocationToPickUp(driverCurrentLocation);
             requestAlreadyAccepted = true;
 
             if (kDebugMode) {
@@ -556,12 +629,15 @@ class _HomeScreenState extends State<HomeScreen> {
             if (mounted) {
               setState(() {
                 stateOfApp = 'driver_arrived';
+                tripStatusDisplay = 'Driver has Arrived';
               });
             }
 
             if (!driverAlreadyArrived) {
               whenDriverArrived();
             }
+
+            updateFromCurrentLocationToDropOffDestination();
 
             driverAlreadyArrived = true;
 
@@ -592,11 +668,14 @@ class _HomeScreenState extends State<HomeScreen> {
             if (mounted) {
               setState(() {
                 stateOfApp = 'on_trip';
+                tripStatusDisplay = 'On Trip';
               });
             }
 
             if (!tripStarted) {
               whenTripStarted();
+
+              updateFromCurrentLocationToDropOffDestination();
             }
 
             tripStarted = true;
@@ -710,6 +789,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       stateOfApp = 'normal';
     });
+    clearTheMap();
   }
 
   whenDriverCancelTheTrip() {
@@ -724,9 +804,230 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
 
+    clearTheMap();
+
     setState(() {
       stateOfApp = 'normal';
     });
+  }
+
+  updateFromDriverCurrentLocationToPickUp(LatLng driverCurrentLocation) async {
+    // Log the driver's current location
+    print(driverCurrentLocation.toJson());
+
+    // Retrieve pickup location coordinates
+    var pickUpLocation =
+        Provider.of<AddressProvider>(context, listen: false).pickUpAddress;
+    double pickUpLatitude = pickUpLocation!.latitude!;
+    double pickUpLongitude = pickUpLocation.longitude!;
+
+    LatLng pickUpLatLng = LatLng(pickUpLatitude, pickUpLongitude);
+
+    // Display a loading dialog
+    // showDialog(
+    //     barrierDismissible: false,
+    //     context: context,
+    //     builder: (BuildContext context) =>
+    //         const LoadingDialog(messageText: 'Updating route...'));
+
+    // Calculate route details between the driver's current location and the pickup location
+    var detailsFromDirectionApi =
+        await CommonMethods.getDirectionDetailsFromApi(
+      driverCurrentLocation,
+      pickUpLatLng,
+    );
+
+    // if (mounted) Navigator.of(context).pop();
+
+    // Decode and draw the polyline route
+    PolylinePoints polylinePoints = PolylinePoints();
+    List<PointLatLng> latLngPointsFromDriverToPickUp =
+        polylinePoints.decodePolyline(detailsFromDirectionApi!.encodedPoints!);
+
+    pLineCoordinates.clear();
+
+    if (latLngPointsFromDriverToPickUp.isNotEmpty) {
+      for (var latLngPoint in latLngPointsFromDriverToPickUp) {
+        pLineCoordinates
+            .add(LatLng(latLngPoint.latitude, latLngPoint.longitude));
+      }
+    }
+
+    polyLineSet.clear();
+
+    setState(() {
+      Polyline polyline = Polyline(
+        polylineId: const PolylineId('DriverToPickUp'),
+        color: Theme.of(context).primaryColor,
+        jointType: JointType.round,
+        points: pLineCoordinates,
+        width: 4,
+        startCap: Cap.roundCap,
+        endCap: Cap.roundCap,
+        geodesic: true,
+      );
+
+      polyLineSet.add(polyline);
+    });
+
+    // Fit the route into the map view
+    LatLngBounds latLngBounds;
+    if (driverCurrentLocation.latitude > pickUpLatLng.latitude &&
+        driverCurrentLocation.longitude > pickUpLatLng.longitude) {
+      latLngBounds = LatLngBounds(
+        southwest: pickUpLatLng,
+        northeast: driverCurrentLocation,
+      );
+    } else if (driverCurrentLocation.longitude > pickUpLatLng.longitude) {
+      latLngBounds = LatLngBounds(
+        southwest: LatLng(
+          driverCurrentLocation.latitude,
+          pickUpLatLng.longitude,
+        ),
+        northeast: LatLng(
+          pickUpLatLng.latitude,
+          driverCurrentLocation.longitude,
+        ),
+      );
+    } else if (driverCurrentLocation.latitude > pickUpLatLng.latitude) {
+      latLngBounds = LatLngBounds(
+        southwest: LatLng(
+          pickUpLatLng.latitude,
+          driverCurrentLocation.longitude,
+        ),
+        northeast: LatLng(
+          driverCurrentLocation.latitude,
+          pickUpLatLng.longitude,
+        ),
+      );
+    } else {
+      latLngBounds = LatLngBounds(
+        southwest: driverCurrentLocation,
+        northeast: pickUpLatLng,
+      );
+    }
+
+    controllerGoogleMap!.animateCamera(
+      CameraUpdate.newLatLngBounds(latLngBounds, 70),
+    );
+
+    // Add/update the driver marker on the map
+    Marker driverMarker = Marker(
+      markerId: const MarkerId('driverMarkerId'),
+      position: driverCurrentLocation,
+      icon: nearbyOnlineDriverIcon!,
+    );
+
+    driverMarkersSet.clear();
+
+    setState(() {
+      driverMarkersSet.add(driverMarker);
+      allMarkersSet = {}
+        ..addAll(pinMarkersSet)
+        ..addAll(driverMarkersSet);
+    });
+  }
+
+  updateFromCurrentLocationToDropOffDestination() async {
+    // Retrieve the user's current location
+    var positionOfUserInLatLng =
+        Provider.of<LocationProvider>(context, listen: false)
+            .currentPositionLatLng;
+    var dropOffLocation =
+        Provider.of<AddressProvider>(context, listen: false).dropOffAddress;
+
+    // Extract drop-off location coordinates
+    double dropOffLatitude = dropOffLocation!.latitude!;
+    double dropOffLongitude = dropOffLocation.longitude!;
+    LatLng dropOffLatLng = LatLng(dropOffLatitude, dropOffLongitude);
+
+    // Show a loading dialog
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) =>
+            const LoadingDialog(messageText: 'Updating route...'));
+
+    // Call Directions API to get route details from current location to drop-off destination
+    var detailsFromDirectionApi =
+        await CommonMethods.getDirectionDetailsFromApi(
+      positionOfUserInLatLng!,
+      dropOffLatLng,
+    );
+
+    if (mounted) Navigator.of(context).pop();
+
+    // Decode and draw the polyline route
+    PolylinePoints polylinePoints = PolylinePoints();
+    List<PointLatLng> latLngPointsFromCurrentToDropOff =
+        polylinePoints.decodePolyline(detailsFromDirectionApi!.encodedPoints!);
+
+    pLineCoordinates.clear();
+
+    if (latLngPointsFromCurrentToDropOff.isNotEmpty) {
+      for (var latLngPoint in latLngPointsFromCurrentToDropOff) {
+        pLineCoordinates
+            .add(LatLng(latLngPoint.latitude, latLngPoint.longitude));
+      }
+    }
+
+    polyLineSet.clear();
+
+    setState(() {
+      Polyline polyline = Polyline(
+        polylineId: const PolylineId('CurrentLocationToDropOff'),
+        color: Theme.of(context).primaryColor,
+        jointType: JointType.round,
+        points: pLineCoordinates,
+        width: 4,
+        startCap: Cap.roundCap,
+        endCap: Cap.roundCap,
+        geodesic: true,
+      );
+
+      polyLineSet.add(polyline);
+    });
+
+    // Fit the route into the map view
+    LatLngBounds latLngBounds;
+    if (positionOfUserInLatLng.latitude > dropOffLatLng.latitude &&
+        positionOfUserInLatLng.longitude > dropOffLatLng.longitude) {
+      latLngBounds = LatLngBounds(
+        southwest: dropOffLatLng,
+        northeast: positionOfUserInLatLng,
+      );
+    } else if (positionOfUserInLatLng.longitude > dropOffLatLng.longitude) {
+      latLngBounds = LatLngBounds(
+        southwest: LatLng(
+          positionOfUserInLatLng.latitude,
+          dropOffLatLng.longitude,
+        ),
+        northeast: LatLng(
+          dropOffLatLng.latitude,
+          positionOfUserInLatLng.longitude,
+        ),
+      );
+    } else if (positionOfUserInLatLng.latitude > dropOffLatLng.latitude) {
+      latLngBounds = LatLngBounds(
+        southwest: LatLng(
+          dropOffLatLng.latitude,
+          positionOfUserInLatLng.longitude,
+        ),
+        northeast: LatLng(
+          positionOfUserInLatLng.latitude,
+          dropOffLatLng.longitude,
+        ),
+      );
+    } else {
+      latLngBounds = LatLngBounds(
+        southwest: positionOfUserInLatLng,
+        northeast: dropOffLatLng,
+      );
+    }
+
+    controllerGoogleMap!.animateCamera(
+      CameraUpdate.newLatLngBounds(latLngBounds, 70),
+    );
   }
 
   searchDriver() async {
@@ -886,7 +1187,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   googleMapCompleterController.complete(controllerGoogleMap);
 
-                  getCurrentLiveLocationOfUser();
+                  getCurrentLiveLocationOfUser(context);
                 },
               ),
 
@@ -1163,6 +1464,86 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
+              // on trip container contains simple text and a cancel button
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  height: onTripContainerHeight,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).canvasColor.withOpacity(0.5),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        blurRadius: 15.0,
+                        spreadRadius: 0.5,
+                        offset: const Offset(
+                          0.7,
+                          0.7,
+                        ),
+                      )
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 18,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(
+                          height: 12,
+                        ),
+                        Text(
+                          tripStatusDisplay,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineMedium!
+                              .copyWith(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            clearTheMap();
+                            await cancelRideRequest();
+                          },
+                          child: Container(
+                            height: 50,
+                            width: 50,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onPrimaryContainer,
+                              borderRadius: BorderRadius.circular(25),
+                              border: Border.all(
+                                width: 1.5,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.close,
+                              color: Theme.of(context).primaryColor,
+                              size: 25,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
               // request ride container
               Positioned(
                 left: 0,

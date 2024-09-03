@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 String googleMapKey = 'AIzaSyBtgO69A3xicdorydolvLf4CfEG91LAdIM';
@@ -11,3 +14,5 @@ const CameraPosition casablancaInitialPosition = CameraPosition(
   target: LatLng(33.5731, -7.5898),
   zoom: 14.4746,
 );
+
+StreamSubscription<Position>? currentPositionStream;
