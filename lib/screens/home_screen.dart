@@ -674,9 +674,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
             if (!tripStarted) {
               whenTripStarted();
-
-              updateFromCurrentLocationToDropOffDestination();
             }
+
+            updateFromCurrentLocationToDropOffDestination();
 
             tripStarted = true;
 
@@ -942,11 +942,11 @@ class _HomeScreenState extends State<HomeScreen> {
     LatLng dropOffLatLng = LatLng(dropOffLatitude, dropOffLongitude);
 
     // Show a loading dialog
-    showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) =>
-            const LoadingDialog(messageText: 'Updating route...'));
+    // showDialog(
+    //     barrierDismissible: false,
+    //     context: context,
+    //     builder: (BuildContext context) =>
+    //         const LoadingDialog(messageText: 'Updating route...'));
 
     // Call Directions API to get route details from current location to drop-off destination
     var detailsFromDirectionApi =
