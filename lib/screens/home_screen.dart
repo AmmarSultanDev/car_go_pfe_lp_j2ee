@@ -109,6 +109,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool tripCanceled = false;
 
+  String durationText = '';
+
+  LatLng driverCurrentLocation = const LatLng(0, 0);
+
   makeDriverIcon() {
     if (nearbyOnlineDriverIcon == null) {
       ImageConfiguration imageConfiguration =
@@ -591,19 +595,19 @@ class _HomeScreenState extends State<HomeScreen> {
           // The document data will be in snapshot.data()
           tripData = snapshot.data() as Map<String, dynamic>;
 
+          if (tripData['driverLocation'] != null) {
+            double driverLatitude =
+                double.parse(tripData['driverLocation']['latitude'].toString());
+            double driverLongitude = double.parse(
+                tripData['driverLocation']['longitude'].toString());
+
+            driverCurrentLocation = LatLng(driverLatitude, driverLongitude);
+          }
+
           if (tripData['status'] == 'accepted') {
             // driver has accepted the trip request
 
             // get driver current location
-            LatLng driverCurrentLocation = const LatLng(0, 0);
-            if (tripData['driverLocation'] != null) {
-              double driverLatitude = double.parse(
-                  tripData['driverLocation']['latitude'].toString());
-              double driverLongitude = double.parse(
-                  tripData['driverLocation']['longitude'].toString());
-
-              driverCurrentLocation = LatLng(driverLatitude, driverLongitude);
-            }
 
             // the code that should be executed only once
 
@@ -667,6 +671,8 @@ class _HomeScreenState extends State<HomeScreen> {
             });
 
             updateFromDriverCurrentLocationToPickUp(driverCurrentLocation);
+            updateTripDetailsInformations(driverCurrentLocation);
+
             requestAlreadyAccepted = true;
           } else if (tripData['status'] == 'arrived') {
             // driver has arrived
@@ -720,6 +726,7 @@ class _HomeScreenState extends State<HomeScreen> {
               whenTripStarted();
             }
 
+            updateTripDetailsInformations(driverCurrentLocation);
             updateFromCurrentLocationToDropOffDestination();
 
             tripStarted = true;
@@ -1086,6 +1093,42 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // send notification to the driver
     await sendNotificationToDriver(driverUid!);
+  }
+
+  updateTripDetailsInformations(LatLng driverCurrentPositionInLatLng) async {
+    var currentPositionOfPassenger =
+        Provider.of<LocationProvider>(context, listen: false).currentPosition;
+
+    if (currentPositionOfPassenger == null) {
+      return;
+    }
+
+    LatLng currentPositionLatLng = LatLng(
+      currentPositionOfPassenger.latitude,
+      currentPositionOfPassenger.longitude,
+    );
+
+    LatLng startLocationLatLng;
+
+    LatLng endLocationLatLng;
+
+    if (stateOfApp == 'accepted') {
+      startLocationLatLng = driverCurrentPositionInLatLng;
+      endLocationLatLng = currentPositionLatLng;
+    } else {
+      startLocationLatLng = driverCurrentPositionInLatLng;
+      endLocationLatLng = currentPositionLatLng;
+    }
+
+    var driverToDestinationDirectionDetails =
+        await CommonMethods.getDirectionDetailsFromApi(
+            startLocationLatLng, endLocationLatLng);
+
+    if (driverToDestinationDirectionDetails != null) {
+      setState(() {
+        durationText = driverToDestinationDirectionDetails.durationText!;
+      });
+    }
   }
 
   @override
@@ -1550,7 +1593,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              tripStatusDisplay,
+                              '$tripStatusDisplay - $durationText',
                               style: Theme.of(context)
                                   .textTheme
                                   .headlineMedium!
