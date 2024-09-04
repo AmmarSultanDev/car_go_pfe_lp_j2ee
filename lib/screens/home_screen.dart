@@ -18,6 +18,7 @@ import 'package:car_go_pfe_lp_j2ee/models/user.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/location_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
+import 'package:car_go_pfe_lp_j2ee/screens/about_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/search_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/info_dialog.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
@@ -1258,7 +1259,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Theme.of(context).primaryColor,
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      if (mounted) {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => const AboutScreen()));
+                      }
+                    },
                     child: ListTile(
                       leading: Icon(
                         Icons.info,
