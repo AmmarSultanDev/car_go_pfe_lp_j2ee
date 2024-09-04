@@ -645,11 +645,11 @@ class _HomeScreenState extends State<HomeScreen> {
               print('Driver has arrived');
             }
             timer.cancel();
-          } else if (tripData['status'] == 'canceled') {
+          } else if (tripData['status'] == 'canceled_by_driver') {
             // driver has canceled the trip request
             if (mounted) {
               setState(() {
-                stateOfApp = 'canceled';
+                stateOfApp = 'canceled_by_driver';
               });
             }
 
@@ -793,7 +793,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   whenDriverCancelTheTrip() {
-    if (stateOfApp == 'canceled') {
+    if (stateOfApp == 'canceled_by_driver') {
       if (mounted) {
         showDialog(
             context: context,
@@ -955,7 +955,7 @@ class _HomeScreenState extends State<HomeScreen> {
       dropOffLatLng,
     );
 
-    if (mounted) Navigator.of(context).pop();
+    // if (mounted) Navigator.of(context).pop();
 
     // Decode and draw the polyline route
     PolylinePoints polylinePoints = PolylinePoints();
@@ -1514,9 +1514,45 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 20,
                         ),
                         GestureDetector(
-                          onTap: () async {
-                            clearTheMap();
-                            await cancelRideRequest();
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text('Cancel Trip',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelMedium!
+                                          .copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface,
+                                          )),
+                                  content: const Text(
+                                      'Are you sure you want to cancel this trip?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text('No'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () async {
+                                        await FirestoreMethods()
+                                            .updateTripRequestStatus(
+                                                requestId, 'canceled');
+                                        clearTheMap();
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text('Yes'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
                           },
                           child: Container(
                             height: 50,

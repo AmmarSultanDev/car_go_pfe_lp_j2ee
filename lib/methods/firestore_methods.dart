@@ -94,6 +94,27 @@ class FirestoreMethods {
     }
   }
 
+  cancelAcceptedTripRequest(String requestId) async {
+    try {
+      DocumentSnapshot snap =
+          await _firestore.collection('tripRequests').doc(requestId).get();
+
+      if (snap.exists) {
+        Map<String, dynamic>? data = snap.data() as Map<String, dynamic>?;
+
+        if (data?['status'] == 'canceled_by_driver') {
+          return;
+        }
+
+        await _firestore.collection('tripRequests').doc(requestId).update({
+          'status': 'canceled',
+        });
+      }
+    } on Exception catch (e) {
+      print(e);
+    }
+  }
+
   Future<Driver?> getDriver(String driverUid) async {
     Driver? driver;
     try {
