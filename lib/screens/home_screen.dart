@@ -602,14 +602,37 @@ class _HomeScreenState extends State<HomeScreen> {
               driverCurrentLocation = LatLng(driverLatitude, driverLongitude);
             }
             requestTimeoutDriver = 40;
-            clearTheMap();
+
+            try {
+              Geofire.stopListener();
+            } on Exception catch (e) {
+              print(e);
+            }
+
+            // clearTheMap();
+
+            // remove all drivers markers but only the driver who accepted the trip
+            driverMarkersSet.clear();
+
+            // add the driver marker
+            Marker driverMarker = Marker(
+              markerId: const MarkerId('driverMarkerId'),
+              position: driverCurrentLocation,
+              icon: nearbyOnlineDriverIcon!,
+            );
+
+            driverMarkersSet.add(driverMarker);
 
             // driver is coming
             if (mounted) {
               setState(() {
                 stateOfApp = 'driver_coming';
+                requestRideContainerHeight = 0;
                 onTripContainerHeight = 200;
                 tripStatusDisplay = 'Driver is Arriving';
+                allMarkersSet = {}
+                  ..addAll(pinMarkersSet)
+                  ..addAll(driverMarkersSet);
               });
             }
 
