@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:car_go_pfe_lp_j2ee/global/global_var.dart';
 import 'package:car_go_pfe_lp_j2ee/models/address.dart';
 import 'package:car_go_pfe_lp_j2ee/models/direction_details.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';

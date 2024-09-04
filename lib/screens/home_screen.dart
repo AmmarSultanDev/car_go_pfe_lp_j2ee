@@ -113,6 +113,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   LatLng driverCurrentLocation = const LatLng(0, 0);
 
+  LatLngBounds? latLngBounds;
+
   makeDriverIcon() {
     if (nearbyOnlineDriverIcon == null) {
       ImageConfiguration imageConfiguration =
@@ -191,35 +193,35 @@ class _HomeScreenState extends State<HomeScreen> {
     controllerGoogleMap!
         .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
 
-    // Start listening to the position stream for continuous updates
-    currentPositionStream = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.bestForNavigation,
-        distanceFilter: 10, // Minimum distance (in meters) before an update
-      ),
-    ).listen((Position position) {
-      // Update the LocationProvider with the new position
-      Provider.of<LocationProvider>(context, listen: false)
-          .setCurrentPosition(position);
+    // // Start listening to the position stream for continuous updates
+    // currentPositionStream = Geolocator.getPositionStream(
+    //   locationSettings: const LocationSettings(
+    //     accuracy: LocationAccuracy.bestForNavigation,
+    //     distanceFilter: 10, // Minimum distance (in meters) before an update
+    //   ),
+    // ).listen((Position position) {
+    //   // Update the LocationProvider with the new position
+    //   Provider.of<LocationProvider>(context, listen: false)
+    //       .setCurrentPosition(position);
 
-      // Update the map's camera position to the user's current location
-      LatLng positionOfUserInLatLng =
-          LatLng(position.latitude, position.longitude);
-      CameraPosition cameraPosition = CameraPosition(
-        target: positionOfUserInLatLng,
-        zoom: 14.4746,
-      );
+    //   // Update the map's camera position to the user's current location
+    //   LatLng positionOfUserInLatLng =
+    //       LatLng(position.latitude, position.longitude);
+    //   CameraPosition cameraPosition = CameraPosition(
+    //     target: positionOfUserInLatLng,
+    //     zoom: 14.4746,
+    //   );
 
-      controllerGoogleMap!
-          .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+    //   controllerGoogleMap!
+    //       .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
 
-      // Optional: Convert geo-coordinates to an address for each new position
-      CommonMethods.convertGeoCodeToAddress(
-        position.latitude,
-        position.longitude,
-        context,
-      );
-    });
+    //   // Optional: Convert geo-coordinates to an address for each new position
+    //   CommonMethods.convertGeoCodeToAddress(
+    //     position.latitude,
+    //     position.longitude,
+    //     context,
+    //   );
+    // });
 
     // Initialize any GeoFire listeners, if needed
     await initializeGeoFireListener();
@@ -379,7 +381,7 @@ class _HomeScreenState extends State<HomeScreen> {
       circleId: const CircleId('pickUpPointCircleId'),
       strokeColor: Colors.green,
       strokeWidth: 4,
-      radius: 12,
+      radius: 2,
       center: pickUpGeographicCoordinates,
       fillColor: Colors.green,
     );
@@ -388,7 +390,7 @@ class _HomeScreenState extends State<HomeScreen> {
       circleId: const CircleId('dropOffPointCircleId'),
       strokeColor: Colors.red,
       strokeWidth: 4,
-      radius: 12,
+      radius: 2,
       center: dropOffGeographicCoordinates,
       fillColor: Colors.red,
     );
@@ -616,7 +618,7 @@ class _HomeScreenState extends State<HomeScreen> {
               if (mounted) {
                 setState(
                   () {
-                    stateOfApp = 'driver_coming';
+                    stateOfApp = 'accepted';
                     requestRideContainerHeight = 0;
                     onTripContainerHeight = 291;
                     bottomMapPadding = 291;
@@ -687,7 +689,9 @@ class _HomeScreenState extends State<HomeScreen> {
               whenDriverArrived();
             }
 
-            updateFromCurrentLocationToDropOffDestination();
+            updateFromDriverCurrentLocationToDropOffDestination(
+                driverCurrentLocation);
+            updateTripDetailsInformations(driverCurrentLocation);
 
             driverAlreadyArrived = true;
 
@@ -724,10 +728,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
             if (!tripStarted) {
               whenTripStarted();
+              updateFromDriverCurrentLocationToDropOffDestination(
+                  driverCurrentLocation);
+              animateCameraOnTripStarted(latLngBounds!);
+
+              Timer(Duration(seconds: 3), () {
+                // Your callback code here
+              });
             }
 
+            updateFromDriverCurrentLocationToDropOffDestination(
+                driverCurrentLocation);
+
+            animateCameraOnTrip(driverCurrentLocation);
+
             updateTripDetailsInformations(driverCurrentLocation);
-            updateFromCurrentLocationToDropOffDestination();
 
             tripStarted = true;
 
@@ -789,7 +804,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   whenRequestAccepted() {
-    if (stateOfApp == 'driver_coming') {
+    if (stateOfApp == 'accepted') {
       if (mounted) {
         showDialog(
             context: context,
@@ -979,11 +994,12 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  updateFromCurrentLocationToDropOffDestination() async {
+  updateFromDriverCurrentLocationToDropOffDestination(
+      LatLng driverCurrentLocation) async {
     // Retrieve the user's current location
-    var positionOfUserInLatLng =
-        Provider.of<LocationProvider>(context, listen: false)
-            .currentPositionLatLng;
+    // var positionOfUserInLatLng =
+    //     Provider.of<LocationProvider>(context, listen: false)
+    //         .currentPositionLatLng;
     var dropOffLocation =
         Provider.of<AddressProvider>(context, listen: false).dropOffAddress;
 
@@ -1002,7 +1018,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Call Directions API to get route details from current location to drop-off destination
     var detailsFromDirectionApi =
         await CommonMethods.getDirectionDetailsFromApi(
-      positionOfUserInLatLng!,
+      driverCurrentLocation,
       dropOffLatLng,
     );
 
@@ -1040,45 +1056,77 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     // Fit the route into the map view
-    LatLngBounds latLngBounds;
-    if (positionOfUserInLatLng.latitude > dropOffLatLng.latitude &&
-        positionOfUserInLatLng.longitude > dropOffLatLng.longitude) {
+
+    if (driverCurrentLocation.latitude > dropOffLatLng.latitude &&
+        driverCurrentLocation.longitude > dropOffLatLng.longitude) {
       latLngBounds = LatLngBounds(
         southwest: dropOffLatLng,
-        northeast: positionOfUserInLatLng,
+        northeast: driverCurrentLocation,
       );
-    } else if (positionOfUserInLatLng.longitude > dropOffLatLng.longitude) {
+    } else if (driverCurrentLocation.longitude > dropOffLatLng.longitude) {
       latLngBounds = LatLngBounds(
         southwest: LatLng(
-          positionOfUserInLatLng.latitude,
+          driverCurrentLocation.latitude,
           dropOffLatLng.longitude,
         ),
         northeast: LatLng(
           dropOffLatLng.latitude,
-          positionOfUserInLatLng.longitude,
+          driverCurrentLocation.longitude,
         ),
       );
-    } else if (positionOfUserInLatLng.latitude > dropOffLatLng.latitude) {
+    } else if (driverCurrentLocation.latitude > dropOffLatLng.latitude) {
       latLngBounds = LatLngBounds(
         southwest: LatLng(
           dropOffLatLng.latitude,
-          positionOfUserInLatLng.longitude,
+          driverCurrentLocation.longitude,
         ),
         northeast: LatLng(
-          positionOfUserInLatLng.latitude,
+          driverCurrentLocation.latitude,
           dropOffLatLng.longitude,
         ),
       );
     } else {
       latLngBounds = LatLngBounds(
-        southwest: positionOfUserInLatLng,
+        southwest: driverCurrentLocation,
         northeast: dropOffLatLng,
       );
     }
 
-    controllerGoogleMap!.animateCamera(
-      CameraUpdate.newLatLngBounds(latLngBounds, 70),
+    // controllerGoogleMap!.animateCamera(
+    //   CameraUpdate.newLatLngBounds(latLngBounds, 70),
+    // );
+  }
+
+  animateCameraOnTripStarted(LatLngBounds latLngBounds) {
+    controllerGoogleMap!.animateCamera(CameraUpdate.newLatLngBounds(
+      latLngBounds,
+      70,
+    ));
+  }
+
+  animateCameraOnTrip(LatLng driverCurrentLocation) {
+    // Add/update the driver marker on the map
+    Marker driverMarker = Marker(
+      markerId: const MarkerId('driverMarkerId'),
+      position: driverCurrentLocation,
+      icon: nearbyOnlineDriverIcon!,
     );
+
+    driverMarkersSet.clear();
+
+    setState(() {
+      driverMarkersSet.add(driverMarker);
+      allMarkersSet = {}
+        ..addAll(pinMarkersSet)
+        ..addAll(driverMarkersSet);
+    });
+    CameraPosition cameraPosition = CameraPosition(
+      target: driverCurrentLocation,
+      zoom: 14.4746,
+    );
+
+    controllerGoogleMap!
+        .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
   }
 
   searchDriver() async {
@@ -1117,7 +1165,14 @@ class _HomeScreenState extends State<HomeScreen> {
       endLocationLatLng = currentPositionLatLng;
     } else {
       startLocationLatLng = driverCurrentPositionInLatLng;
-      endLocationLatLng = currentPositionLatLng;
+
+      dropOffLocation =
+          Provider.of<AddressProvider>(context, listen: false).dropOffAddress;
+
+      double dropOffLatitude = dropOffLocation!.latitude!;
+      double dropOffLongitude = dropOffLocation!.longitude!;
+
+      endLocationLatLng = LatLng(dropOffLatitude, dropOffLongitude);
     }
 
     var driverToDestinationDirectionDetails =
@@ -1590,16 +1645,27 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 5,
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              '$tripStatusDisplay - $durationText',
+                              '$tripStatusDisplay - ',
                               style: Theme.of(context)
                                   .textTheme
                                   .headlineMedium!
                                   .copyWith(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                            Text(
+                              durationText,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall!
+                                  .copyWith(
+                                    fontSize: 16,
                                   ),
                             ),
                           ],
@@ -1685,8 +1751,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                 try {
                                   await commonMethods
                                       .makePhoneCall(phoneNumberDriver!);
-                                } on Exception catch (e) {
-                                  // TODO
+                                } on Exception {
+                                  await showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: const Text('Error'),
+                                        content: const Text(
+                                            'An error occurred while trying to make a phone call.'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: const Text('OK'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
                                 }
                               },
                               icon: Icon(
