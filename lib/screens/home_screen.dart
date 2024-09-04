@@ -592,6 +592,9 @@ class _HomeScreenState extends State<HomeScreen> {
           tripData = snapshot.data() as Map<String, dynamic>;
 
           if (tripData['status'] == 'accepted') {
+            // driver has accepted the trip request
+
+            // get driver current location
             LatLng driverCurrentLocation = const LatLng(0, 0);
             if (tripData['driverLocation'] != null) {
               double driverLatitude = double.parse(
@@ -601,17 +604,51 @@ class _HomeScreenState extends State<HomeScreen> {
 
               driverCurrentLocation = LatLng(driverLatitude, driverLongitude);
             }
-            requestTimeoutDriver = 40;
 
-            try {
-              Geofire.stopListener();
-            } on Exception catch (e) {
-              print(e);
+            // the code that should be executed only once
+
+            if (!requestAlreadyAccepted) {
+              // driver is coming
+              if (mounted) {
+                setState(
+                  () {
+                    stateOfApp = 'driver_coming';
+                    requestRideContainerHeight = 0;
+                    onTripContainerHeight = 291;
+                    bottomMapPadding = 291;
+                    tripStatusDisplay = 'Driver is Arriving';
+                  },
+                );
+              }
+
+              whenRequestAccepted();
+
+              // get driver info
+              if (tripData['driverInfo'] != null) {
+                nameDriver = tripData['driverInfo']['displayName'];
+                photoDriver = tripData['driverInfo']['photoUrl'];
+                phoneNumberDriver = tripData['driverInfo']['phoneNumber'];
+                carDetailsDriver =
+                    '${tripData['driverInfo']['vehiculeColor']} ${tripData['driverInfo']['vehiculeModel']} ${tripData['driverInfo']['vehiculePlateNumber']}';
+              }
+
+              // reset the request timeout
+              requestTimeoutDriver = 40;
+
+              // stop the geofire listener
+              try {
+                Geofire.stopListener();
+              } on Exception catch (e) {
+                print(e);
+              }
+
+              if (kDebugMode) {
+                print('Driver has accepted the trip request');
+              }
+              timer.cancel();
             }
 
-            // clearTheMap();
-
-            // remove all drivers markers but only the driver who accepted the trip
+            // remove all drivers markers
             driverMarkersSet.clear();
 
             // add the driver marker
@@ -623,30 +660,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
             driverMarkersSet.add(driverMarker);
 
-            // driver is coming
-            if (mounted) {
-              setState(() {
-                stateOfApp = 'driver_coming';
-                requestRideContainerHeight = 0;
-                onTripContainerHeight = 200;
-                tripStatusDisplay = 'Driver is Arriving';
-                allMarkersSet = {}
-                  ..addAll(pinMarkersSet)
-                  ..addAll(driverMarkersSet);
-              });
-            }
-
-            if (!requestAlreadyAccepted) {
-              whenRequestAccepted();
-            }
+            setState(() {
+              allMarkersSet = {}
+                ..addAll(pinMarkersSet)
+                ..addAll(driverMarkersSet);
+            });
 
             updateFromDriverCurrentLocationToPickUp(driverCurrentLocation);
             requestAlreadyAccepted = true;
-
-            if (kDebugMode) {
-              print('Driver has accepted the trip request');
-            }
-            timer.cancel();
           } else if (tripData['status'] == 'arrived') {
             // driver has arrived
             if (mounted) {
@@ -1487,7 +1508,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              // on trip container contains simple text and a cancel button
+
+              // on trip container
               Positioned(
                 left: 0,
                 right: 0,
@@ -1518,90 +1540,287 @@ class _HomeScreenState extends State<HomeScreen> {
                       vertical: 18,
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(
-                          height: 12,
+                          height: 5,
                         ),
-                        Text(
-                          tripStatusDisplay,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium!
-                              .copyWith(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              tripStatusDisplay,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineMedium!
+                                  .copyWith(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        Divider(
+                          height: 1,
+                          color: Theme.of(context).dividerColor,
+                          thickness: 1,
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // driver photoUrl and driver displayName
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            ClipOval(
+                              child: photoDriver.isEmpty
+                                  ? Image.asset(
+                                      'assets/images/avatar_man.png',
+                                      height: 60,
+                                      width: 60,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.network(
+                                      photoDriver,
+                                      height: 60,
+                                      width: 60,
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                            const SizedBox(width: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  nameDriver,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium!
+                                      .copyWith(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                                Text(
+                                  carDetailsDriver,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall!
+                                      .copyWith(
+                                        fontSize: 16,
+                                        color: Colors.grey,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        Divider(
+                          height: 1,
+                          color: Theme.of(context).dividerColor,
+                          thickness: 1,
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // call driver and cancel trip buttons
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              onPressed: () async {
+                                try {
+                                  await commonMethods
+                                      .makePhoneCall(phoneNumberDriver!);
+                                } on Exception catch (e) {
+                                  // TODO
+                                }
+                              },
+                              icon: Icon(
+                                Icons.call,
+                                color: Theme.of(context).primaryColor,
+                                size: 30,
                               ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: Text('Cancel Trip',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelMedium!
-                                          .copyWith(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurface,
-                                          )),
-                                  content: const Text(
-                                      'Are you sure you want to cancel this trip?'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text('No'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () async {
-                                        await FirestoreMethods()
-                                            .updateTripRequestStatus(
-                                                requestId, 'canceled');
-                                        clearTheMap();
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text('Yes'),
-                                    ),
-                                  ],
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text('Cancel Trip',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelMedium!
+                                              .copyWith(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface,
+                                              )),
+                                      content: const Text(
+                                          'Are you sure you want to cancel this trip?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text('No'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () async {
+                                            await FirestoreMethods()
+                                                .updateTripRequestStatus(
+                                                    requestId, 'canceled');
+                                            clearTheMap();
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text('Yes'),
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 );
                               },
-                            );
-                          },
-                          child: Container(
-                            height: 50,
-                            width: 50,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onPrimaryContainer,
-                              borderRadius: BorderRadius.circular(25),
-                              border: Border.all(
-                                width: 1.5,
-                                color: Colors.grey,
+                              icon: Icon(
+                                Icons.close,
+                                color: Theme.of(context).primaryColor,
+                                size: 30,
                               ),
                             ),
-                            child: Icon(
-                              Icons.close,
-                              color: Theme.of(context).primaryColor,
-                              size: 25,
-                            ),
-                          ),
-                        )
+                          ],
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
+
+              // // old code
+              // Positioned(
+              //   left: 0,
+              //   right: 0,
+              //   bottom: 0,
+              //   child: Container(
+              //     height: onTripContainerHeight,
+              //     decoration: BoxDecoration(
+              //       color: Theme.of(context).canvasColor.withOpacity(0.5),
+              //       borderRadius: const BorderRadius.only(
+              //         topLeft: Radius.circular(16),
+              //         topRight: Radius.circular(16),
+              //       ),
+              //       boxShadow: [
+              //         BoxShadow(
+              //           color: Theme.of(context).colorScheme.onPrimary,
+              //           blurRadius: 15.0,
+              //           spreadRadius: 0.5,
+              //           offset: const Offset(
+              //             0.7,
+              //             0.7,
+              //           ),
+              //         )
+              //       ],
+              //     ),
+              //     child: Padding(
+              //       padding: const EdgeInsets.symmetric(
+              //         horizontal: 24,
+              //         vertical: 18,
+              //       ),
+              //       child: Column(
+              //         crossAxisAlignment: CrossAxisAlignment.center,
+              //         children: [
+              //           const SizedBox(
+              //             height: 12,
+              //           ),
+              //           Text(
+              //             tripStatusDisplay,
+              //             style: Theme.of(context)
+              //                 .textTheme
+              //                 .headlineMedium!
+              //                 .copyWith(
+              //                   fontSize: 22,
+              //                   fontWeight: FontWeight.bold,
+              //                 ),
+              //           ),
+              //           const SizedBox(
+              //             height: 20,
+              //           ),
+              //           GestureDetector(
+              //             onTap: () {
+              //               showDialog(
+              //                 context: context,
+              //                 builder: (context) {
+              //                   return AlertDialog(
+              //                     title: Text('Cancel Trip',
+              //                         style: Theme.of(context)
+              //                             .textTheme
+              //                             .labelMedium!
+              //                             .copyWith(
+              //                               fontWeight: FontWeight.bold,
+              //                               fontSize: 18,
+              //                               color: Theme.of(context)
+              //                                   .colorScheme
+              //                                   .onSurface,
+              //                             )),
+              //                     content: const Text(
+              //                         'Are you sure you want to cancel this trip?'),
+              //                     actions: [
+              //                       TextButton(
+              //                         onPressed: () {
+              //                           Navigator.pop(context);
+              //                         },
+              //                         child: const Text('No'),
+              //                       ),
+              //                       TextButton(
+              //                         onPressed: () async {
+              //                           await FirestoreMethods()
+              //                               .updateTripRequestStatus(
+              //                                   requestId, 'canceled');
+              //                           clearTheMap();
+              //                           Navigator.pop(context);
+              //                         },
+              //                         child: const Text('Yes'),
+              //                       ),
+              //                     ],
+              //                   );
+              //                 },
+              //               );
+              //             },
+              //             child: Container(
+              //               height: 50,
+              //               width: 50,
+              //               decoration: BoxDecoration(
+              //                 color: Theme.of(context)
+              //                     .colorScheme
+              //                     .onPrimaryContainer,
+              //                 borderRadius: BorderRadius.circular(25),
+              //                 border: Border.all(
+              //                   width: 1.5,
+              //                   color: Colors.grey,
+              //                 ),
+              //               ),
+              //               child: Icon(
+              //                 Icons.close,
+              //                 color: Theme.of(context).primaryColor,
+              //                 size: 25,
+              //               ),
+              //             ),
+              //           )
+              //         ],
+              //       ),
+              //     ),
+              //   ),
+              // ),
 
               // request ride container
               Positioned(

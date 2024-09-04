@@ -12,6 +12,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CommonMethods {
   const CommonMethods();
@@ -161,5 +162,28 @@ class CommonMethods {
     totalFareAmount = double.parse(totalFareAmount.toStringAsFixed(2));
 
     return totalFareAmount;
+  }
+
+  makePhoneCall(String phoneNumber) async {
+    String telScheme = 'tel:$phoneNumber';
+
+    if (Platform.isAndroid) {
+      if (await Permission.phone.isGranted) {
+        if (await canLaunchUrl(Uri.parse(telScheme))) {
+          await launchUrl(Uri.parse(telScheme));
+        } else {
+          throw 'Could not launch $telScheme';
+        }
+      } else {
+        await Permission.phone.request();
+        makePhoneCall(phoneNumber);
+      }
+    } else {
+      if (await canLaunchUrl(Uri.parse(telScheme))) {
+        await launchUrl(Uri.parse(telScheme));
+      } else {
+        throw 'Could not launch $telScheme';
+      }
+    }
   }
 }
