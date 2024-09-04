@@ -1475,6 +1475,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             tripStarted = false;
                                             tripEnded = false;
                                             tripCanceled = false;
+
                                             // search driver
                                             await searchDriver();
                                           },
