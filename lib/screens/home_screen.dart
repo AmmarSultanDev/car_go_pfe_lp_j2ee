@@ -569,8 +569,6 @@ class _HomeScreenState extends State<HomeScreen> {
           tripData = snapshot.data() as Map<String, dynamic>;
 
           if (tripData['driverLocation'] != null) {
-            print(tripData['driverLocation']['latitude'].toString());
-            print(tripData['driverLocation']['longitude'].toString());
             double driverLatitude =
                 double.parse(tripData['driverLocation']['latitude'].toString());
             double driverLongitude = double.parse(
@@ -618,7 +616,9 @@ class _HomeScreenState extends State<HomeScreen> {
               try {
                 Geofire.stopListener();
               } on Exception catch (e) {
-                print(e);
+                if (kDebugMode) {
+                  print(e);
+                }
               }
 
               if (kDebugMode) {
@@ -852,7 +852,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   updateFromDriverCurrentLocationToPickUp(LatLng driverCurrentLocation) async {
     // Log the driver's current location
-    print(driverCurrentLocation.toJson());
+    if (kDebugMode) {
+      print(driverCurrentLocation.toJson());
+    }
 
     // Retrieve pickup location coordinates
     var pickUpLocation =

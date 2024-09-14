@@ -24,7 +24,7 @@ class _SigninScreenState extends State<SigninScreen> {
 
     if (res != 'Success') {
       if (res == 'email-not-verified') {
-        if (context.mounted) {
+        if (mounted) {
           commonMethods.displaySnackBar(
               'Email not verified. Please verify your email.', context);
         }
