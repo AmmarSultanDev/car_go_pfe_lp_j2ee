@@ -93,11 +93,9 @@ class _SignupScreenState extends State<SignupScreen> {
       await commonMethods.askForNotificationPermission();
 
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const HomeScreen(),
-          ),
-        );
+        commonMethods.displaySnackBar(
+            'Account created successfully!. Please verify your email before proceeding',
+            context);
       }
     }
   }

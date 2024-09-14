@@ -23,7 +23,18 @@ class _SigninScreenState extends State<SigninScreen> {
     );
 
     if (res != 'Success') {
-      if (mounted) commonMethods.displaySnackBar(res, context);
+      if (res == 'email-not-verified') {
+        if (context.mounted) {
+          commonMethods.displaySnackBar(
+              'Email not verified. Please verify your email.', context);
+        }
+
+        await Future.delayed(const Duration(seconds: 3));
+
+        await AuthMethods().signoutUser();
+      } else if (mounted) {
+        commonMethods.displaySnackBar(res, context);
+      }
     }
   }
 

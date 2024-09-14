@@ -38,6 +38,8 @@ class AuthMethods {
         UserCredential userCredential = await _auth
             .createUserWithEmailAndPassword(email: email, password: password);
 
+        await _auth.currentUser!.sendEmailVerification();
+
         if (userCredential.user != null) {
           model.User user = model.User(
             uid: userCredential.user!.uid,
@@ -79,6 +81,11 @@ class AuthMethods {
       if (email.isNotEmpty && password.isNotEmpty) {
         UserCredential userCredential = await _auth.signInWithEmailAndPassword(
             email: email, password: password);
+
+        if (!userCredential.user!.emailVerified) {
+          res = 'email-not-verified';
+          return res;
+        }
         if (userCredential.user != null) {
           DocumentSnapshot snap = await _firestore
               .collection('users')

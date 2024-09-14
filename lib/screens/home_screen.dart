@@ -194,36 +194,6 @@ class _HomeScreenState extends State<HomeScreen> {
     controllerGoogleMap!
         .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
 
-    // // Start listening to the position stream for continuous updates
-    // currentPositionStream = Geolocator.getPositionStream(
-    //   locationSettings: const LocationSettings(
-    //     accuracy: LocationAccuracy.bestForNavigation,
-    //     distanceFilter: 10, // Minimum distance (in meters) before an update
-    //   ),
-    // ).listen((Position position) {
-    //   // Update the LocationProvider with the new position
-    //   Provider.of<LocationProvider>(context, listen: false)
-    //       .setCurrentPosition(position);
-
-    //   // Update the map's camera position to the user's current location
-    //   LatLng positionOfUserInLatLng =
-    //       LatLng(position.latitude, position.longitude);
-    //   CameraPosition cameraPosition = CameraPosition(
-    //     target: positionOfUserInLatLng,
-    //     zoom: 14.4746,
-    //   );
-
-    //   controllerGoogleMap!
-    //       .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
-
-    //   // Optional: Convert geo-coordinates to an address for each new position
-    //   CommonMethods.convertGeoCodeToAddress(
-    //     position.latitude,
-    //     position.longitude,
-    //     context,
-    //   );
-    // });
-
     // Initialize any GeoFire listeners, if needed
     await initializeGeoFireListener();
   }
@@ -1221,37 +1191,45 @@ class _HomeScreenState extends State<HomeScreen> {
                       decoration: BoxDecoration(
                         color: Theme.of(context).primaryColor,
                       ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.person,
-                            size: 60,
-                          ),
-                          const SizedBox(width: 16),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                user.displayName,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge!
-                                    .copyWith(
-                                      fontWeight: FontWeight.bold,
+                      child: Expanded(
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.person,
+                              size: 60,
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      user.displayName,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge!
+                                          .copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                     ),
+                                  ),
+                                  Flexible(
+                                    child: Text(
+                                      user.email,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineSmall!
+                                          .copyWith(fontSize: 18),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Flexible(
-                                child: Text(
-                                  user.email,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineSmall!
-                                      .copyWith(fontSize: 18),
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -1840,122 +1818,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-
-              // // old code
-              // Positioned(
-              //   left: 0,
-              //   right: 0,
-              //   bottom: 0,
-              //   child: Container(
-              //     height: onTripContainerHeight,
-              //     decoration: BoxDecoration(
-              //       color: Theme.of(context).canvasColor.withOpacity(0.5),
-              //       borderRadius: const BorderRadius.only(
-              //         topLeft: Radius.circular(16),
-              //         topRight: Radius.circular(16),
-              //       ),
-              //       boxShadow: [
-              //         BoxShadow(
-              //           color: Theme.of(context).colorScheme.onPrimary,
-              //           blurRadius: 15.0,
-              //           spreadRadius: 0.5,
-              //           offset: const Offset(
-              //             0.7,
-              //             0.7,
-              //           ),
-              //         )
-              //       ],
-              //     ),
-              //     child: Padding(
-              //       padding: const EdgeInsets.symmetric(
-              //         horizontal: 24,
-              //         vertical: 18,
-              //       ),
-              //       child: Column(
-              //         crossAxisAlignment: CrossAxisAlignment.center,
-              //         children: [
-              //           const SizedBox(
-              //             height: 12,
-              //           ),
-              //           Text(
-              //             tripStatusDisplay,
-              //             style: Theme.of(context)
-              //                 .textTheme
-              //                 .headlineMedium!
-              //                 .copyWith(
-              //                   fontSize: 22,
-              //                   fontWeight: FontWeight.bold,
-              //                 ),
-              //           ),
-              //           const SizedBox(
-              //             height: 20,
-              //           ),
-              //           GestureDetector(
-              //             onTap: () {
-              //               showDialog(
-              //                 context: context,
-              //                 builder: (context) {
-              //                   return AlertDialog(
-              //                     title: Text('Cancel Trip',
-              //                         style: Theme.of(context)
-              //                             .textTheme
-              //                             .labelMedium!
-              //                             .copyWith(
-              //                               fontWeight: FontWeight.bold,
-              //                               fontSize: 18,
-              //                               color: Theme.of(context)
-              //                                   .colorScheme
-              //                                   .onSurface,
-              //                             )),
-              //                     content: const Text(
-              //                         'Are you sure you want to cancel this trip?'),
-              //                     actions: [
-              //                       TextButton(
-              //                         onPressed: () {
-              //                           Navigator.pop(context);
-              //                         },
-              //                         child: const Text('No'),
-              //                       ),
-              //                       TextButton(
-              //                         onPressed: () async {
-              //                           await FirestoreMethods()
-              //                               .updateTripRequestStatus(
-              //                                   requestId, 'canceled');
-              //                           clearTheMap();
-              //                           Navigator.pop(context);
-              //                         },
-              //                         child: const Text('Yes'),
-              //                       ),
-              //                     ],
-              //                   );
-              //                 },
-              //               );
-              //             },
-              //             child: Container(
-              //               height: 50,
-              //               width: 50,
-              //               decoration: BoxDecoration(
-              //                 color: Theme.of(context)
-              //                     .colorScheme
-              //                     .onPrimaryContainer,
-              //                 borderRadius: BorderRadius.circular(25),
-              //                 border: Border.all(
-              //                   width: 1.5,
-              //                   color: Colors.grey,
-              //                 ),
-              //               ),
-              //               child: Icon(
-              //                 Icons.close,
-              //                 color: Theme.of(context).primaryColor,
-              //                 size: 25,
-              //               ),
-              //             ),
-              //           )
-              //         ],
-              //       ),
-              //     ),
-              //   ),
-              // ),
 
               // request ride container
               Positioned(
