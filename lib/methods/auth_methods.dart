@@ -2,6 +2,7 @@ import 'package:car_go_pfe_lp_j2ee/models/user.dart' as model;
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class AuthMethods {
@@ -22,6 +23,7 @@ class AuthMethods {
     required String password,
     required String username,
     required String userphone,
+    required BuildContext context,
   }) async {
     // Register user
     String res = 'Some error occured';
@@ -52,7 +54,12 @@ class AuthMethods {
               .collection('users')
               .doc(userCredential.user!.uid)
               .set(user.toJson());
+
+          if (context.mounted) {
+            Provider.of<UserProvider>(context, listen: false).setUser = user;
+          }
         }
+
         res = 'Success';
         return res;
       }

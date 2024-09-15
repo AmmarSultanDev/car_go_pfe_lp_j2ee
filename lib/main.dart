@@ -140,17 +140,19 @@ class MyApp extends StatelessWidget {
                         } else if (!snapshot.data!.exists) {
                           return const SigninScreen();
                         } else if (snapshot.hasData) {
-                          model.User? user =
+                          model.User? userFromModel =
                               model.User.fromSnap(snapshot.data!);
                           Provider.of<UserProvider>(context, listen: false)
-                              .setUser = user;
+                              .setUser = userFromModel;
 
                           bool isBlocked =
                               snapshot.data!.get('isBlocked') as bool;
                           if (isBlocked) {
                             return const BlockedScreen(); // return a screen for blocked users
-                          } else {
+                          } else if (user.emailVerified) {
                             return const HomeScreen(); // return the dashboard if the user is not blocked
+                          } else {
+                            return const SigninScreen();
                           }
                         } else {
                           return const Center(

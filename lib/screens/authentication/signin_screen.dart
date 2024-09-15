@@ -1,6 +1,7 @@
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/authentication/signup_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
+import 'package:car_go_pfe_lp_j2ee/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 
 class SigninScreen extends StatefulWidget {
@@ -34,6 +35,14 @@ class _SigninScreenState extends State<SigninScreen> {
         await AuthMethods().signoutUser();
       } else if (mounted) {
         commonMethods.displaySnackBar(res, context);
+      }
+    }
+
+    if (res == 'Success') {
+      if (mounted) {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+        ));
       }
     }
   }
@@ -111,10 +120,9 @@ class _SigninScreenState extends State<SigninScreen> {
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const SignupScreen()));
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) =>
+                                        const SignupScreen()));
                               },
                               child: const Text(
                                 'Sign Up',

@@ -1,10 +1,9 @@
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
-import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/authentication/signin_screen.dart';
+import 'package:car_go_pfe_lp_j2ee/widgets/info_dialog.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart' as model;
 
 class SignupScreen extends StatefulWidget {
@@ -74,6 +73,7 @@ class _SignupScreenState extends State<SignupScreen> {
       password: _passwordController.text.trim(),
       username: _usernameController.text.trim(),
       userphone: _userphoneController.text.trim(),
+      context: context,
     );
 
     if (mounted) Navigator.pop(context);
@@ -84,17 +84,29 @@ class _SignupScreenState extends State<SignupScreen> {
     } else {
       model.User? user = await AuthMethods().getUserDetails();
 
+      if (user == null) {
+        if (mounted) {
+          commonMethods.displaySnackBar(
+              'An error occurred. Please try again later.', context);
+        }
+        return;
+      }
+
       if (mounted) {
-        Provider.of<UserProvider>(context, listen: false).setUser = user;
+        await showDialog(
+            context: context,
+            builder: (context) => InfoDialog(
+                  title: 'Welcome ${_usernameController.text}',
+                  content:
+                      'Account created successfully!. Please verify your email before proceeding',
+                ));
       }
 
       await commonMethods.askForLocationPermission();
       await commonMethods.askForNotificationPermission();
 
       if (mounted) {
-        commonMethods.displaySnackBar(
-            'Account created successfully!. Please verify your email before proceeding',
-            context);
+        Navigator.of(context).pop();
       }
     }
   }
@@ -212,11 +224,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                    builder: (context) => const SigninScreen(),
-                                  ),
-                                );
+                                Navigator.of(context).pop();
                               },
                               child: const Text(
                                 'Sign In',
