@@ -19,6 +19,7 @@ import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/location_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/about_screen.dart';
+import 'package:car_go_pfe_lp_j2ee/screens/profile_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/search_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/info_dialog.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
@@ -1195,10 +1196,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(
-                            Icons.person,
-                            size: 60,
-                          ),
+                          IconButton(
+                              icon: const Icon(
+                                Icons.person,
+                                size: 50,
+                              ),
+                              onPressed: () {
+                                if (mounted) {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) =>
+                                          const ProfileScreen()));
+                                }
+                              }),
                           const SizedBox(width: 16),
                           Expanded(
                             child: Column(

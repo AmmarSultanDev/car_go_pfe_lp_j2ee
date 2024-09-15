@@ -1,4 +1,8 @@
+import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:googleapis/servicecontrol/v2.dart';
 
 class User {
   String uid;
@@ -40,5 +44,55 @@ class User {
       email: snapshot['email'],
       isBlocked: snapshot['isBlocked'],
     );
+  }
+
+  updatePassword(String newPassword) async {
+    // Update password
+    try {
+      await FirebaseAuth.instance.currentUser!.updatePassword(newPassword);
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+  }
+
+  updateEmail(String newEmail) async {
+    // Update email
+    try {
+      await FirebaseAuth.instance.currentUser!
+          .verifyBeforeUpdateEmail(newEmail);
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+  }
+
+  updateProfile({
+    String? displayName,
+    String? phoneNumber,
+  }) async {
+    // Update profile
+    try {
+      if (displayName != null && phoneNumber != null) {
+        FirebaseFirestore.instance.collection('users').doc(uid).update({
+          'displayName': displayName,
+          'phoneNumber': phoneNumber,
+        });
+      } else if (displayName != null) {
+        FirebaseFirestore.instance.collection('users').doc(uid).update({
+          'displayName': displayName,
+        });
+      } else if (phoneNumber != null) {
+        FirebaseFirestore.instance.collection('users').doc(uid).update({
+          'phoneNumber': phoneNumber,
+        });
+      }
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
   }
 }
