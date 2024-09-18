@@ -1,8 +1,6 @@
-import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:googleapis/servicecontrol/v2.dart';
 
 class User {
   String uid;

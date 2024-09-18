@@ -83,19 +83,11 @@ class _SignupScreenState extends State<SignupScreen> {
     } else {
       model.User? user = await AuthMethods().getUserDetails();
 
-      if (user == null) {
-        if (mounted) {
-          commonMethods.displaySnackBar(
-              'An error occurred. Please try again later.', context);
-        }
-        return;
-      }
-
       if (mounted) {
         await showDialog(
             context: context,
             builder: (context) => InfoDialog(
-                  title: 'Welcome ${_usernameController.text}',
+                  title: 'Welcome ${user.displayName}',
                   content:
                       'Account created successfully!. Please verify your email before proceeding',
                 ));

@@ -4,7 +4,6 @@ import 'package:car_go_pfe_lp_j2ee/models/user.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/info_dialog.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/loading_dialog.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
