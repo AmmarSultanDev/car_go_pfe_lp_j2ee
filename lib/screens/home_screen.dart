@@ -118,6 +118,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   LatLngBounds? latLngBounds;
 
+  String _plateNumerDigits = '';
+
+  String _plateNumberLetter = '';
+
+  String _plateNumberCityCode = '';
+
   makeDriverIcon() {
     if (nearbyOnlineDriverIcon == null) {
       ImageConfiguration imageConfiguration =
@@ -607,8 +613,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 nameDriver = tripData['driverInfo']['displayName'];
                 photoDriver = tripData['driverInfo']['photoUrl'];
                 phoneNumberDriver = tripData['driverInfo']['phoneNumber'];
+                splitPlateNumber(tripData['driverInfo']['vehiculePlateNumber']);
+
                 carDetailsDriver =
-                    '${tripData['driverInfo']['vehiculeColor']} ${tripData['driverInfo']['vehiculeModel']} ${tripData['driverInfo']['vehiculePlateNumber']}';
+                    '${tripData['driverInfo']['vehiculeColor']} ${tripData['driverInfo']['vehiculeModel']} $_plateNumerDigits | \u200F$_plateNumberLetter\u200E | $_plateNumberCityCode';
               }
 
               // reset the request timeout
@@ -707,7 +715,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   driverCurrentLocation);
               animateCameraOnTripStarted(latLngBounds!);
 
-              Timer(const Duration(seconds: 3), () {
+              Timer(const Duration(seconds: 2), () {
                 // Your callback code here
               });
             }
@@ -1160,6 +1168,22 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         durationText = driverToDestinationDirectionDetails.durationText!;
       });
+    }
+  }
+
+  void splitPlateNumber(String plateNumber) {
+    var splittedPlateNumber = [];
+    plateNumber = plateNumber.replaceAll(' ', ''); // Remove all spaces
+    splittedPlateNumber = plateNumber.split('-');
+
+    for (String part in splittedPlateNumber) {
+      if (part.length > 2 && part.length <= 5 && part.contains(RegExp(r'\d'))) {
+        _plateNumerDigits = part;
+      } else if (part.contains(RegExp(r'[ء-ي]'))) {
+        _plateNumberLetter = part;
+      } else if (part.length <= 2 && part.contains(RegExp(r'\d'))) {
+        _plateNumberCityCode = part;
+      }
     }
   }
 
