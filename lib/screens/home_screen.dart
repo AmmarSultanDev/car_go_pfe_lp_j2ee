@@ -19,6 +19,7 @@ import 'package:car_go_pfe_lp_j2ee/providers/address_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/location_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/providers/user_provider.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/about_screen.dart';
+import 'package:car_go_pfe_lp_j2ee/screens/history_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/profile_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/screens/search_screen.dart';
 import 'package:car_go_pfe_lp_j2ee/widgets/info_dialog.dart';
@@ -1248,6 +1249,24 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Theme.of(context).primaryColor,
                   ),
                   GestureDetector(
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const HistoryScreen())),
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.history,
+                        color: Theme.of(context).canvasColor,
+                      ),
+                      title: Text(
+                        'History',
+                        style:
+                            Theme.of(context).textTheme.headlineSmall!.copyWith(
+                                  fontSize: 18,
+                                  color: Theme.of(context).canvasColor,
+                                ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
                     onTap: () {
                       if (mounted) {
                         Navigator.of(context).push(MaterialPageRoute(
@@ -1441,7 +1460,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          if (context.mounted) {
+                            showDialog(
+                              context: context,
+                              builder: (context) => const InfoDialog(
+                                title: 'Drive me home',
+                                content:
+                                    'This feature will be implemented in the future. \n You will be informed about the trip informations (the cost, the distance and the duration). \n If you accept, the nearest driver will be notified to drive you home.',
+                              ),
+                            );
+                          }
+                        },
                         style: ElevatedButton.styleFrom(
                           shape: const CircleBorder(),
                           padding: const EdgeInsets.all(16),
@@ -1452,7 +1482,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          if (context.mounted) {
+                            showDialog(
+                              context: context,
+                              builder: (context) => const InfoDialog(
+                                title: 'Drive me to work',
+                                content:
+                                    'This feature will be implemented in the future. \n You will be informed about the trip informations (the cost, the distance and the duration). \n If you accept, the nearest driver will be notified to drive you to work.',
+                              ),
+                            );
+                          }
+                        },
                         style: ElevatedButton.styleFrom(
                           shape: const CircleBorder(),
                           padding: const EdgeInsets.all(16),
