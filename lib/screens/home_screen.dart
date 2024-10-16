@@ -118,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   LatLngBounds? latLngBounds;
 
-  String _plateNumerDigits = '';
+  String _plateNumberDigits = '';
 
   String _plateNumberLetter = '';
 
@@ -616,7 +616,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 splitPlateNumber(tripData['driverInfo']['vehiculePlateNumber']);
 
                 carDetailsDriver =
-                    '${tripData['driverInfo']['vehiculeColor']} ${tripData['driverInfo']['vehiculeModel']} $_plateNumerDigits | \u200F$_plateNumberLetter\u200E | $_plateNumberCityCode';
+                    '${tripData['driverInfo']['vehiculeColor']} ${tripData['driverInfo']['vehiculeModel']} $_plateNumberDigits | \u200F$_plateNumberLetter\u200E | $_plateNumberCityCode';
               }
 
               // reset the request timeout
@@ -1178,7 +1178,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     for (String part in splittedPlateNumber) {
       if (part.length > 2 && part.length <= 5 && part.contains(RegExp(r'\d'))) {
-        _plateNumerDigits = part;
+        _plateNumberDigits = part;
       } else if (part.contains(RegExp(r'[ء-ي]'))) {
         _plateNumberLetter = part;
       } else if (part.length <= 2 && part.contains(RegExp(r'\d'))) {
