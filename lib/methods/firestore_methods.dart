@@ -1,6 +1,7 @@
 import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/models/address.dart';
 import 'package:car_go_pfe_lp_j2ee/models/driver.dart';
+import 'package:car_go_pfe_lp_j2ee/models/trip_details.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:car_go_pfe_lp_j2ee/models/user.dart' as model;
 import 'package:flutter/foundation.dart';
@@ -179,5 +180,54 @@ class FirestoreMethods {
     }
 
     return false;
+  }
+
+  Future<List<TripDetails>> getTripHistory() async {
+    model.User? currentUser = await AuthMethods().getUserDetails();
+
+    List<TripDetails> trips = [];
+
+    try {
+      QuerySnapshot tripsSnap = await _firestore
+          .collection('tripRequests')
+          .where('passengerInfo.uid', isEqualTo: currentUser!.uid)
+          .where('status', isEqualTo: 'ended')
+          .get();
+
+      if (tripsSnap.docs.isNotEmpty) {
+        for (var trip in tripsSnap.docs) {
+          trips.add(
+              TripDetails.fromSnapShot(trip.data() as Map<String, dynamic>));
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+
+    return trips;
+  }
+
+  Future<int> getTripsHistoryCount() async {
+    model.User? currentUser = await AuthMethods().getUserDetails();
+
+    int tripsCount = 0;
+
+    try {
+      QuerySnapshot tripsSnap = await _firestore
+          .collection('tripRequests')
+          .where('passengerInfo.uid', isEqualTo: currentUser!.uid)
+          .where('status', isEqualTo: 'ended')
+          .get();
+
+      tripsCount = tripsSnap.docs.length;
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+
+    return tripsCount;
   }
 }
