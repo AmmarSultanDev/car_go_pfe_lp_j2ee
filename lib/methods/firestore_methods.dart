@@ -190,7 +190,7 @@ class FirestoreMethods {
     try {
       QuerySnapshot tripsSnap = await _firestore
           .collection('tripRequests')
-          .where('passengerInfo.uid', isEqualTo: currentUser!.uid)
+          .where('passengerInfo.uid', isEqualTo: currentUser.uid)
           .where('status', isEqualTo: 'ended')
           .get();
 
@@ -217,7 +217,7 @@ class FirestoreMethods {
     try {
       QuerySnapshot tripsSnap = await _firestore
           .collection('tripRequests')
-          .where('passengerInfo.uid', isEqualTo: currentUser!.uid)
+          .where('passengerInfo.uid', isEqualTo: currentUser.uid)
           .where('status', isEqualTo: 'ended')
           .get();
 
