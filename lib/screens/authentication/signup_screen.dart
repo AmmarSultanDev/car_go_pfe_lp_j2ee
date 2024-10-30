@@ -128,106 +128,102 @@ class _SignupScreenState extends State<SignupScreen> {
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(10),
-            child: ConstrainedBox(
-              constraints:
-                  BoxConstraints(maxHeight: MediaQuery.of(context).size.height),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 50),
-                  Image.asset('assets/images/logo_white_borders.png',
-                      height: 200, width: 200),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Create a User\'s Account',
-                  ),
-                  // text fields
-                  Padding(
-                    padding: const EdgeInsets.all(22),
-                    child: Column(
-                      children: [
-                        TextField(
-                          controller: _usernameController,
-                          keyboardType: TextInputType.text,
-                          decoration: const InputDecoration(
-                            labelText: 'Username',
-                            hintText: 'Enter your username',
-                          ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 50),
+                Image.asset('assets/images/logo_white_borders.png',
+                    height: 200, width: 200),
+                const SizedBox(height: 10),
+                const Text(
+                  'Create a User\'s Account',
+                ),
+                // text fields
+                Padding(
+                  padding: const EdgeInsets.all(22),
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: _usernameController,
+                        keyboardType: TextInputType.text,
+                        decoration: const InputDecoration(
+                          labelText: 'Username',
+                          hintText: 'Enter your username',
                         ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: _userphoneController,
-                          keyboardType: TextInputType.phone,
-                          decoration: const InputDecoration(
-                            labelText: 'Phone number',
-                            hintText: 'Enter your phone number',
-                          ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: _userphoneController,
+                        keyboardType: TextInputType.phone,
+                        decoration: const InputDecoration(
+                          labelText: 'Phone number',
+                          hintText: 'Enter your phone number',
                         ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            labelText: 'Email',
-                            hintText: 'Enter your email',
-                          ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: const InputDecoration(
+                          labelText: 'Email',
+                          hintText: 'Enter your email',
                         ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: _passwordController,
-                          keyboardType: TextInputType.text,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Password',
-                            hintText: 'Enter your password',
-                          ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: _passwordController,
+                        keyboardType: TextInputType.text,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Password',
+                          hintText: 'Enter your password',
                         ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: _confirmPasswordController,
-                          keyboardType: TextInputType.text,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Confirm password',
-                            hintText: 'Confirm your password',
-                          ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: _confirmPasswordController,
+                        keyboardType: TextInputType.text,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Confirm password',
+                          hintText: 'Confirm your password',
                         ),
-                        const SizedBox(height: 22),
-                        ElevatedButton(
-                          onPressed: () {
-                            checkNetwork();
-                            if (signUpFormValidation() == false) {
-                              return;
-                            }
+                      ),
+                      const SizedBox(height: 22),
+                      ElevatedButton(
+                        onPressed: () {
+                          checkNetwork();
+                          if (signUpFormValidation() == false) {
+                            return;
+                          }
 
-                            registerNewUser();
-                          },
-                          child: const Text(
-                            'Sign Up',
+                          registerNewUser();
+                        },
+                        child: const Text(
+                          'Sign Up',
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Already have an account?',
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              'Already have an account?',
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text(
+                              'Sign In',
                             ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text(
-                                'Sign In',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
