@@ -42,7 +42,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       )
                     : ListView.builder(
                         shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
                         itemCount: endedTripDetails.length,
                         itemBuilder: (ctx, index) {
                           if (endedTripDetails.isNotEmpty) {

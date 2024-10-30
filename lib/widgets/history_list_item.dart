@@ -8,9 +8,23 @@ class HistoryListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    //bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
+      margin: const EdgeInsets.only(top: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 1,
+            blurRadius: 2,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      height: 80,
       padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
       child: Stack(
         children: [
@@ -27,7 +41,7 @@ class HistoryListItem extends StatelessWidget {
                       NetworkImage(tripDetails.driverInfo!['photoUrl']),
                 ),
                 // from start to end locations
-                Row(
+                Column(
                   children: [
                     Text(tripDetails.pickUpLocationAddress!),
                     Image.asset(
