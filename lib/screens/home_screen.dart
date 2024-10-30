@@ -10,6 +10,7 @@ import 'package:car_go_pfe_lp_j2ee/methods/auth_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/common_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/firestore_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/manage_drivers_methods.dart';
+import 'package:car_go_pfe_lp_j2ee/methods/map_theme_methods.dart';
 import 'package:car_go_pfe_lp_j2ee/methods/push_notification_service.dart';
 import 'package:car_go_pfe_lp_j2ee/models/address.dart';
 import 'package:car_go_pfe_lp_j2ee/models/direction_details.dart';
@@ -1202,776 +1203,788 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         }
 
-        return Scaffold(
-          key: scaffoldKey,
-          drawer: Container(
-            width: 300,
-            color: Theme.of(context).primaryColor,
-            child: Drawer(
-              backgroundColor: Theme.of(context).primaryColor,
-              child: ListView(
-                children: [
-                  // Drawer Header
-                  Container(
-                    color: Theme.of(context).primaryColor,
-                    height: 160,
-                    child: DrawerHeader(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      child: Row(
-                        children: [
-                          IconButton(
-                              icon: const Icon(
-                                Icons.person,
-                                size: 50,
+        return SafeArea(
+          child: Scaffold(
+            key: scaffoldKey,
+            drawer: Container(
+              width: 300,
+              color: Theme.of(context).primaryColor,
+              child: Drawer(
+                backgroundColor: Theme.of(context).primaryColor,
+                child: ListView(
+                  children: [
+                    // Drawer Header
+                    Container(
+                      color: Theme.of(context).primaryColor,
+                      height: 160,
+                      child: DrawerHeader(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        child: Row(
+                          children: [
+                            IconButton(
+                                icon: const Icon(
+                                  Icons.person,
+                                  size: 50,
+                                ),
+                                onPressed: () {
+                                  if (mounted) {
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const ProfileScreen()));
+                                  }
+                                }),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      user.displayName,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge!
+                                          .copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                  ),
+                                  Flexible(
+                                    child: Text(
+                                      user.email,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineSmall!
+                                          .copyWith(fontSize: 18),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              onPressed: () {
-                                if (mounted) {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) =>
-                                          const ProfileScreen()));
-                                }
-                              }),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    user.displayName,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleLarge!
-                                        .copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    // Drawer Body
+                    Divider(
+                      height: 1,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => const HistoryScreen())),
+                      child: ListTile(
+                        leading: Icon(
+                          Icons.history,
+                          color: Theme.of(context).canvasColor,
+                        ),
+                        title: Text(
+                          'History',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall!
+                              .copyWith(
+                                fontSize: 18,
+                                color: Theme.of(context).canvasColor,
+                              ),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        if (mounted) {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => const AboutScreen()));
+                        }
+                      },
+                      child: ListTile(
+                        leading: Icon(
+                          Icons.info,
+                          color: Theme.of(context).canvasColor,
+                        ),
+                        title: Text(
+                          'About',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall!
+                              .copyWith(
+                                fontSize: 18,
+                                color: Theme.of(context).canvasColor,
+                              ),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        signout();
+                      },
+                      child: ListTile(
+                        leading: Icon(
+                          Icons.logout_outlined,
+                          color: Theme.of(context).canvasColor,
+                        ),
+                        title: Text(
+                          'Sign Out',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall!
+                              .copyWith(
+                                fontSize: 18,
+                                color: Theme.of(context).canvasColor,
+                              ),
+                        ),
+                      ),
+                    ),
+
+                    // Drawer Footer
+                    Divider(
+                      height: 1,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    SvgPicture.asset(
+                      'assets/images/logo-cigma-scroll.svg',
+                      height: 200,
+                      width: 200,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            body: Stack(
+              children: [
+                GoogleMap(
+                  compassEnabled: false,
+                  zoomControlsEnabled: false,
+                  padding: Platform.isAndroid
+                      ? const EdgeInsets.only(top: 30, right: 10)
+                      : EdgeInsets.only(
+                          bottom: bottomMapPadding, right: 28, left: 16),
+                  mapType: MapType.normal,
+                  myLocationEnabled: true,
+                  polylines: polyLineSet,
+                  markers: allMarkersSet,
+                  circles: circleSet,
+                  initialCameraPosition: casablancaInitialPosition,
+                  onMapCreated: (GoogleMapController mapController) async {
+                    controllerGoogleMap = mapController;
+                    MapThemeMethods()
+                        .updateMapTheme(controllerGoogleMap!, context);
+
+                    googleMapCompleterController.complete(controllerGoogleMap);
+
+                    getCurrentLiveLocationOfUser(context);
+                  },
+                ),
+
+                // drawer button
+                Positioned(
+                  top: 40,
+                  left: 19,
+                  child: GestureDetector(
+                    onTap: () {
+                      if (!onDirections) {
+                        scaffoldKey.currentState!.openDrawer();
+                      } else {
+                        clearTheMap();
+                      }
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 5,
+                              spreadRadius: 0.5,
+                              offset: Offset(0.7, 0.7),
+                            )
+                          ]),
+                      child: CircleAvatar(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        radius: 20,
+                        child: Icon(
+                          onDirections ? Icons.close : Icons.menu,
+                          color: Theme.of(context).canvasColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // search container
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: -80,
+                  child: SizedBox(
+                    height: searchContainerHeight,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            setState(() {
+                              searchContainerHeight = 0;
+                            });
+                            var resultFromSearchDialog = await showDialog(
+                              context: context,
+                              barrierDismissible: true,
+                              builder: (BuildContext context) {
+                                return Dialog(
+                                  backgroundColor: Colors.transparent,
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: <Widget>[
+                                      //This is the blurry background
+                                      LayoutBuilder(
+                                        builder: (BuildContext context,
+                                            BoxConstraints constraints) {
+                                          return InkWell(
+                                            splashColor: Colors.transparent,
+                                            highlightColor: Colors.transparent,
+                                            onTap: () {
+                                              if (mounted) {
+                                                Navigator.of(context).pop();
+                                              }
+                                              setState(() {
+                                                searchContainerHeight = 276;
+                                              });
+                                            },
+                                            child: BackdropFilter(
+                                              filter: ImageFilter.blur(
+                                                  sigmaX: 5, sigmaY: 5),
+                                              child: SizedBox(
+                                                width: constraints.maxWidth,
+                                                height: constraints.maxHeight,
+                                                child: Container(
+                                                  color: Colors.transparent,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      // This is your SearchScreen widget
+                                      const SearchScreen(),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                            if (resultFromSearchDialog == 'place_selected') {
+                              displayRideDetailsContainer();
+                            } else {
+                              setState(() {
+                                searchContainerHeight = 276;
+                              });
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            shape: const CircleBorder(),
+                            padding: const EdgeInsets.all(16),
+                          ),
+                          child: const Icon(
+                            Icons.search,
+                            size: 25,
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (context.mounted) {
+                              showDialog(
+                                context: context,
+                                builder: (context) => const InfoDialog(
+                                  title: 'Drive me home',
+                                  content:
+                                      'This feature will be implemented in the future. \n You will be informed about the trip informations (the cost, the distance and the duration). \n If you accept, the nearest driver will be notified to drive you home.',
+                                ),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            shape: const CircleBorder(),
+                            padding: const EdgeInsets.all(16),
+                          ),
+                          child: const Icon(
+                            Icons.home,
+                            size: 25,
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (context.mounted) {
+                              showDialog(
+                                context: context,
+                                builder: (context) => const InfoDialog(
+                                  title: 'Drive me to work',
+                                  content:
+                                      'This feature will be implemented in the future. \n You will be informed about the trip informations (the cost, the distance and the duration). \n If you accept, the nearest driver will be notified to drive you to work.',
+                                ),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            shape: const CircleBorder(),
+                            padding: const EdgeInsets.all(16),
+                          ),
+                          child: const Icon(
+                            Icons.work,
+                            size: 25,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // ride details container
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    height: rideDetailsContainerHeight,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).canvasColor.withOpacity(0.5),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          blurRadius: 15.0,
+                          spreadRadius: 0.5,
+                          color: Theme.of(context).canvasColor.withOpacity(0.5),
+                          offset: const Offset(0.7, 0.7),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 18,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 16,
+                              right: 16,
+                            ),
+                            child: SizedBox(
+                              height: 200,
+                              child: Card(
+                                elevation: 10,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  width:
+                                      MediaQuery.of(context).size.width * .70,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 8,
+                                      bottom: 8,
+                                    ),
+                                    child: SingleChildScrollView(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            (tripDirectionDetails != null)
+                                                ? tripDirectionDetails!
+                                                    .distanceText!
+                                                : '0 Km',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headlineMedium!
+                                                .copyWith(
+                                                  fontSize: 22,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            (tripDirectionDetails != null)
+                                                ? tripDirectionDetails!
+                                                    .durationText!
+                                                : '0 min',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headlineSmall!
+                                                .copyWith(
+                                                  fontSize: 16,
+                                                  color: Colors.grey,
+                                                ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          GestureDetector(
+                                            onTap: () async {
+                                              // ignore: avoid_print
+                                              print('Ride details tapped');
+
+                                              setState(() {
+                                                stateOfApp = 'requesting';
+                                              });
+
+                                              await displayRequestingRideContainer();
+
+                                              // get nearest available online drivers
+                                              availableNearbyOnlineDriversList =
+                                                  ManageDriversMethods
+                                                      .nearbyOnlineDriversList;
+                                              // reset the bool values to false
+                                              requestAlreadyAccepted = false;
+                                              driverAlreadyArrived = false;
+                                              tripStarted = false;
+                                              tripEnded = false;
+                                              tripCanceled = false;
+
+                                              // search driver
+                                              await searchDriver();
+                                            },
+                                            child: Image.asset(
+                                                'assets/images/electric_car.png',
+                                                height: 80,
+                                                width: 180),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            (tripDirectionDetails != null)
+                                                ? '\$${commonMethods.calculateFareAmount(tripDirectionDetails!)}'
+                                                : '\$0',
+                                            style: TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.bold,
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                Flexible(
-                                  child: Text(
-                                    user.email,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineSmall!
-                                        .copyWith(fontSize: 18),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           )
                         ],
                       ),
                     ),
                   ),
-                  // Drawer Body
-                  Divider(
-                    height: 1,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const HistoryScreen())),
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.history,
-                        color: Theme.of(context).canvasColor,
-                      ),
-                      title: Text(
-                        'History',
-                        style:
-                            Theme.of(context).textTheme.headlineSmall!.copyWith(
-                                  fontSize: 18,
-                                  color: Theme.of(context).canvasColor,
-                                ),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      if (mounted) {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const AboutScreen()));
-                      }
-                    },
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.info,
-                        color: Theme.of(context).canvasColor,
-                      ),
-                      title: Text(
-                        'About',
-                        style:
-                            Theme.of(context).textTheme.headlineSmall!.copyWith(
-                                  fontSize: 18,
-                                  color: Theme.of(context).canvasColor,
-                                ),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      signout();
-                    },
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.logout_outlined,
-                        color: Theme.of(context).canvasColor,
-                      ),
-                      title: Text(
-                        'Sign Out',
-                        style:
-                            Theme.of(context).textTheme.headlineSmall!.copyWith(
-                                  fontSize: 18,
-                                  color: Theme.of(context).canvasColor,
-                                ),
-                      ),
-                    ),
-                  ),
+                ),
 
-                  // Drawer Footer
-                  Divider(
-                    height: 1,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  SvgPicture.asset(
-                    'assets/images/logo-cigma-scroll.svg',
-                    height: 200,
-                    width: 200,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          body: Stack(
-            children: [
-              GoogleMap(
-                compassEnabled: false,
-                zoomControlsEnabled: false,
-                padding: Platform.isAndroid
-                    ? const EdgeInsets.only(top: 40, right: 10)
-                    : EdgeInsets.only(
-                        bottom: bottomMapPadding, right: 28, left: 16),
-                mapType: MapType.normal,
-                myLocationEnabled: true,
-                polylines: polyLineSet,
-                markers: allMarkersSet,
-                circles: circleSet,
-                initialCameraPosition: casablancaInitialPosition,
-                onMapCreated: (GoogleMapController mapController) async {
-                  controllerGoogleMap = mapController;
-                  updateMapTheme(controllerGoogleMap!, context);
-
-                  googleMapCompleterController.complete(controllerGoogleMap);
-
-                  getCurrentLiveLocationOfUser(context);
-                },
-              ),
-
-              // drawer button
-              Positioned(
-                top: 50,
-                left: 19,
-                child: GestureDetector(
-                  onTap: () {
-                    if (!onDirections) {
-                      scaffoldKey.currentState!.openDrawer();
-                    } else {
-                      clearTheMap();
-                    }
-                  },
+                // on trip container
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
                   child: Container(
+                    height: onTripContainerHeight,
                     decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 5,
-                            spreadRadius: 0.5,
-                            offset: Offset(0.7, 0.7),
-                          )
-                        ]),
-                    child: CircleAvatar(
-                      backgroundColor: Theme.of(context).primaryColor,
-                      radius: 20,
-                      child: Icon(
-                        onDirections ? Icons.close : Icons.menu,
-                        color: Theme.of(context).canvasColor,
+                      color: Theme.of(context).canvasColor.withOpacity(0.5),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
                       ),
-                    ),
-                  ),
-                ),
-              ),
-              // search container
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: -80,
-                child: SizedBox(
-                  height: searchContainerHeight,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          setState(() {
-                            searchContainerHeight = 0;
-                          });
-                          var resultFromSearchDialog = await showDialog(
-                            context: context,
-                            barrierDismissible: true,
-                            builder: (BuildContext context) {
-                              return Dialog(
-                                backgroundColor: Colors.transparent,
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: <Widget>[
-                                    //This is the blurry background
-                                    LayoutBuilder(
-                                      builder: (BuildContext context,
-                                          BoxConstraints constraints) {
-                                        return InkWell(
-                                          splashColor: Colors.transparent,
-                                          highlightColor: Colors.transparent,
-                                          onTap: () {
-                                            if (mounted) {
-                                              Navigator.of(context).pop();
-                                            }
-                                            setState(() {
-                                              searchContainerHeight = 276;
-                                            });
-                                          },
-                                          child: BackdropFilter(
-                                            filter: ImageFilter.blur(
-                                                sigmaX: 5, sigmaY: 5),
-                                            child: SizedBox(
-                                              width: constraints.maxWidth,
-                                              height: constraints.maxHeight,
-                                              child: Container(
-                                                color: Colors.transparent,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    // This is your SearchScreen widget
-                                    const SearchScreen(),
-                                  ],
-                                ),
-                              );
-                            },
-                          );
-                          if (resultFromSearchDialog == 'place_selected') {
-                            displayRideDetailsContainer();
-                          } else {
-                            setState(() {
-                              searchContainerHeight = 276;
-                            });
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          shape: const CircleBorder(),
-                          padding: const EdgeInsets.all(16),
-                        ),
-                        child: const Icon(
-                          Icons.search,
-                          size: 25,
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (context.mounted) {
-                            showDialog(
-                              context: context,
-                              builder: (context) => const InfoDialog(
-                                title: 'Drive me home',
-                                content:
-                                    'This feature will be implemented in the future. \n You will be informed about the trip informations (the cost, the distance and the duration). \n If you accept, the nearest driver will be notified to drive you home.',
-                              ),
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          shape: const CircleBorder(),
-                          padding: const EdgeInsets.all(16),
-                        ),
-                        child: const Icon(
-                          Icons.home,
-                          size: 25,
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (context.mounted) {
-                            showDialog(
-                              context: context,
-                              builder: (context) => const InfoDialog(
-                                title: 'Drive me to work',
-                                content:
-                                    'This feature will be implemented in the future. \n You will be informed about the trip informations (the cost, the distance and the duration). \n If you accept, the nearest driver will be notified to drive you to work.',
-                              ),
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          shape: const CircleBorder(),
-                          padding: const EdgeInsets.all(16),
-                        ),
-                        child: const Icon(
-                          Icons.work,
-                          size: 25,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              // ride details container
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  height: rideDetailsContainerHeight,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).canvasColor.withOpacity(0.5),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        blurRadius: 15.0,
-                        spreadRadius: 0.5,
-                        color: Theme.of(context).canvasColor.withOpacity(0.5),
-                        offset: const Offset(0.7, 0.7),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 18,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 16,
-                            right: 16,
-                          ),
-                          child: SizedBox(
-                            height: 200,
-                            child: Card(
-                              elevation: 10,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                width: MediaQuery.of(context).size.width * .70,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                    top: 8,
-                                    bottom: 8,
-                                  ),
-                                  child: SingleChildScrollView(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          (tripDirectionDetails != null)
-                                              ? tripDirectionDetails!
-                                                  .distanceText!
-                                              : '0 Km',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineMedium!
-                                              .copyWith(
-                                                fontSize: 22,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          (tripDirectionDetails != null)
-                                              ? tripDirectionDetails!
-                                                  .durationText!
-                                              : '0 min',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineSmall!
-                                              .copyWith(
-                                                fontSize: 16,
-                                                color: Colors.grey,
-                                              ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        GestureDetector(
-                                          onTap: () async {
-                                            // ignore: avoid_print
-                                            print('Ride details tapped');
-
-                                            setState(() {
-                                              stateOfApp = 'requesting';
-                                            });
-
-                                            await displayRequestingRideContainer();
-
-                                            // get nearest available online drivers
-                                            availableNearbyOnlineDriversList =
-                                                ManageDriversMethods
-                                                    .nearbyOnlineDriversList;
-                                            // reset the bool values to false
-                                            requestAlreadyAccepted = false;
-                                            driverAlreadyArrived = false;
-                                            tripStarted = false;
-                                            tripEnded = false;
-                                            tripCanceled = false;
-
-                                            // search driver
-                                            await searchDriver();
-                                          },
-                                          child: Image.asset(
-                                              'assets/images/electric_car.png',
-                                              height: 80,
-                                              width: 180),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          (tripDirectionDetails != null)
-                                              ? '\$${commonMethods.calculateFareAmount(tripDirectionDetails!)}'
-                                              : '\$0',
-                                          style: TextStyle(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.bold,
-                                            color:
-                                                Theme.of(context).primaryColor,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          blurRadius: 15.0,
+                          spreadRadius: 0.5,
+                          offset: const Offset(
+                            0.7,
+                            0.7,
                           ),
                         )
                       ],
                     ),
-                  ),
-                ),
-              ),
-
-              // on trip container
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  height: onTripContainerHeight,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).canvasColor.withOpacity(0.5),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        blurRadius: 15.0,
-                        spreadRadius: 0.5,
-                        offset: const Offset(
-                          0.7,
-                          0.7,
-                        ),
-                      )
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 18,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              '$tripStatusDisplay - ',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineMedium!
-                                  .copyWith(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                            Text(
-                              durationText,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall!
-                                  .copyWith(
-                                    fontSize: 16,
-                                  ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        Divider(
-                          height: 1,
-                          color: Theme.of(context).dividerColor,
-                          thickness: 1,
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        // driver photoUrl and driver displayName
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            ClipOval(
-                              child: photoDriver.isEmpty
-                                  ? Image.asset(
-                                      'assets/images/avatar_man.png',
-                                      height: 60,
-                                      width: 60,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Image.network(
-                                      photoDriver,
-                                      height: 60,
-                                      width: 60,
-                                      fit: BoxFit.cover,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 18,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                '$tripStatusDisplay - ',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium!
+                                    .copyWith(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                            ),
-                            const SizedBox(width: 16),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  nameDriver,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineMedium!
-                                      .copyWith(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
+                              ),
+                              Text(
+                                durationText,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall!
+                                    .copyWith(
+                                      fontSize: 16,
+                                    ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          Divider(
+                            height: 1,
+                            color: Theme.of(context).dividerColor,
+                            thickness: 1,
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // driver photoUrl and driver displayName
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              ClipOval(
+                                child: photoDriver.isEmpty
+                                    ? Image.asset(
+                                        'assets/images/avatar_man.png',
+                                        height: 60,
+                                        width: 60,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.network(
+                                        photoDriver,
+                                        height: 60,
+                                        width: 60,
+                                        fit: BoxFit.cover,
                                       ),
+                              ),
+                              const SizedBox(width: 16),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    nameDriver,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineMedium!
+                                        .copyWith(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                  ),
+                                  Text(
+                                    carDetailsDriver,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall!
+                                        .copyWith(
+                                          fontSize: 16,
+                                          color: Colors.grey,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          Divider(
+                            height: 1,
+                            color: Theme.of(context).dividerColor,
+                            thickness: 1,
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // call driver and cancel trip buttons
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                onPressed: () async {
+                                  try {
+                                    await commonMethods
+                                        .makePhoneCall(phoneNumberDriver!);
+                                  } on Exception {
+                                    await showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: const Text('Error'),
+                                          content: const Text(
+                                              'An error occurred while trying to make a phone call.'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: const Text('OK'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  }
+                                },
+                                icon: Icon(
+                                  Icons.call,
+                                  color: Theme.of(context).primaryColor,
+                                  size: 30,
                                 ),
-                                Text(
-                                  carDetailsDriver,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineSmall!
-                                      .copyWith(
-                                        fontSize: 16,
-                                        color: Colors.grey,
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        Divider(
-                          height: 1,
-                          color: Theme.of(context).dividerColor,
-                          thickness: 1,
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        // call driver and cancel trip buttons
-
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            IconButton(
-                              onPressed: () async {
-                                try {
-                                  await commonMethods
-                                      .makePhoneCall(phoneNumberDriver!);
-                                } on Exception {
-                                  await showDialog(
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  showDialog(
                                     context: context,
                                     builder: (context) {
                                       return AlertDialog(
-                                        title: const Text('Error'),
+                                        title: Text('Cancel Trip',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .labelMedium!
+                                                .copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 18,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface,
+                                                )),
                                         content: const Text(
-                                            'An error occurred while trying to make a phone call.'),
+                                            'Are you sure you want to cancel this trip?'),
                                         actions: [
                                           TextButton(
                                             onPressed: () {
                                               Navigator.pop(context);
                                             },
-                                            child: const Text('OK'),
+                                            child: const Text('No'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () async {
+                                              await FirestoreMethods()
+                                                  .updateTripRequestStatus(
+                                                      requestId, 'canceled');
+                                              clearTheMap();
+                                              Navigator.pop(context);
+                                            },
+                                            child: const Text('Yes'),
                                           ),
                                         ],
                                       );
                                     },
                                   );
-                                }
-                              },
-                              icon: Icon(
-                                Icons.call,
-                                color: Theme.of(context).primaryColor,
-                                size: 30,
+                                },
+                                icon: Icon(
+                                  Icons.close,
+                                  color: Theme.of(context).primaryColor,
+                                  size: 30,
+                                ),
                               ),
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: Text('Cancel Trip',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .labelMedium!
-                                              .copyWith(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurface,
-                                              )),
-                                      content: const Text(
-                                          'Are you sure you want to cancel this trip?'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text('No'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () async {
-                                            await FirestoreMethods()
-                                                .updateTripRequestStatus(
-                                                    requestId, 'canceled');
-                                            clearTheMap();
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text('Yes'),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                              icon: Icon(
-                                Icons.close,
-                                color: Theme.of(context).primaryColor,
-                                size: 30,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              // request ride container
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  height: requestRideContainerHeight,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).canvasColor.withOpacity(0.5),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        blurRadius: 15.0,
-                        spreadRadius: 0.5,
-                        offset: const Offset(
-                          0.7,
-                          0.7,
-                        ),
-                      )
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 18,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const SizedBox(
-                          height: 12,
-                        ),
-                        SizedBox(
-                          width: 200,
-                          child: LoadingAnimationWidget.flickr(
-                            leftDotColor: Theme.of(context).colorScheme.primary,
-                            rightDotColor:
-                                Theme.of(context).colorScheme.secondary,
-                            size: 50,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        GestureDetector(
-                          onTap: () async {
-                            clearTheMap();
-                            await cancelRideRequest();
-                          },
-                          child: Container(
-                            height: 50,
-                            width: 50,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onPrimaryContainer,
-                              borderRadius: BorderRadius.circular(25),
-                              border: Border.all(
-                                width: 1.5,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            child: Icon(
-                              Icons.close,
-                              color: Theme.of(context).primaryColor,
-                              size: 25,
-                            ),
+                // request ride container
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    height: requestRideContainerHeight,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).canvasColor.withOpacity(0.5),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          blurRadius: 15.0,
+                          spreadRadius: 0.5,
+                          offset: const Offset(
+                            0.7,
+                            0.7,
                           ),
                         )
                       ],
                     ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 18,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const SizedBox(
+                            height: 12,
+                          ),
+                          SizedBox(
+                            width: 200,
+                            child: LoadingAnimationWidget.flickr(
+                              leftDotColor:
+                                  Theme.of(context).colorScheme.primary,
+                              rightDotColor:
+                                  Theme.of(context).colorScheme.secondary,
+                              size: 50,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          GestureDetector(
+                            onTap: () async {
+                              clearTheMap();
+                              await cancelRideRequest();
+                            },
+                            child: Container(
+                              height: 50,
+                              width: 50,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryContainer,
+                                borderRadius: BorderRadius.circular(25),
+                                border: Border.all(
+                                  width: 1.5,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.close,
+                                color: Theme.of(context).primaryColor,
+                                size: 25,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         );
       },
