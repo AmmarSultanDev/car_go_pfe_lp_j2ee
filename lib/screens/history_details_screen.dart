@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 class HistoryDetailsScreen extends StatefulWidget {
   const HistoryDetailsScreen({super.key, required this.endedTripDetails});
@@ -174,6 +173,7 @@ class _HistoryDetailsScreenState extends State<HistoryDetailsScreen> {
     });
   }
 
+  @override
   Widget build(BuildContext context) {
     // in this screen the user can see the trip details
     // the trip details will include the trip date, the trip distance, the trip duration, the trip cost, and the trip path on the map
@@ -181,79 +181,192 @@ class _HistoryDetailsScreenState extends State<HistoryDetailsScreen> {
 
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        title: const Text('History Details'),
-      ),
-      body: Stack(
-        children: [
-          GoogleMap(
-            padding: const EdgeInsets.only(top: 100),
-            initialCameraPosition: casablancaInitialPosition,
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
-            mapType: MapType.normal,
-            markers: markerSet,
-            circles: circleSet,
-            polylines: polylineSet,
-            onMapCreated: (GoogleMapController mapController) async {
-              googleMapController = mapController;
-              MapThemeMethods().updateMapTheme(googleMapController!, context);
+    return SafeArea(
+      child: Scaffold(
+        body: Stack(
+          children: [
+            GoogleMap(
+              padding: const EdgeInsets.only(top: 100),
+              initialCameraPosition: casablancaInitialPosition,
+              myLocationButtonEnabled: false,
+              zoomControlsEnabled: false,
+              mapType: MapType.normal,
+              markers: markerSet,
+              circles: circleSet,
+              polylines: polylineSet,
+              onMapCreated: (GoogleMapController mapController) async {
+                googleMapController = mapController;
+                MapThemeMethods().updateMapTheme(googleMapController!, context);
 
-              googleMapCompleterController.complete(googleMapController);
+                googleMapCompleterController.complete(googleMapController);
 
-              await drawRoute(
-                  widget.endedTripDetails.pickUpLocationCoordinates!,
-                  widget.endedTripDetails.dropOffLocationCoordinates!);
-            },
-          ),
-          Positioned(
-            bottom: 30,
-            right: 10,
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black87.withOpacity(0.2)),
-                color: isDarkMode
-                    ? Colors.black.withOpacity(0.5)
-                    : Colors.black.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Trip Date: ${DateFormat('yyyy-MM-dd – kk:mm').format(widget.endedTripDetails.tripDate!)}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    'Trip Distance: $tripDistance',
-                    style: const TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
-                  // Add more Text widgets for other trip details
-                  Text(
-                    'Estimated Duration: $tripDuration',
-                    style: const TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
-
-                  Text(
-                    'Trip Cost: \$$tripCost',
-                    style: const TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
+                await drawRoute(
+                    widget.endedTripDetails.pickUpLocationCoordinates!,
+                    widget.endedTripDetails.dropOffLocationCoordinates!);
+              },
+            ),
+            Positioned(
+              top: 5,
+              left: 5,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
               ),
             ),
-          ),
-        ],
+            //trip date
+            Positioned(
+              top: 5,
+              left: 50,
+              right: 15,
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                      color: Colors.white.withOpacity(0.2), width: 1),
+                  color: isDarkMode
+                      ? Colors.black.withOpacity(0.2)
+                      : Colors.white.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  child: Text(
+                    'Trip Date: ${DateFormat('EEE, d/M/y').format(widget.endedTripDetails.tripDate!)}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 5,
+              left: 5,
+              right: 5,
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                      color: Colors.white.withOpacity(0.2), width: 1),
+                  color: isDarkMode
+                      ? Colors.black.withOpacity(0.2)
+                      : Colors.white.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    Column(children: [
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundImage: NetworkImage(
+                            widget.endedTripDetails.driverInfo!['photoUrl']),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        widget.endedTripDetails.driverInfo!['displayName'],
+                        style: const TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+                    ]),
+                    const SizedBox(width: 10),
+                    Column(
+                      children: [
+                        Image.asset('assets/images/pin_map_start_position.png',
+                            width: 40, height: 40),
+                        const SizedBox(height: 10),
+                        // line between the two pins
+                        Container(
+                          height: 50,
+                          width: 2,
+                          color: isDarkMode
+                              ? Colors.white.withOpacity(0.5)
+                              : Colors.black.withOpacity(0.5),
+                        ),
+                        const SizedBox(height: 10),
+                        Image.asset(
+                          'assets/images/pin_map_destination.png',
+                          width: 40,
+                          height: 40,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // source address
+                          Text(
+                            widget.endedTripDetails.pickUpLocationAddress!,
+                            style: const TextStyle(
+                              fontSize: 16,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 10),
+                          // duration and fare amount
+                          Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: Colors.white.withOpacity(0.2),
+                                  width: 1),
+                              color: isDarkMode
+                                  ? Colors.black.withOpacity(0.5)
+                                  : Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.timer_rounded),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      tripDuration,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.attach_money),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      tripCost,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          // destination address
+                          Text(
+                            widget.endedTripDetails.dropOffLocationAddress!,
+                            style: const TextStyle(
+                              fontSize: 16,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

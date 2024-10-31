@@ -27,7 +27,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     user = Provider.of<UserProvider>(context, listen: false).getUser;
@@ -35,7 +34,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     user = Provider.of<UserProvider>(context, listen: false).getUser;
 
