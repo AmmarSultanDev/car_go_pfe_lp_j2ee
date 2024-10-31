@@ -57,74 +57,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
         elevation: 5,
         color: Theme.of(context).cardColor.withOpacity(0.2),
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: isDarkMode
-                  ? Colors.black.withOpacity(0.5)
-                  : Colors.black.withOpacity(0.2),
-            )),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  height: 580,
-                  child: ListView.builder(
-                    itemCount: 1,
-                    itemBuilder: (context, index) {
-                      return Column(
-                        children: [
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            height: 50,
-                            child: TextField(
-                              controller: _usernameController,
-                              enabled: isEditing,
-                              decoration: const InputDecoration(
-                                labelText: 'Username',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            height: 50,
-                            child: TextField(
-                              controller: _userEmailController,
-                              keyboardType: TextInputType.emailAddress,
-                              enabled: isEditing,
-                              decoration: const InputDecoration(
-                                labelText: 'Email',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            height: 50,
-                            child: TextField(
-                              controller: _userphoneController,
-                              keyboardType: TextInputType.phone,
-                              enabled: isEditing,
-                              decoration: const InputDecoration(
-                                labelText: 'Phone number',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          if (isEditing)
-                            Column(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: isDarkMode
+                ? Colors.black.withOpacity(0.5)
+                : Colors.black.withOpacity(0.2),
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        width: double.infinity,
+                        height: 580,
+                        child: ListView.builder(
+                          itemCount: 1,
+                          itemBuilder: (context, index) {
+                            return Column(
                               children: [
+                                const SizedBox(height: 20),
                                 SizedBox(
                                   height: 50,
                                   child: TextField(
-                                    controller: _userpasswordController,
-                                    obscureText: true,
+                                    controller: _usernameController,
+                                    enabled: isEditing,
                                     decoration: const InputDecoration(
-                                      labelText: 'Password',
+                                      labelText: 'Username',
                                       border: OutlineInputBorder(),
                                     ),
                                   ),
@@ -133,167 +97,230 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 SizedBox(
                                   height: 50,
                                   child: TextField(
-                                    controller: _userconfirmPasswordController,
-                                    obscureText: true,
+                                    controller: _userEmailController,
+                                    keyboardType: TextInputType.emailAddress,
+                                    enabled: isEditing,
                                     decoration: const InputDecoration(
-                                      labelText: 'Confirm Password',
+                                      labelText: 'Email',
                                       border: OutlineInputBorder(),
                                     ),
                                   ),
                                 ),
+                                const SizedBox(height: 20),
+                                SizedBox(
+                                  height: 50,
+                                  child: TextField(
+                                    controller: _userphoneController,
+                                    keyboardType: TextInputType.phone,
+                                    enabled: isEditing,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Phone number',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                if (isEditing)
+                                  Column(
+                                    children: [
+                                      SizedBox(
+                                        height: 50,
+                                        child: TextField(
+                                          controller: _userpasswordController,
+                                          obscureText: true,
+                                          decoration: const InputDecoration(
+                                            labelText: 'Password',
+                                            border: OutlineInputBorder(),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 20),
+                                      SizedBox(
+                                        height: 50,
+                                        child: TextField(
+                                          controller:
+                                              _userconfirmPasswordController,
+                                          obscureText: true,
+                                          decoration: const InputDecoration(
+                                            labelText: 'Confirm Password',
+                                            border: OutlineInputBorder(),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                               ],
-                            ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // edit and save button
-                if (isEditing)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            isEditing = false;
-                          });
-                        },
-                        child: const Text('Cancel',
-                            style: TextStyle(color: Colors.red)),
-                      ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          await const CommonMethods()
-                              .checkConnectivity(context);
-                          if (context.mounted) {
-                            showDialog(
-                                context: context,
-                                builder: (ctx) => const LoadingDialog(
-                                    messageText: 'Updating profile...'));
-                          }
-                          // update user profile
-                          // check if the user is updating the password
-                          if (_userpasswordController!.text.isNotEmpty &&
-                              _userconfirmPasswordController!.text.isNotEmpty) {
-                            if (_userpasswordController!.text !=
-                                _userconfirmPasswordController!.text) {
-                              if (context.mounted) {
-                                Navigator.of(context).pop();
-                                await showDialog(
-                                    context: context,
-                                    builder: (context) => const InfoDialog(
-                                        title: 'Error',
-                                        content:
-                                            'Password and Confirm Password do not match.'));
-                              }
-                              return;
-                            }
-
-                            await user!
-                                .updatePassword(_userpasswordController!.text);
-
-                            if (context.mounted) {
-                              Navigator.of(context).pop();
-                            }
-
-                            if (context.mounted) {
-                              await showDialog(
-                                  context: context,
-                                  builder: (context) => const InfoDialog(
-                                      title: 'Notice',
-                                      content:
-                                          'Password updated successfully. \n You will be logged out now.\n Please login again with your new password.'));
-                            }
-
-                            await Future.delayed(const Duration(seconds: 3));
-
-                            await AuthMethods().signoutUser();
-
-                            if (context.mounted) {
-                              Navigator.of(context).pop();
-                            }
-
-                            return;
-                          }
-
-                          if (_userEmailController!.text != user!.email) {
-                            await user!.updateEmail(_userEmailController!.text);
-
-                            if (context.mounted) {
-                              await showDialog(
-                                  context: context,
-                                  builder: (context) => const InfoDialog(
-                                      title: 'Notice',
-                                      content:
-                                          'Email updated successfully. \n You will be logged out now.\n Please verify your new email address to login again.'));
-                            }
-
-                            await Future.delayed(const Duration(seconds: 3));
-
-                            await AuthMethods().signoutUser();
-
-                            if (context.mounted) {
-                              Navigator.of(context).pop();
-                            }
-                          }
-
-                          if (_usernameController!.text != user!.displayName) {
-                            await user!.updateProfile(
-                                displayName: _usernameController!.text);
-                          }
-
-                          if (_userphoneController!.text != user!.phoneNumber) {
-                            await user!.updateProfile(
-                                phoneNumber: _userphoneController!.text);
-                          }
-
-                          if (context.mounted) {
-                            Navigator.of(context).pop();
-                          }
-
-                          if (context.mounted) {
-                            Provider.of<UserProvider>(context, listen: false)
-                                .setUser = user!;
-                          }
-
-                          if (context.mounted) {
-                            showDialog(
-                                context: context,
-                                builder: (context) => const InfoDialog(
-                                    title: 'Success',
-                                    content: 'Profile updated successfully.'));
-                          }
-
-                          setState(() {
-                            isEditing = false;
-                          });
-                        },
-                        child: const Text('Save'),
+                            );
+                          },
+                        ),
                       ),
                     ],
                   ),
-                if (!isEditing)
-                  ElevatedButton(
-                    onPressed: () {
-                      showDialog(
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  if (isEditing)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              isEditing = false;
+                            });
+                          },
+                          child: const Text('Cancel',
+                              style: TextStyle(color: Colors.red)),
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            await const CommonMethods()
+                                .checkConnectivity(context);
+                            if (context.mounted) {
+                              showDialog(
+                                context: context,
+                                builder: (ctx) => const LoadingDialog(
+                                    messageText: 'Updating profile...'),
+                              );
+                            }
+                            // update user profile
+                            // check if the user is updating the password
+                            if (_userpasswordController!.text.isNotEmpty &&
+                                _userconfirmPasswordController!
+                                    .text.isNotEmpty) {
+                              if (_userpasswordController!.text !=
+                                  _userconfirmPasswordController!.text) {
+                                if (context.mounted) {
+                                  Navigator.of(context).pop();
+                                  await showDialog(
+                                    context: context,
+                                    builder: (context) => const InfoDialog(
+                                      title: 'Error',
+                                      content:
+                                          'Password and Confirm Password do not match.',
+                                    ),
+                                  );
+                                }
+                                return;
+                              }
+
+                              await user!.updatePassword(
+                                  _userpasswordController!.text);
+
+                              if (context.mounted) {
+                                Navigator.of(context).pop();
+                              }
+
+                              if (context.mounted) {
+                                await showDialog(
+                                  context: context,
+                                  builder: (context) => const InfoDialog(
+                                    title: 'Notice',
+                                    content:
+                                        'Password updated successfully. \n You will be logged out now.\n Please login again with your new password.',
+                                  ),
+                                );
+                              }
+
+                              await Future.delayed(const Duration(seconds: 3));
+
+                              await AuthMethods().signoutUser();
+
+                              if (context.mounted) {
+                                Navigator.of(context).pop();
+                              }
+
+                              return;
+                            }
+
+                            if (_userEmailController!.text != user!.email) {
+                              await user!
+                                  .updateEmail(_userEmailController!.text);
+
+                              if (context.mounted) {
+                                await showDialog(
+                                  context: context,
+                                  builder: (context) => const InfoDialog(
+                                    title: 'Notice',
+                                    content:
+                                        'Email updated successfully. \n You will be logged out now.\n Please verify your new email address to login again.',
+                                  ),
+                                );
+                              }
+
+                              await Future.delayed(const Duration(seconds: 3));
+
+                              await AuthMethods().signoutUser();
+
+                              if (context.mounted) {
+                                Navigator.of(context).pop();
+                              }
+                            }
+
+                            if (_usernameController!.text !=
+                                user!.displayName) {
+                              await user!.updateProfile(
+                                  displayName: _usernameController!.text);
+                            }
+
+                            if (_userphoneController!.text !=
+                                user!.phoneNumber) {
+                              await user!.updateProfile(
+                                  phoneNumber: _userphoneController!.text);
+                            }
+
+                            if (context.mounted) {
+                              Navigator.of(context).pop();
+                            }
+
+                            if (context.mounted) {
+                              Provider.of<UserProvider>(context, listen: false)
+                                  .setUser = user!;
+                            }
+
+                            if (context.mounted) {
+                              showDialog(
+                                context: context,
+                                builder: (context) => const InfoDialog(
+                                  title: 'Success',
+                                  content: 'Profile updated successfully.',
+                                ),
+                              );
+                            }
+
+                            setState(() {
+                              isEditing = false;
+                            });
+                          },
+                          child: const Text('Save'),
+                        ),
+                      ],
+                    ),
+                  if (!isEditing)
+                    ElevatedButton(
+                      onPressed: () {
+                        showDialog(
                           context: context,
                           builder: (context) => const InfoDialog(
-                              title: 'Notice',
-                              content:
-                                  'To change your email or password, you must update them individually.\n Other profile details can be modified together in a single update.'));
-                      setState(() {
-                        isEditing = true;
-                      });
-                    },
-                    child: const Text('Edit'),
-                  ),
-              ],
+                            title: 'Notice',
+                            content:
+                                'To change your email or password, you must update them individually.\n Other profile details can be modified together in a single update.',
+                          ),
+                        );
+                        setState(() {
+                          isEditing = true;
+                        });
+                      },
+                      child: const Text('Edit'),
+                    ),
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

@@ -50,17 +50,6 @@ class _HistoryDetailsScreenState extends State<HistoryDetailsScreen> {
       tripDuration = tripDetailsInfo?.durationText ?? '';
 
       tripCost = widget.endedTripDetails.fareAmount ?? '0';
-
-      // Calculate the actual trip duration
-      // if (widget.endedTripDetails.startedAt != null &&
-      //     widget.endedTripDetails.endedAt != null) {
-      //   Duration duration = widget.endedTripDetails.endedAt!
-      //       .difference(widget.endedTripDetails.startedAt!);
-      //   actualTripDuration = formatDuration(duration);
-      //   if (kDebugMode) {
-      //     print('Actual trip duration: $actualTripDuration');
-      //   }
-      // }
     });
   }
 
@@ -315,7 +304,7 @@ class _HistoryDetailsScreenState extends State<HistoryDetailsScreen> {
                                   width: 1),
                               color: isDarkMode
                                   ? Colors.black.withOpacity(0.5)
-                                  : Colors.white.withOpacity(0.2),
+                                  : Colors.black.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Column(

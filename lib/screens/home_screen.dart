@@ -1361,7 +1361,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   compassEnabled: false,
                   zoomControlsEnabled: false,
                   padding: Platform.isAndroid
-                      ? const EdgeInsets.only(top: 30, right: 10)
+                      ? const EdgeInsets.only(top: 20, right: 10)
                       : EdgeInsets.only(
                           bottom: bottomMapPadding, right: 28, left: 16),
                   mapType: MapType.normal,
@@ -1383,7 +1383,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 // drawer button
                 Positioned(
-                  top: 40,
+                  top: 30,
                   left: 19,
                   child: GestureDetector(
                     onTap: () {
