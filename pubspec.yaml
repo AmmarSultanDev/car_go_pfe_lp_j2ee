@@ -26,7 +26,7 @@ dependencies:
   googleapis_auth: null
   http: null
   loading_animation_widget: null
-  permission_handler: null
+  permission_handler: ^11.3.1
   provider: null
   url_launcher: null
   uuid: null
